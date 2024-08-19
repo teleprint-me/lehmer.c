@@ -45,3 +45,6 @@ To use the `lehmer.c` LCG in your project, simply include the source file and he
 
 ### Original Source Code:
 - [Steve Park's RNG Library](https://www.cs.wm.edu/~va/software/park/park.html)
+
+## License
+This project is licensed under the AGPL License - see the [LICENSE](LICENSE) file for details.
