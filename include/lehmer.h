@@ -25,10 +25,10 @@
 // These constants were defined with 32-bits in mind, not 64-bits.
 #define MODULUS    2147483647 // Mersenne prime number used as modulus (2^31 - 1)
 #define MULTIPLIER 48271      // Multiplier for the Lehmer RNG
-#define CHECK      399268537  // Check value for correctness
-#define STREAMS    256        // Number of streams
-#define A256       22925      // Jump multiplier for stream separation
-#define DEFAULT    123456789  // Default seed value
+#define CHECK      399268537 // Check value for correctness
+#define STREAMS    256       // Number of streams
+#define A256       22925     // Jump multiplier for stream separation
+#define DEFAULT    123456789 // Default seed value
 
 typedef struct LehmerState {
     uint64_t* seed;        // Current state of each stream
@@ -47,8 +47,5 @@ void lehmer_select_stream(lehmer_state_t* state, size_t stream);
 void lehmer_seed_streams(lehmer_state_t* state, uint64_t value);
 
 double lehmer_generate(lehmer_state_t* state);
-
-bool float_is_close(float a, float b, int32_t significand);
-bool double_is_close(double a, double b, int64_t significand);
 
 #endif // LEHMER_H
