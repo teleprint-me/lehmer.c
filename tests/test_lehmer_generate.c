@@ -6,6 +6,7 @@
  * @brief A simple suite of tests for the Lehmer RNG in pure C
  */
 
+#include "float_is_close.h"
 #include "lehmer.h"
 
 #include <math.h>
