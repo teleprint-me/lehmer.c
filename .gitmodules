@@ -1,0 +1,3 @@
+[submodule "float_is_close"]
+	path = float_is_close
+	url = https://github.com/teleprint-me/float_is_close.c
