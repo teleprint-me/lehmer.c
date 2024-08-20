@@ -13,8 +13,8 @@
 #include <stdio.h>
 #include <time.h>
 
-void test_lehmer_generate(void) {
-    // double expected = 0.054808; // this is wrong
+int test_lehmer_generate(void) {
+    // double expected = 0.055780; // this is wrong
     double expected = 0.053803; // this is right
 
     lehmer_state_t* state = lehmer_create_state(STREAMS);
@@ -34,10 +34,10 @@ void test_lehmer_generate(void) {
     }
 
     lehmer_free_state(state);
+
+    return passed ? 0 : 1; // 0 on success, 1 on failure
 }
 
 int main(void) {
-    test_lehmer_generate();
-
-    return 0;
+    return test_lehmer_generate();
 }
