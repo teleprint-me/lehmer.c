@@ -17,9 +17,10 @@ add_library(
     src/lehmer.c
 )
 
-set_target_properties(lehmer PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(
-    lehmer PROPERTIES 
+    lehmer # [<targets>]...
+    PROPERTIES # PROPERTIES [<prop1> <value1>]...
+    VERSION ${PROJECT_VERSION}
     PUBLIC_HEADER include/lehmer.h
 )
 
@@ -30,12 +31,18 @@ target_link_libraries(lehmer PUBLIC float_is_close)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 
-# Add test executable
-add_executable(test_lehmer tests/test_lehmer_api.c)
-target_link_libraries(test_lehmer lehmer m)
+# Add test executables
+add_executable(test_lehmer_generate tests/test_lehmer_generate.c)
+add_executable(test_lehmer_api tests/test_lehmer_api.c)
+target_link_libraries(test_lehmer_generate lehmer m)
+target_link_libraries(test_lehmer_api lehmer m)
 
-# Set the output directory for the test executable
-set_target_properties(test_lehmer PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
+# Set the output directory for the test executables
+set_target_properties(
+    test_lehmer_generate test_lehmer_api # [<targets>]...
+    PROPERTIES # PROPERTIES [<prop1> <value1>]...
+    RUNTIME_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
+)
 
 # Install rules for the library
 install(
@@ -45,13 +52,29 @@ install(
     PUBLIC_HEADER DESTINATION include
 )
 
-# Add a custom target to run tests
+# Add custom targets to run tests
 add_custom_target(
-    run_test_lehmer
-    COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer
-    DEPENDS test_lehmer
-    COMMENT "Running tests for lehmer"
+    run_test_lehmer_generate
+    COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer_generate
+    DEPENDS test_lehmer_generate
+    COMMENT "Running tests for lehmer_generate"
+)
+
+# NOTE: Custom targets do not seem to be able to be simplified
+# due to the nature of their specificity.
+add_custom_target(
+    run_test_lehmer_api
+    COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer_api
+    DEPENDS test_lehmer_api
+    COMMENT "Running tests for lehmer_api"
 )
 
 enable_testing()
-add_test(NAME test_lehmer COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer)
+add_test(
+    NAME test_lehmer_generate
+    COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer_generate
+)
+add_test(
+    NAME test_lehmer_api
+    COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer_api
+)
