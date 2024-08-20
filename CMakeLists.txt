@@ -8,6 +8,9 @@ set(CMAKE_C_EXTENSIONS ON)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 
+# Add subdirectory for the float_is_close dependency
+add_subdirectory(float_is_close)
+
 # Main library
 add_library(
     lehmer
@@ -21,17 +24,18 @@ set_target_properties(
 )
 
 target_include_directories(lehmer PUBLIC include)
+target_link_libraries(lehmer PUBLIC float_is_close)
 
 # Set the output directory for built binaries
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 
 # Add test executable
-add_executable(test_float_is_close tests/test_is_float_close.c)
-target_link_libraries(test_float_is_close lehmer m)
+add_executable(test_lehmer tests/test_lehmer_api.c)
+target_link_libraries(test_lehmer lehmer m)
 
 # Set the output directory for the test executable
-set_target_properties(test_float_is_close PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
+set_target_properties(test_lehmer PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
 
 # Install rules for the library
 install(
@@ -43,11 +47,11 @@ install(
 
 # Add a custom target to run tests
 add_custom_target(
-    run_tests
-    COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_float_is_close
-    DEPENDS test_float_is_close
-    COMMENT "Running tests for float_is_close"
+    run_test_lehmer
+    COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer
+    DEPENDS test_lehmer
+    COMMENT "Running tests for lehmer"
 )
 
 enable_testing()
-add_test(NAME float_is_close COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_float_is_close)
+add_test(NAME test_lehmer COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer)
