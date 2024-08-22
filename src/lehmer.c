@@ -88,3 +88,25 @@ double lehmer_generate(lehmer_state_t* state) {
 
     return ((double) state->seed[state->stream] / MODULUS);
 }
+
+/**
+ * @brief Returns 1 with probability p or 0 with probability 1 - p.
+ * NOTE: use 0.0 < p < 1.0
+ *
+ * f(x) = P(X = x) = {
+ *     1 - p if x = 0,
+ *     p if x = 1,
+ *     0 otherwise
+ * } = {
+ *     p^x(1 - p)^(1-x) if x = 0, 1
+ *     0 otherwise
+ * }
+ */
+long bernoulli(lehmer_state_t* state, double p) {
+    // p is probability of success
+    // q is probability of failure (1 - p)
+    // The probability of success and failure must sum to 1
+    // each trial must always end with a success or failure
+    //     p + q = 1
+    return ((lehmer_generate(state) < (1.0 - p)) ? 0 : 1);
+}
