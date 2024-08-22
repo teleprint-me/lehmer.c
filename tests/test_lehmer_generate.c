@@ -13,10 +13,20 @@
 #include <stdio.h>
 #include <time.h>
 
-// Function to setup the Lehmer RNG state
-lehmer_state_t* setup_lehmer_state(uint64_t seed) {
+/**
+ * @brief Function to setup the Lehmer RNG state
+ *
+ * NOTE: The state should always be deterministic which makes the LCG
+ * mathematically and computationally sound. This seems counter-intuitive,
+ * but is backed up by the maths. This is why it's called a Pseudo Random
+ * Number Generator and not a Pure (or Real) Random Number Generator.
+ * This is also why it's insecure for use within cryptographic operations.
+ * If the seed is known, then any given sequence is known, making the output
+ * predictable.
+ */
+lehmer_state_t* setup_lehmer_state() {
     lehmer_state_t* state = lehmer_create_state(STREAMS); // STREAMS = 256
-    lehmer_seed_streams(state, seed); // DEFAULT = 123456789
+    lehmer_seed_streams(state, DEFAULT); // DEFAULT = 123456789
     return state;
 }
 
@@ -34,7 +44,7 @@ int test_lehmer_generate(void) {
     double expected_output = 0.053803; // this is right
     // double expected_output = 0.055780; // this is wrong
 
-    lehmer_state_t* state = setup_lehmer_state(DEFAULT);
+    lehmer_state_t* state = setup_lehmer_state();
     bool            passed
         = validate_lehmer_generator(state, expected_output, significand);
 
