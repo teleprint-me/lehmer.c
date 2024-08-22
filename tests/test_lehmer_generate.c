@@ -16,7 +16,7 @@
 /**
  * @brief Function to setup the Lehmer RNG state
  *
- * NOTE: The state should always be deterministic which makes the LCG
+ * @note The state should always be deterministic which makes the LCG
  * mathematically and computationally sound. This seems counter-intuitive,
  * but is backed up by the maths. This is why it's called a Pseudo Random
  * Number Generator and not a Pure (or Real) Random Number Generator.
@@ -24,7 +24,7 @@
  * If the seed is known, then any given sequence is known, making the output
  * predictable.
  */
-lehmer_state_t* setup_lehmer_state() {
+lehmer_state_t* setup_lehmer_state(void) {
     lehmer_state_t* state = lehmer_create_state(STREAMS); // STREAMS = 256
     lehmer_seed_streams(state, DEFAULT); // DEFAULT = 123456789
     return state;
