@@ -40,13 +40,16 @@ bool validate_lehmer_generator(
 
 // Main test function
 int test_lehmer_generate(void) {
+    bool passed = true;
+
+    // 0.053803 is a deterministic value that is always produced
+    // when STREAMS = 256 and DEFAULT = 123456789
+    double expected_output = 0.053803;
     size_t significand     = 6;
-    double expected_output = 0.053803; // this is right
-    // double expected_output = 0.055780; // this is wrong
 
     lehmer_state_t* state = setup_lehmer_state();
-    bool            passed
-        = validate_lehmer_generator(state, expected_output, significand);
+
+    passed = validate_lehmer_generator(state, expected_output, significand);
 
     // Output the result
     if (passed) {
