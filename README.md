@@ -59,6 +59,7 @@ complex RNG needs.
 ## References
 
 ### Mathematical Background:
+
 - [Calculus](https://math.libretexts.org/Bookshelves/Calculus/Calculus_3e_(Apex))
 - [Discrete Mathematics](https://math.libretexts.org/Bookshelves/Combinatorics_and_Discrete_Mathematics/Discrete_Mathematics_(Levin))
 
