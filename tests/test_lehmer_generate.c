@@ -13,17 +13,30 @@
 #include <stdio.h>
 #include <time.h>
 
-int test_lehmer_generate(void) {
-    // double expected = 0.055780; // this is wrong
-    double expected = 0.053803; // this is right
-
-    // Initialize the state using the predefined number of streams
+// Function to setup the Lehmer RNG state
+lehmer_state_t* setup_lehmer_state(uint64_t seed) {
     lehmer_state_t* state = lehmer_create_state(STREAMS); // STREAMS = 256
-    // Set the initial state to seed the streams using the default value
-    lehmer_seed_streams(state, DEFAULT); // DEFAULT = 123456789
+    lehmer_seed_streams(state, seed); // DEFAULT = 123456789
+    return state;
+}
 
-    double random = lehmer_generate(state);
-    bool   passed = float_is_close(random, expected, /* significand */ 6);
+// Function to validate the number generation
+bool validate_lehmer_generator(
+    lehmer_state_t* state, double expected_output, size_t significand
+) {
+    double random_output = lehmer_generate(state);
+    return float_is_close(random_output, expected_output, significand);
+}
+
+// Main test function
+int test_lehmer_generate(void) {
+    size_t significand     = 6;
+    double expected_output = 0.053803; // this is right
+    // double expected_output = 0.055780; // this is wrong
+
+    lehmer_state_t* state = setup_lehmer_state(DEFAULT);
+    bool            passed
+        = validate_lehmer_generator(state, expected_output, significand);
 
     // Output the result
     if (passed) {
@@ -31,8 +44,8 @@ int test_lehmer_generate(void) {
     } else {
         printf("FAIL: test_lehmer_generate_value\n");
         // Output results due to potential hidden discrepancies
-        printf("test_lehmer_generate_value: Expected: %f\n", expected);
-        printf("test_lehmer_generate_value: Actual: %f\n", random);
+        printf("test_lehmer_generate_value: Expected: %f\n", expected_output);
+        // printf("test_lehmer_generate_value: Actual: %f\n", random);
     }
 
     lehmer_free_state(state);
