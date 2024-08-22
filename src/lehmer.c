@@ -39,8 +39,7 @@ void lehmer_free_state(lehmer_state_t* state) {
 
 void lehmer_set_seed(lehmer_state_t* state, uint64_t value) {
     // Ensure seed is within the modulus range
-    value                      = value % MODULUS;
-    state->seed[state->stream] = value;
+    state->seed[state->stream] = value % MODULUS;
 }
 
 uint64_t lehmer_get_seed(lehmer_state_t* state) {
