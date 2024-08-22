@@ -17,8 +17,10 @@ int test_lehmer_generate(void) {
     // double expected = 0.055780; // this is wrong
     double expected = 0.053803; // this is right
 
-    lehmer_state_t* state = lehmer_create_state(STREAMS);
-    lehmer_seed_streams(state, DEFAULT);
+    // Initialize the state using the predefined number of streams
+    lehmer_state_t* state = lehmer_create_state(STREAMS); // STREAMS = 256
+    // Set the initial state to seed the streams using the default value
+    lehmer_seed_streams(state, DEFAULT); // DEFAULT = 123456789
 
     double random = lehmer_generate(state);
     bool   passed = float_is_close(random, expected, /* significand */ 6);
