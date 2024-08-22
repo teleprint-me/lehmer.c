@@ -56,9 +56,6 @@ int test_lehmer_generate(void) {
         printf("PASS: test_lehmer_generate_value\n");
     } else {
         printf("FAIL: test_lehmer_generate_value\n");
-        // Output results due to potential hidden discrepancies
-        printf("test_lehmer_generate_value: Expected: %f\n", expected_output);
-        // printf("test_lehmer_generate_value: Actual: %f\n", random);
     }
 
     lehmer_free_state(state);
