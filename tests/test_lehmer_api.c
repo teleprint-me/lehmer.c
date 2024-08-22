@@ -16,7 +16,7 @@
 #include <time.h>
 
 // this should pass, but fails
-void test_lehmer_api(void) {
+int test_lehmer_api(void) {
     bool passed = true;
 
     uint64_t state_value;
@@ -34,9 +34,9 @@ void test_lehmer_api(void) {
     passed      = (state_value == CHECK); // Validate the state
 
     // Test stream 1
-    lehmer_select_stream(state, 1);                // Select stream 1
-    lehmer_seed_streams(state, 1);                 // Set the initial seeds for all streams
-    state_value = lehmer_get_seed(state);          // Retrieve the state of stream 1
+    lehmer_select_stream(state, 1); // Select stream 1
+    lehmer_seed_streams(state, 1);  // Set the initial seeds for all streams
+    state_value = lehmer_get_seed(state); // Retrieve the state of stream 1
     passed      = passed && (state_value == A256); // Validate the state
 
     // Output the result
@@ -47,10 +47,10 @@ void test_lehmer_api(void) {
     }
 
     lehmer_free_state(state);
+
+    return (passed) ? 0 : 1;
 }
 
 int main(void) {
-    test_lehmer_api();
-
-    return 0;
+    return test_lehmer_api();
 }
