@@ -100,12 +100,17 @@ double lehmer_generate(lehmer_state_t* state) {
  *     p^x(1 - p)^(1-x) if x = 0, 1
  *     0 otherwise
  * }
+ *
+ * Introduction to Probability and Mathematical Statistics
+ * - 9.3: The Bernoulli and Binomial Random Variables
+ * https://math.libretexts.org/Courses/Queens_College/Introduction_to_Probability_and_Mathematical_Statistics
  */
-long bernoulli(lehmer_state_t* state, double p) {
+int bernoulli(lehmer_state_t* state, double p) {
     // p is probability of success
     // q is probability of failure (1 - p)
     // The probability of success and failure must sum to 1
     // each trial must always end with a success or failure
     //     p + q = 1
+    // returns 0 on success, 1 on failure
     return ((lehmer_generate(state) < (1.0 - p)) ? 0 : 1);
 }
