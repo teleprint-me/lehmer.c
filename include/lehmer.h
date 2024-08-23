@@ -24,24 +24,57 @@
 #include <stdlib.h>
 
 /**
- * @brief Mersenne prime number used as modulus (2^31 - 1)
+ * @param MODULUS Mersenne prime number used as modulus (2^31 - 1)
  *
- * @note This can be adjusted to support 64-bit (2^63 - 1).
- *       Remaining dependent variables would need to be
- *       adjusted as well.
+ * @note Originally chosen for the IBM System/360 to avoid overflow errors
+ *       in 32-bit integer arithmetic. This choice remains relevant for
+ *       modern embedded systems with similar constraints.
  */
-#define MODULUS    2147483647 // Mersenne prime number used as modulus (2^31 - 1)
-#define MULTIPLIER 48271      // Multiplier for the Lehmer RNG
-#define CHECK      399268537 // Check value for correctness
-#define STREAMS    256       // Number of streams
-#define A256       22925     // Jump multiplier for stream separation
-#define DEFAULT    123456789 // Default seed value
+#define MODULUS    2147483647
 
+/**
+ * @param MULTIPLIER Chosen for safe 32-bit arithmetic (16807)
+ *
+ * @note The multiplier was specifically selected to prevent overflow errors
+ *       on hardware with 32-bit integer limitations. Despite being dated,
+ *       this choice is still effective in modern contexts where 32-bit
+ *       constraints apply.
+ */
+#define MULTIPLIER 48271
+
+/**
+ * @param A256 Jump multiplier for stream separation
+ */
+#define A256       22925
+
+/**
+ * @param STREAMS Number of streams
+ */
+#define STREAMS    256
+
+/**
+ * @param CHECK Used in testing for validation
+ */
+#define CHECK      399268537
+
+/**
+ * @param DEFAULT Default seed value
+ */
+#define DEFAULT    123456789
+
+/**
+ * @brief Structure representing the state of the LCG RNG
+ *
+ * @param seed Pointer to the current state of each stream
+ * @param stream Number representing the current stream index
+ * @param size Number of streams
+ * @param initialized True if RNG is initialized
+ */
 typedef struct LehmerState {
-    uint64_t* seed;        // Current state of each stream
-    size_t    stream;      // Current stream index
-    size_t    size;        // Number of streams
-    bool      initialized; // True if RNG is initialized
+    uint64_t* seed;
+    size_t    stream;
+    size_t    size;
+    bool      initialized;
 } lehmer_state_t;
 
 lehmer_state_t* lehmer_create_state(size_t size);
