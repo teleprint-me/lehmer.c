@@ -25,7 +25,7 @@ maintainability.
 ## About `lehmer.c`
 
 `lehmer.c` implements a Linear Congruential Generator in C, building upon the
-foundational work by Steven Park and Derrick Lehmer. This project aims to
+foundational work by Stephen Park and Derrick Lehmer. This project aims to
 refine and extend the LCG, offering a versatile and robust tool for various
 downstream applications.
 
