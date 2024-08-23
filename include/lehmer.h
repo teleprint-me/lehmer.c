@@ -23,7 +23,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-// These constants were defined with 32-bits in mind, not 64-bits.
+/**
+ * @brief Mersenne prime number used as modulus (2^31 - 1)
+ *
+ * @note This can be adjusted to support 64-bit (2^63 - 1).
+ *       Remaining dependent variables would need to be
+ *       adjusted as well.
+ */
 #define MODULUS    2147483647 // Mersenne prime number used as modulus (2^31 - 1)
 #define MULTIPLIER 48271      // Multiplier for the Lehmer RNG
 #define CHECK      399268537 // Check value for correctness
