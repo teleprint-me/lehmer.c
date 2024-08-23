@@ -14,9 +14,9 @@
 #include <stdlib.h>
 
 // Function to setup the Lehmer RNG state
-lehmer_state_t* setup_lehmer_state(uint64_t seed) {
+lehmer_state_t* setup_lehmer_state(void) {
     lehmer_state_t* state = lehmer_create_state(STREAMS);
-    lehmer_seed_streams(state, seed);
+    lehmer_seed_streams(state, DEFAULT);
     return state;
 }
 
@@ -50,7 +50,7 @@ bool validate_jump_state(lehmer_state_t* state, uint64_t expected_state) {
 int test_lehmer_api(void) {
     bool passed = true;
 
-    lehmer_state_t* state = setup_lehmer_state(DEFAULT);
+    lehmer_state_t* state = setup_lehmer_state();
 
     passed = validate_number_generation(state, CHECK, 10000);
     printf(
