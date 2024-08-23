@@ -10,10 +10,13 @@
  * Source: https://www.cs.wm.edu/~va/software/park/park.html
  *
  * If you get stuck, see the following for more details:
- * Discrete Mathematics
- * - 1.2 Binomial Coefficients for definitions
- * - 5.1 Generating Functions for details
- * https://math.libretexts.org/Bookshelves/Combinatorics_and_Discrete_Mathematics/Discrete_Mathematics_(Levin)
+ *
+ *   Discrete Mathematics
+ *     - 1.2 Binomial Coefficients for definitions
+ *     - 5.1 Generating Functions for details
+ *
+ *   Introduction to Probability and Mathematical Statistics
+ *     - 9.3: The Bernoulli and Binomial Random Variables
  */
 
 #ifndef LEHMER_H
@@ -88,6 +91,7 @@ void lehmer_seed_streams(lehmer_state_t* state, uint64_t value);
 
 double lehmer_generate(lehmer_state_t* state);
 
-int bernoulli(lehmer_state_t* state, double p);
+int  lehmer_bernoulli(lehmer_state_t* state, double p);
+long lehmer_binomial(lehmer_state_t* state, size_t n, double p);
 
 #endif // LEHMER_H

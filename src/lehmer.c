@@ -92,6 +92,9 @@ double lehmer_generate(lehmer_state_t* state) {
  * @brief Returns 1 with probability p or 0 with probability 1 - p.
  * NOTE: use 0.0 < p < 1.0
  *
+ * A random variable X whose probability mass function is given is called a
+ * Bernoulli Random Variable with parameter p and we write X ~ Bern(p).
+ *
  * f(x) = P(X = x) = {
  *     1 - p if x = 0,
  *     p if x = 1,
@@ -100,12 +103,8 @@ double lehmer_generate(lehmer_state_t* state) {
  *     (p^x)((1 - p)^(1-x)) if x = (0, 1)
  *     0 otherwise
  * }
- *
- * Introduction to Probability and Mathematical Statistics
- * - 9.3: The Bernoulli and Binomial Random Variables
- * https://math.libretexts.org/Courses/Queens_College/Introduction_to_Probability_and_Mathematical_Statistics
  */
-int bernoulli(lehmer_state_t* state, double p) {
+int lehmer_bernoulli(lehmer_state_t* state, double p) {
     // p is probability of success
     // q is probability of failure (1 - p)
     // The probability of success and failure must sum to 1
@@ -113,4 +112,27 @@ int bernoulli(lehmer_state_t* state, double p) {
     //     p + q = 1
     // returns 0 on success, 1 on failure
     return ((lehmer_generate(state) < (1.0 - p)) ? 0 : 1);
+}
+
+/**
+ * @brief Returns a binomial distributed integer between 0 and n inclusive.
+ * @note use n > 0 and 0.0 < p < 1.0
+ *
+ * For each integer n ≥ 0 and integer k with 0 ≤ k ≤ n there is a number (n k).
+ * A random variable X whose probability mass function is given is called a
+ * Binomial random variable with parameters n and p.
+ *
+ * f(x) = P(X = x) = {
+ *     (n x) p^x (1 - p)^(n - x) if x = 0, 1, 2, ..., n
+ *     0 otherwise
+ * }
+ */
+long lehmer_binomial(lehmer_state_t* state, size_t n, double p) {
+    long i, x = 0;
+
+    for (size_t i = 0; i < n; i++) {
+        x += lehmer_bernoulli(state, p);
+    }
+
+    return (x);
 }
