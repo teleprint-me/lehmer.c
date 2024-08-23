@@ -97,7 +97,7 @@ double lehmer_generate(lehmer_state_t* state) {
  *     p if x = 1,
  *     0 otherwise
  * } = {
- *     p^x(1 - p)^(1-x) if x = 0, 1
+ *     (p^x)((1 - p)^(1-x)) if x = (0, 1)
  *     0 otherwise
  * }
  *
