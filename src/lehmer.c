@@ -75,17 +75,17 @@ void lehmer_seed_streams(lehmer_state_t* state, uint64_t value) {
 
 // Generate the next random number
 double lehmer_generate(lehmer_state_t* state) {
-    const uint64_t quotient  = MODULUS / MULTIPLIER;
-    const uint64_t remainder = MODULUS % MULTIPLIER;
-
+    const uint64_t quotient     = MODULUS / MULTIPLIER;
+    const uint64_t remainder    = MODULUS % MULTIPLIER;
+    const uint64_t current_seed = state->seed[state->stream];
     // Explicitly typecast signed results
-    uint64_t new_seed
-        = (uint64_t) (MULTIPLIER * (state->seed[state->stream] % quotient)
-                      - remainder * (state->seed[state->stream] / quotient));
+    const uint64_t new_seed
+        = (uint64_t) (MULTIPLIER * (current_seed % quotient)
+                      - remainder * (current_seed / quotient));
 
     state->seed[state->stream] = new_seed;
 
-    return ((double) state->seed[state->stream] / MODULUS);
+    return ((double) new_seed / MODULUS);
 }
 
 /**
