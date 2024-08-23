@@ -32,8 +32,12 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 
 # Add test executables
+add_executable(test_lehmer_period tests/test_lehmer_period.c)
 add_executable(test_lehmer_generate tests/test_lehmer_generate.c)
 add_executable(test_lehmer_api tests/test_lehmer_api.c)
+
+# Link test executables
+target_link_libraries(test_lehmer_period lehmer m)
 target_link_libraries(test_lehmer_generate lehmer m)
 target_link_libraries(test_lehmer_api lehmer m)
 
@@ -53,6 +57,16 @@ install(
 )
 
 # Add custom targets to run tests
+#
+# NOTE: Custom targets do not seem to be able to be simplified
+# due to the nature of their specificity.
+add_custom_target(
+    run_test_lehmer_period
+    COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer_period
+    DEPENDS test_lehmer_period
+    COMMENT "Running tests for lehmer_period"
+)
+
 add_custom_target(
     run_test_lehmer_generate
     COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer_generate
@@ -60,8 +74,6 @@ add_custom_target(
     COMMENT "Running tests for lehmer_generate"
 )
 
-# NOTE: Custom targets do not seem to be able to be simplified
-# due to the nature of their specificity.
 add_custom_target(
     run_test_lehmer_api
     COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer_api
@@ -70,6 +82,10 @@ add_custom_target(
 )
 
 enable_testing()
+add_test(
+    NAME test_lehmer_period
+    COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer_period
+)
 add_test(
     NAME test_lehmer_generate
     COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer_generate
