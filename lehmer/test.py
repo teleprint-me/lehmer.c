@@ -95,11 +95,8 @@ def test_distribution():
     sample_size = 10000
     sequence = [rng.y_random() for _ in range(sample_size)]
 
-    # Mean and variance are measures of central dispersion.
-    # Mean is the average of a given set of numbers.
-    # The average of the squared difference from the mean is the variance.
     mean = sum(sequence) / len(sequence)
-    variance = 0.0  # TODO
+    variance = sum((x - mean) ** 2 for x in sequence) / len(sequence)
 
     # Check if mean is close to 0.5 (expected for a uniform distribution)
     assert abs(mean - 0.5) < 0.01
