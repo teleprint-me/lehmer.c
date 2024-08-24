@@ -19,9 +19,16 @@ class Lehmer:
     MULTIPLIER = 48271
     A256 = 22925
 
-    def lehmer_generator(self, seed: int) -> int:
-        pass
+    def __init__(self, seed: int):
+        self.seed = seed
+
+    def lehmer_generator(self) -> int:
+        self.seed = (self.MULTIPLIER * self.seed) % self.MODULUS
+        return self.seed
 
 
 if __name__ == '__main__':
-    lehmer = Lehmer()
+    # Testing the generator
+    lehmer = Lehmer(seed=123456789)
+    output = [lehmer.lehmer_generator() for _ in range(10)]
+    print(output)
