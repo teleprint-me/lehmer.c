@@ -32,6 +32,25 @@ class Lehmer:
     def seed(self, value: int) -> None:
         self.z = abs(value) % self.m
 
+    @property
+    def y(self) -> int:
+        # $\gamma(z) = a \cdot (z \mod q) - r \cdot (z \div q)$
+        # Calculate new seed using the Lehmer formula
+        q = self.m // self.a
+        r = self.m % self.a
+        gamma = self.a * (self.z % q) - r * (self.z // q)
+
+        # Ensure the seed remains positive
+        if gamma < 0:
+            gamma += self.m
+
+        return gamma
+
+    @property
+    def d(self) -> int:
+        # TODO: $\delta(z) = (z \div q) - (a \cdot z \div m)$
+        pass
+
     def generate(self) -> int:
         self.z = (self.a * self.z) % self.m
         return self.z
@@ -41,17 +60,8 @@ class Lehmer:
         return self.z / self.m
 
     def random(self) -> float:
-        # Calculate new seed using the Lehmer formula
-        q = self.m // self.a
-        r = self.m % self.a
-        new_seed = self.a * (self.z % q) - r * (self.z // q)
-
-        # Ensure the seed remains positive
-        if new_seed < 0:
-            new_seed += self.m
-
         # Normalize to range [0.0, 1.0)
-        return new_seed / self.m
+        return self.y / self.m
 
 
 if __name__ == "__main__":
