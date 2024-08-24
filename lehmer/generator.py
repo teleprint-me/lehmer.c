@@ -18,23 +18,17 @@ NOTE: Algorithm is the same for int and float
 
 
 class Lehmer:
-    # Constants: These are parameters for the Lehmer RNG
-    m = 2**31 - 1  # Modulus (a Mersenne prime)
-    a = 48271  # Multiplier
-
     def __init__(self, z: int):
         """Initialize the Lehmer generator with a seed."""
-        self.z = z
+        self.z = z  # Seed
 
     @property
-    def seed(self) -> int:
-        """Return the current seed value."""
-        return self.z
+    def m(self) -> int:
+        return 2**31 - 1  # Modulus (a Mersenne prime)
 
-    @seed.setter
-    def seed(self, value: int) -> None:
-        """Set the seed value, ensuring it's within the modulus range."""
-        self.z = abs(value) % self.m
+    @property
+    def a(self) -> int:
+        return 48271  # Multiplier (a prime scalar)
 
     def y(self) -> int:
         """
@@ -62,18 +56,29 @@ class Lehmer:
         """
         return self.z / self.m
 
+    def scale(self) -> int:
+        return abs(self.a * self.z)
+
     def generate(self) -> int:
         """
         Generate the next seed in the sequence using the standard Lehmer formula:
         z = (a * z) % m
         """
-        return (self.a * self.z) % self.m
+        return self.scale() % self.m
 
-    def random(self) -> float:
+    def y_random(self) -> float:
         """
         Generate a pseudo-random floating-point number in the range [0.0, 1.0).
         Uses the gamma value (y) for this purpose.
         """
+        # generate the next seed
+        self.z = self.generate()
+        # bind the generated seed
+        self.seed = self.y()
+        # normalize the generated seed
+        return self.normalize()
+
+    def d_random(self) -> float:
         # generate the next seed
         self.z = self.generate()
         # bind the generated seed
