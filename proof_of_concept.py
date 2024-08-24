@@ -51,7 +51,7 @@ class Lehmer:
 
 def get_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        help="Minimal standard implementation for the lehmer lcg"
+        description="Minimal standard implementation for the lehmer lcg"
     )
     parser.add_argument(
         "-p",
