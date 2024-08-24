@@ -79,7 +79,8 @@ class Lehmer:
             int: The delta value.
         """
         q = self.m // self.a
-        return (self.z // q) - (self.a * self.z // self.m)
+        delta = (self.z // q) - (self.a * self.z // self.m)
+        return delta if delta >= 0 else delta + self.m
 
     def normalize(self) -> float:
         """
@@ -110,6 +111,10 @@ class Lehmer:
         """
         return self.scale() % self.m
 
+    def random(self) -> float:
+        self.z = self.generate()
+        return self.normalize()
+
     def y_random(self) -> float:
         """
         Generate a pseudo-random float using the gamma (y) value.
@@ -118,18 +123,18 @@ class Lehmer:
             float: The normalized random value.
         """
         self.z = self.generate()
-        self.seed = self.y()
+        self.z = self.y()
         return self.normalize()
 
     def d_random(self) -> float:
         """
-        Generate a pseudo-random float using the delta (d) value.
+        Generate a pseudo-random float using the delta (δ) value.
 
         Returns:
             float: The normalized random value.
         """
         self.z = self.generate()
-        self.seed = self.y()
+        self.z = self.d()
         return self.normalize()
 
 
