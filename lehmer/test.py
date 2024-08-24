@@ -66,7 +66,7 @@ def test_full_period():
 
 # fixture to abstract repeated code
 def assert_lehmer_range(input: int, iterations: int) -> list[float]:
-    rng = Lehmer(seed=input)
+    rng = Lehmer(input)
     sequence = [rng.y_random() for _ in range(iterations)]
     # Ensure values are in range and check if the sequence behaves as expected.
     assert all(0.0 <= value < 1.0 for value in sequence)
@@ -104,7 +104,7 @@ def test_distribution():
 
 def test_non_prime_multiplier():
     rng = Lehmer(123456789)
-    rng.a = 48270  # Example non-prime multiplier
+    rng._a = 48270  # Example non-prime multiplier
     sequence = [rng.y_random() for _ in range(10000)]
     mean = sum(sequence) / len(sequence)
     assert abs(mean - 0.5) < 0.01

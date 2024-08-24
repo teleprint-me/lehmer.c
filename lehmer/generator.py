@@ -32,7 +32,12 @@ class Lehmer:
         Args:
             z (int): The initial seed value.
         """
+        # public
         self.z = z  # Seed
+
+        # private
+        self._a = 48271  # Multiplier
+        self._m = 2**31 - 1  # Modulus
 
     @property
     def m(self) -> int:
@@ -42,7 +47,7 @@ class Lehmer:
         Returns:
             int: The modulus value.
         """
-        return 2**31 - 1
+        return self._m
 
     @property
     def a(self) -> int:
@@ -52,7 +57,7 @@ class Lehmer:
         Returns:
             int: The multiplier value.
         """
-        return 48271
+        return self._a
 
     def y(self) -> int:
         """
