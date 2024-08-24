@@ -3,9 +3,7 @@
 """
 Copyright © 2024 Austin Berrio
 
-lehmer generator
-
-az mod m
+lehmer generator : az mod m
 
 a is the multiplier
 z is the seed
@@ -39,14 +37,17 @@ def is_prime(n):
 class Lehmer:
     MODULUS = 2**31 - 1  # Must be a Mersenne prime integer
     MULTIPLIER = 48271
-    A256 = 22925
+    JUMP = 22925
 
     def __init__(self, seed: int):
         self.seed = seed
 
-    def lehmer_generator(self) -> int:
+    def generate(self) -> int:
         self.seed = (self.MULTIPLIER * self.seed) % self.MODULUS
         return self.seed
+
+    def stream(self, stop: int) -> list[int]:
+        return [self.generate() for _ in range(stop)]
 
 
 def get_arguments() -> argparse.Namespace:
@@ -62,20 +63,19 @@ def get_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-# Trusted Prime Multiplier Numbers
-TRUSTED_MULTIPLIERS = [
-    16807,
-    48271,
-]
-
-# Trusted Mersenne Prime Numbers
-TRUSTED_MODULI = [
-    2**31 - 1,
-    2**61 - 1,
-]
-
-
 def test_common_parameters() -> None:
+    # Trusted Prime Multiplier Numbers
+    TRUSTED_MULTIPLIERS = [
+        16807,
+        48271,
+    ]
+
+    # Trusted Mersenne Prime Numbers
+    TRUSTED_MODULI = [
+        2**31 - 1,
+        2**61 - 1,
+    ]
+
     print("Testing Lehmer RNG parameters")
     for prime in TRUSTED_MULTIPLIERS:
         print(f"MULTIPLIER {prime} is prime? {is_prime(prime)}")
@@ -91,6 +91,6 @@ if __name__ == "__main__":
     if args.primality:
         test_common_parameters()
 
-    output = [lehmer.lehmer_generator() for _ in range(10)]
+    output = lehmer.stream(10)
     for element in output:
         print(element)
