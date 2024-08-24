@@ -117,4 +117,7 @@ if __name__ == "__main__":
     test_seed_setting()
     test_generate_sequence()
     test_normalize()
+    test_seed_range()
+    test_distribution()
+    test_non_prime_multiplier()
     print("Silence is golden <3")
