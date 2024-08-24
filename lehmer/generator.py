@@ -22,9 +22,9 @@ class Lehmer:
     m = 2**31 - 1  # Modulus (a Mersenne prime)
     a = 48271  # Multiplier
 
-    def __init__(self, seed: int):
+    def __init__(self, z: int):
         """Initialize the Lehmer generator with a seed."""
-        self.z = seed
+        self.z = z
 
     @property
     def seed(self) -> int:
@@ -36,7 +36,6 @@ class Lehmer:
         """Set the seed value, ensuring it's within the modulus range."""
         self.z = abs(value) % self.m
 
-    @property
     def y(self) -> int:
         """
         Calculate gamma (γ) based on the Lehmer formula:
@@ -45,10 +44,8 @@ class Lehmer:
         """
         q = self.m // self.a
         r = self.m % self.a
-        self.seed = self.a * (self.z % q) - r * (self.z // q)
-        return self.z
+        return self.a * (self.z % q) - r * (self.z // q)
 
-    @property
     def d(self) -> int:
         """
         Calculate delta (δ) as a potential additional component:
@@ -56,16 +53,7 @@ class Lehmer:
         This can be used for further analysis or adjustments.
         """
         q = self.m // self.a
-        self.seed = (self.z // q) - (self.a * self.z // self.m)
-        return self.z
-
-    def generate(self) -> int:
-        """
-        Generate the next seed in the sequence using the standard Lehmer formula:
-        z = (a * z) % m
-        """
-        self.z = (self.a * self.z) % self.m
-        return self.z
+        return (self.z // q) - (self.a * self.z // self.m)
 
     def normalize(self) -> float:
         """
@@ -74,12 +62,24 @@ class Lehmer:
         """
         return self.z / self.m
 
+    def generate(self) -> int:
+        """
+        Generate the next seed in the sequence using the standard Lehmer formula:
+        z = (a * z) % m
+        """
+        return (self.a * self.z) % self.m
+
     def random(self) -> float:
         """
         Generate a pseudo-random floating-point number in the range [0.0, 1.0).
         Uses the gamma value (y) for this purpose.
         """
-        return self.y / self.m
+        # generate the next seed
+        self.z = self.generate()
+        # bind the generated seed
+        self.seed = self.y()
+        # normalize the generated seed
+        return self.normalize()
 
 
 if __name__ == "__main__":
