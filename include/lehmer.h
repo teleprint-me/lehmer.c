@@ -91,6 +91,7 @@ void lehmer_seed_streams(lehmer_state_t* state, uint64_t value);
 
 double lehmer_generate(lehmer_state_t* state);
 
+/* TODO: variates are a work in progress */
 int  lehmer_bernoulli(lehmer_state_t* state, double p);
 long lehmer_binomial(lehmer_state_t* state, size_t n, double p);
 
