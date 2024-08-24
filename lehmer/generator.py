@@ -117,6 +117,12 @@ class Lehmer:
         return self.scale() % self.m
 
     def random(self) -> float:
+        """
+        Generate a pseudo-random float using the Lehmer formula.
+
+        Returns:
+            float: The normalized random value.
+        """
         self.z = self.generate()
         return self.normalize()
 
