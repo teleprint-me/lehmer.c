@@ -4,6 +4,9 @@
 Copyright © 2024 Austin Berrio
 
 Module: lehmer/test.py
+
+NOTE: Test for correctness in implementation,
+      not for randomness in output.
 """
 
 from lehmer.generator import Lehmer
@@ -39,6 +42,19 @@ def test_normalize():
     rng = Lehmer(123456789)
     rng.z = 123456789
     assert 0.0 <= rng.normalize() < 1.0
+
+
+def test_full_period():
+    count = 0
+    seed = 1
+    original_seed = seed
+    rng = Lehmer(123456789)
+
+    while seed is not original_seed and count < rng.m - 1:
+        rng.z = rng.generate()  # generate a new seed every cycle
+        count += 1
+
+    assert count == (rng.m - 1)
 
 
 if __name__ == "__main__":
