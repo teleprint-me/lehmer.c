@@ -122,7 +122,6 @@ class Lehmer:
         Returns:
             float: The normalized random value.
         """
-        self.z = self.generate()
         self.z = self.y()
         return self.normalize()
 
@@ -133,7 +132,6 @@ class Lehmer:
         Returns:
             float: The normalized random value.
         """
-        self.z = self.generate()
         self.z = self.d()
         return self.normalize()
 
