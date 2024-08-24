@@ -42,7 +42,6 @@
   "isort.args": ["--profile", "black"],
   // C/C++ specific settings
   "clang-format.executable": "/usr/bin/clang-format",
-  "cmake.sourceDirectory": "${workspaceFolder}",
   // Enable clang-format on save for C/C++ code
   "editor.codeActionsOnSave": {
     "source.organizeImports": "explicit"
