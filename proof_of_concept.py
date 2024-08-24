@@ -12,7 +12,17 @@ z is the seed
 m is the modulus
 
 algorithm is the same for int and float
+
+NOTE: Large prime values are computationally expensive.
+
+Pre-calculated Mersenne prime tables do exist.
+https://www.mersenne.org/primes/
+
+Miller-Rabin primality test may be helpful.
+https://www.geeksforgeeks.org/primality-test-set-3-miller-rabin/
 """
+
+import argparse
 
 
 def is_prime(n):
@@ -27,7 +37,7 @@ def is_prime(n):
 
 
 class Lehmer:
-    MODULUS = 2**63 - 1  # Must be a large prime integer
+    MODULUS = 2**31 - 1  # Must be a Mersenne prime integer
     MULTIPLIER = 48271
     A256 = 22925
 
@@ -39,14 +49,47 @@ class Lehmer:
         return self.seed
 
 
-if __name__ == "__main__":
-    print(f"2^31-1 is prime? {is_prime(2**31-1)}")
-    print(f"2^63-1 is prime? {is_prime(2**63-1)}")  # Corrected typo here
+def get_arguments() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        help="Minimal standard implementation for the lehmer lcg"
+    )
+    parser.add_argument(
+        "-p",
+        "--primality",
+        action="store_true",
+        help="Enable primality testing. Slow for large prime numbers.",
+    )
+    return parser.parse_args()
 
-    # Testing the generator
+
+# Trusted Prime Multiplier Numbers
+TRUSTED_MULTIPLIERS = [
+    16807,
+    48271,
+]
+
+# Trusted Mersenne Prime Numbers
+TRUSTED_MODULI = [
+    2**31 - 1,
+    2**61 - 1,
+]
+
+
+def test_common_parameters() -> None:
+    print("Testing Lehmer RNG parameters")
+    for prime in TRUSTED_MULTIPLIERS:
+        print(f"MULTIPLIER {prime} is prime? {is_prime(prime)}")
+    for prime in TRUSTED_MODULI:
+        print(f"MODULUS {prime} is prime? {is_prime(prime)}")
+
+
+if __name__ == "__main__":
+    args = get_arguments()
+
     lehmer = Lehmer(seed=123456789)
-    print(f"MODULUS is prime? {is_prime(lehmer.MODULUS)}")
-    print(f"MULTIPLIER is prime? {is_prime(lehmer.MULTIPLIER)}")
+
+    if args.primality:
+        test_common_parameters()
 
     output = [lehmer.lehmer_generator() for _ in range(10)]
     for element in output:
