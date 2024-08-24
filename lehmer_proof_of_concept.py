@@ -91,6 +91,11 @@ if __name__ == "__main__":
     if args.primality:
         test_common_parameters()
 
+    print("Generated stream:")
     output = lehmer.stream(10)
     for element in output:
         print(element)
+    print()
+
+    last = lehmer.stream(10_000)[-1]
+    print(f"Last generated value after 10,000 iterations: {last}")
