@@ -11,6 +11,10 @@ NOTE: Test for correctness in implementation,
 
 from lehmer.generator import Lehmer
 
+#
+# simple tests
+#
+
 
 def test_seed_setting():
     rng = Lehmer(123456789)
@@ -55,6 +59,34 @@ def test_full_period():
         count += 1
 
     assert count == (rng.m - 1)
+
+
+#
+# boundary tests
+#
+
+
+def test_seed_zero():
+    rng = Lehmer(0)
+    sequence = [rng.y_random() for _ in range(10)]
+    # For a seed of zero, the sequence should either remain zero
+    # or behave in a defined way.
+    assert all(0.0 <= value < 1.0 for value in sequence)
+
+
+def test_max_seed():
+    max_seed = 2**31 - 1
+    rng = Lehmer(max_seed)
+    sequence = [rng.y_random() for _ in range(10)]
+    # Ensure values are in range and check if the sequence behaves as expected.
+    assert all(0.0 <= value < 1.0 for value in sequence)
+    # Optionally, check for specific expected values if they are known.
+
+
+def test_small_seed():
+    rng = Lehmer(1)
+    sequence = [rng.y_random() for _ in range(10)]
+    assert all(0.0 <= value < 1.0 for value in sequence)
 
 
 if __name__ == "__main__":
