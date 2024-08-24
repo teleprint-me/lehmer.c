@@ -9,6 +9,7 @@ NOTE: Test for correctness in implementation,
       not for randomness in output.
 """
 
+
 from lehmer.generator import Lehmer
 
 #
@@ -66,27 +67,53 @@ def test_full_period():
 #
 
 
-def test_seed_zero():
-    rng = Lehmer(0)
-    sequence = [rng.y_random() for _ in range(10)]
-    # For a seed of zero, the sequence should either remain zero
-    # or behave in a defined way.
-    assert all(0.0 <= value < 1.0 for value in sequence)
-
-
-def test_max_seed():
-    max_seed = 2**31 - 1
-    rng = Lehmer(max_seed)
-    sequence = [rng.y_random() for _ in range(10)]
+# fixture to abstract repeated code
+def assert_lehmer_range(input: int, iterations: int) -> list[float]:
+    rng = Lehmer(seed=input)
+    sequence = [rng.y_random() for _ in range(iterations)]
     # Ensure values are in range and check if the sequence behaves as expected.
     assert all(0.0 <= value < 1.0 for value in sequence)
+
+
+def test_seed_range():
+    # For a seed of zero, the sequence should either remain zero or
+    # behave in a defined way.
+    assert_lehmer_range(0, 10_000)
+    assert_lehmer_range(2**31 - 1, 10_000)
+    assert_lehmer_range(1, 10_000)
+    assert_lehmer_range(2**31 - 1 // 2, 10_000)
     # Optionally, check for specific expected values if they are known.
 
 
-def test_small_seed():
-    rng = Lehmer(1)
-    sequence = [rng.y_random() for _ in range(10)]
-    assert all(0.0 <= value < 1.0 for value in sequence)
+#
+# distribution tests
+#
+
+
+def test_distribution():
+    rng = Lehmer(123456789)
+    sample_size = 10000
+    sequence = [rng.y_random() for _ in range(sample_size)]
+
+    # Mean and variance are measures of central dispersion.
+    # Mean is the average of a given set of numbers.
+    # The average of the squared difference from the mean is the variance.
+    mean = sum(sequence) / len(sequence)
+    variance = 0.0  # TODO
+
+    # Check if mean is close to 0.5 (expected for a uniform distribution)
+    assert abs(mean - 0.5) < 0.01
+
+    # Check if variance is close to 1/12 (variance of uniform distribution in [0,1))
+    assert abs(variance - 1 / 12) < 0.01
+
+
+def test_non_prime_multiplier():
+    rng = Lehmer(123456789)
+    rng.a = 48270  # Example non-prime multiplier
+    sequence = [rng.y_random() for _ in range(10000)]
+    mean = sum(sequence) / len(sequence)
+    assert abs(mean - 0.5) < 0.01
 
 
 if __name__ == "__main__":
