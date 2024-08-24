@@ -133,15 +133,11 @@ class Lehmer:
         return self.normalize()
 
 
+# Example usage:
 if __name__ == "__main__":
-    # Example usage:
-    lehmer = Lehmer(seed=123456789)
+    # Initialize the Lehmer RNG with a seed
+    rng = Lehmer(123456789)
 
-    print("Generated stream:")
-    output = [lehmer.random() for _ in range(10)]
-    for element in output:
-        print(element)
-    print()
-
-    last = [lehmer.generate() for _ in range(10_000)][-1]
-    print(f"Last generated value after 10,000 iterations: {last}")
+    # Generate and print a series of pseudo-random numbers
+    for _ in range(10):
+        print(rng.y_random())
