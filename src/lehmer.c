@@ -3,7 +3,7 @@
  *
  * @file src/lehmer.c
  *
- * @brief A simple implementation of the Lehmer RNG in pure C
+ * @brief A comprehensive implementation of the Lehmer RNG in pure C
  */
 
 #include "lehmer.h"

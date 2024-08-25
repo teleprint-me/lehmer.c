@@ -3,7 +3,7 @@
  *
  * @file include/lehmer.h
  *
- * @brief A simple implementation of the Lehmer RNG in pure C
+ * @brief A comprehensive implementation of the Lehmer RNG in pure C
  *
  * Title: Random number generators: good ones are hard to find
  * Paper: https://dl.acm.org/doi/10.1145/63039.63042
