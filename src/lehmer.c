@@ -12,23 +12,39 @@
 #include <time.h>
 
 // Create and initialize the state with dynamic stream handling
-lehmer_state_t* lehmer_create_state(size_t size) {
+lehmer_state_t* lehmer_state_create(size_t size, int64_t value) {
     lehmer_state_t* state = (lehmer_state_t*) malloc(sizeof(lehmer_state_t));
-    state->seed           = (uint64_t*) malloc(sizeof(uint64_t) * size);
-    state->stream         = 0;
-    state->size           = size;
-    state->initialized    = false;
+    if (NULL == state) {
+        return NULL;
+    }
 
-    // Initialize all available streams and ensure seed is within MODULUS range
-    for (size_t i = 0; i < size; i++) {
-        state->seed[i] = (((uint64_t) time(NULL)) + i * A256) % MODULUS;
+    state->seed = (int64_t*) malloc(sizeof(int64_t) * size);
+    if (NULL == state->seed) {
+        free(state);
+        return NULL;
+    }
+
+    state->stream = 0;                      // select the first stream
+    state->size   = (0 == size) ? 1 : size; // coerce a size of 1
+
+    // get the quotient and remainder
+    const int64_t q = LEHMER_MODULUS / LEHMER_JUMP;
+    const int64_t r = LEHMER_MODULUS % LEHMER_JUMP;
+
+    // set the first seed
+    state->seed[state->stream] = (int64_t) (value % LEHMER_MODULUS);
+
+    // Initialize remaining streams based on the first one
+    for (size_t i = 1; i < state->size; i++) {
+        int64_t z      = state->seed[i - 1]; // previous seed
+        state->seed[i] = (int64_t) ((LEHMER_JUMP * (z % q)) - (r * (z / q)));
     }
 
     return state;
 }
 
 // Free the allocated memory
-void lehmer_free_state(lehmer_state_t* state) {
+void lehmer_state_free(lehmer_state_t* state) {
     if (state) {
         if (state->seed) {
             free(state->seed);
@@ -37,51 +53,54 @@ void lehmer_free_state(lehmer_state_t* state) {
     }
 }
 
-void lehmer_set_seed(lehmer_state_t* state, uint64_t value) {
-    // Ensure seed is within the modulus range
-    state->seed[state->stream] = value % MODULUS;
-}
-
-uint64_t lehmer_get_seed(lehmer_state_t* state) {
-    return state->seed[state->stream];
-}
-
 // Stream selection should not trigger seeding; assume streams are initialized.
-void lehmer_select_stream(lehmer_state_t* state, size_t stream) {
+void lehmer_state_select(lehmer_state_t* state, size_t stream) {
     state->stream = stream % state->size;
 }
 
+int64_t lehmer_seed_get(lehmer_state_t* state) {
+    return state->seed[state->stream];
+}
+
+void lehmer_seed_set(lehmer_state_t* state, int64_t value) {
+    // Ensure seed is within the modulus range
+    state->seed[state->stream] = (int64_t) (value % LEHMER_MODULUS);
+}
+
+// @note: generates a number in the range 0.0 to 1.0
+double lehmer_seed_normalize(lehmer_state_t* state) {
+    return (double) state->seed[state->stream] / (double) LEHMER_MODULUS;
+}
+
 // Initialize the RNG state with seeds; decoupled from stream selection.
-void lehmer_seed_streams(lehmer_state_t* state, uint64_t value) {
-    const uint64_t quotient      = MODULUS / A256;
-    const uint64_t remainder     = MODULUS % A256;
-    const size_t   stream_backup = state->stream;
+void lehmer_seed_streams(lehmer_state_t* state, int64_t value) {
+    const int64_t q = LEHMER_MODULUS / LEHMER_JUMP;
+    const int64_t r = LEHMER_MODULUS % LEHMER_JUMP;
+    const size_t  s = state->stream; // backup
 
-    // Select and set the initial stream
-    lehmer_select_stream(state, 0);
-    lehmer_set_seed(state, value);
+    // Select the first stream
+    lehmer_state_select(state, 0);
+    // Seed the first stream
+    lehmer_seed_set(state, value);
 
-    state->stream = stream_backup;
+    state->stream = s; // restore
 
     // Initialize remaining streams based on the first one
     for (size_t i = 1; i < state->size; i++) {
-        state->seed[i]
-            = (uint64_t) (A256 * (state->seed[i - 1] % quotient)
-                          - remainder * (state->seed[i - 1] / quotient));
+        int64_t z      = state->seed[i - 1]; // previous seed
+        state->seed[i] = (int64_t) ((LEHMER_JUMP * (z % q)) - (r * (z / q)));
     }
-
-    state->initialized = true;
 }
 
 // Generate the next random number
 double lehmer_generate(lehmer_state_t* state) {
-    const uint64_t quotient     = MODULUS / MULTIPLIER;
-    const uint64_t remainder    = MODULUS % MULTIPLIER;
-    const uint64_t current_seed = state->seed[state->stream];
+    const int64_t quotient     = MODULUS / MULTIPLIER;
+    const int64_t remainder    = MODULUS % MULTIPLIER;
+    const int64_t current_seed = state->seed[state->stream];
     // Explicitly typecast signed results
-    const uint64_t new_seed
-        = (uint64_t) (MULTIPLIER * (current_seed % quotient)
-                      - remainder * (current_seed / quotient));
+    const int64_t new_seed
+        = (int64_t) (MULTIPLIER * (current_seed % quotient)
+                     - remainder * (current_seed / quotient));
 
     state->seed[state->stream] = new_seed;
 
@@ -127,7 +146,7 @@ int lehmer_bernoulli(lehmer_state_t* state, double p) {
  *     0 otherwise
  * }
  */
-long lehmer_binomial(lehmer_state_t* state, size_t n, double p) {
+int lehmer_binomial(lehmer_state_t* state, size_t n, double p) {
     long i, x = 0;
 
     for (size_t i = 0; i < n; i++) {
