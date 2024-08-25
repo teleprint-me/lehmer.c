@@ -92,6 +92,32 @@ void lehmer_seed_streams(lehmer_state_t* state, int64_t value) {
     }
 }
 
+// @note: the lehmer_generate_* functions generate the next seed
+
+void lehmer_generate_modulo(lehmer_state_t* state) {
+    int64_t z = state->seed[state->stream];
+    int64_t m = (int64_t) ((LEHMER_MULTIPLIER * z) % LEHMER_MODULUS);
+    int64_t o = (m > 0) ? (int64_t) m : (int64_t) (m + LEHMER_MODULUS);
+    state->seed[state->stream] = o;
+}
+
+void lehmer_generate_gamma(lehmer_state_t* state) {
+    int64_t q = LEHMER_MODULUS / LEHMER_MULTIPLIER;
+    int64_t r = LEHMER_MODULUS % LEHMER_MULTIPLIER;
+    int64_t z = state->seed[state->stream];
+    int64_t y = (int64_t) ((LEHMER_MULTIPLIER * (z % q)) - (r * (z / q)));
+    int64_t o = (y > 0) ? (int64_t) y : (int64_t) (y + LEHMER_MODULUS);
+    state->seed[state->stream] = o;
+}
+
+void lehmer_generate_delta(lehmer_state_t* state) {
+    int64_t q = LEHMER_MODULUS / LEHMER_MULTIPLIER;
+    int64_t z = state->seed[state->stream];
+    int64_t d = (int64_t) ((z / q) - (LEHMER_MULTIPLIER * z / LEHMER_MODULUS));
+    int64_t o = (d > 0) ? (int64_t) d : (int64_t) (d + LEHMER_MODULUS);
+    state->seed[state->stream] = o;
+}
+
 // Generate the next random number
 double lehmer_generate(lehmer_state_t* state) {
     const int64_t quotient     = MODULUS / MULTIPLIER;
