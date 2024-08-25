@@ -56,43 +56,56 @@
 #define STREAMS    256
 
 /**
- * @param CHECK Used in testing for validation
- */
-#define CHECK      399268537
-
-/**
  * @param DEFAULT Default seed value
  */
 #define DEFAULT    123456789
+
+/**
+ * @param CHECK Used in testing for validation
+ */
+#define CHECK      399268537
 
 /**
  * @brief Structure representing the state of the LCG RNG
  *
  * @param seed Pointer to the current state of each stream
  * @param stream Number representing the current stream index
- * @param size Number of streams
+ * @param length Number of streams
  * @param initialized True if RNG is initialized
  */
 typedef struct LehmerState {
     uint64_t* seed;
     size_t    stream;
-    size_t    size;
+    size_t    length;
     bool      initialized;
 } lehmer_state_t;
 
-lehmer_state_t* lehmer_create_state(size_t size);
-void            lehmer_free_state(lehmer_state_t* state);
+// @note useful for autocomplete and mnemonic (easy to remember or ref)
+// prefix_group_verb|adj.|pro[noun]
+// prefix: lehmer, group: state, verb: create
+// -> lehmer_state_create
 
-void     lehmer_set_seed(lehmer_state_t* state, uint64_t value);
-uint64_t lehmer_get_seed(lehmer_state_t* state);
+lehmer_state_t* lehmer_state_create(size_t size);
+void            lehmer_state_free(lehmer_state_t* state);
+void            lehmer_state_select(lehmer_state_t* state, size_t stream);
 
-void lehmer_select_stream(lehmer_state_t* state, size_t stream);
-void lehmer_seed_streams(lehmer_state_t* state, uint64_t value);
+uint64_t lehmer_seed_get(lehmer_state_t* state);
+void     lehmer_seed_set(lehmer_state_t* state, uint64_t value);
+double   lehmer_seed_normalize(lehmer_state_t* state);
+void     lehmer_seed_streams(lehmer_state_t* state, uint64_t value);
 
-double lehmer_generate(lehmer_state_t* state);
+// @note lehmer_generate_* functions generate new seeds
+uint64_t lehmer_generate_modulo(lehmer_state_t* state);
+uint64_t lehmer_generate_gamma(lehmer_state_t* state);
+uint64_t lehmer_generate_delta(lehmer_state_t* state);
 
-/* TODO: variates are a work in progress */
-int  lehmer_bernoulli(lehmer_state_t* state, double p);
-long lehmer_binomial(lehmer_state_t* state, size_t n, double p);
+// @note lehmer_random_* functions generate normalized random numbers
+double lehmer_random_modulo(lehmer_state_t* state);
+double lehmer_random_gamma(lehmer_state_t* state);
+double lehmer_random_delta(lehmer_state_t* state);
+
+/* @todo variates are a work in progress */
+int lehmer_bernoulli(lehmer_state_t* state, double p);
+int lehmer_binomial(lehmer_state_t* state, double p, size_t n);
 
 #endif // LEHMER_H
