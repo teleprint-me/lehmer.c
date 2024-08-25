@@ -89,15 +89,15 @@ lehmer_state_t* lehmer_state_create(size_t size);
 void            lehmer_state_free(lehmer_state_t* state);
 void            lehmer_state_select(lehmer_state_t* state, size_t stream);
 
-uint64_t lehmer_seed_get(lehmer_state_t* state);
-void     lehmer_seed_set(lehmer_state_t* state, uint64_t value);
-double   lehmer_seed_normalize(lehmer_state_t* state);
-void     lehmer_seed_streams(lehmer_state_t* state, uint64_t value);
+int64_t lehmer_seed_get(lehmer_state_t* state);
+void    lehmer_seed_set(lehmer_state_t* state, int64_t value);
+double  lehmer_seed_normalize(lehmer_state_t* state);
+void    lehmer_seed_streams(lehmer_state_t* state, int64_t value);
 
 // @note lehmer_generate_* functions generate new seeds
-uint64_t lehmer_generate_modulo(lehmer_state_t* state);
-uint64_t lehmer_generate_gamma(lehmer_state_t* state);
-uint64_t lehmer_generate_delta(lehmer_state_t* state);
+int64_t lehmer_generate_modulo(lehmer_state_t* state);
+int64_t lehmer_generate_gamma(lehmer_state_t* state);
+int64_t lehmer_generate_delta(lehmer_state_t* state);
 
 // @note lehmer_random_* functions generate normalized random numbers
 double lehmer_random_modulo(lehmer_state_t* state);
