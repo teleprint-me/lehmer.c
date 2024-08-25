@@ -5,7 +5,8 @@ Copyright © 2024 Austin Berrio
 
 Script: examples/lehmer.py
 
-Brief: Super simple implementation for seed generation for the Lehmer RNG in pure Python from scratch
+Brief: Super simple implementation for seed generation
+       for the Lehmer RNG in pure Python from scratch.
 """
 
 import argparse
@@ -15,11 +16,18 @@ a = 48271  # multiplier
 j = 22925  # jump
 
 
-def lehmer_seed_modulo(z: int) -> int:
+def lehmer_generate_modulo(z: int) -> int:
+    """scale and then return the remainder"""
     return (a * z) % m
 
 
+def lehmer_random_modulo(z: int) -> float:
+    """normalize the seed as the ration of the modulus"""
+    return float(z) / float(m)
+
+
 def get_arguments() -> argparse.Namespace:
+    """set and parse the command-line arguments"""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-s",
@@ -34,9 +42,10 @@ def get_arguments() -> argparse.Namespace:
         help="Number of iterations before generating output. Default is 10000.",
     )
     parser.add_argument(
-        "--modulo-value",
+        "-v",
+        "--value",
         action="store_true",
-        help="Generate the modulo value instead of the seed. Default is False.",
+        help="Generate the normalized modulo value. Default is False.",
     )
     return parser.parse_args()
 
@@ -44,7 +53,10 @@ def get_arguments() -> argparse.Namespace:
 if __name__ == "__main__":
     args = get_arguments()
 
-    seed = 123456789  # seed
-    for _ in range(10_000):
-        seed = lehmer_seed_modulo(seed)
-    print(seed)
+    seed = args.seed
+    for _ in range(args.iterations):
+        seed = lehmer_generate_modulo(seed)
+    print("Seed:", seed)
+
+    if args.value:
+        print("Value:", lehmer_random_modulo(seed))
