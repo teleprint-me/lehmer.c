@@ -33,7 +33,7 @@
  *       in 32-bit integer arithmetic. This choice remains relevant for
  *       modern embedded systems with similar constraints.
  */
-#define LEHMER_MODULUS    2147483647
+#define LEHMER_MODULUS     2147483647
 
 /**
  * @param LEHMER_MULTIPLIER Scale the seed with a prime number
@@ -43,27 +43,32 @@
  *       this choice is still effective in modern contexts where 32-bit
  *       constraints apply.
  */
-#define LEHMER_MULTIPLIER 48271
+#define LEHMER_MULTIPLIER  48271
 
 /**
  * @param LEHMER_JUMP Multiplier for stream separation (A256)
  */
-#define LEHMER_JUMP       22925
+#define LEHMER_JUMP        22925
 
 /**
  * @param LEHMER_STREAMS Number of streams
  */
-#define LEHMER_STREAMS    256
+#define LEHMER_STREAMS     256
 
 /**
  * @param LEHMER_SEED Default seed value
  */
-#define LEHMER_SEED       123456789
+#define LEHMER_SEED        123456789
 
 /**
- * @param LEHMER_CHECK Used in testing for validation
+ * @param LEHMER_CHECK_SEED Used in testing for validation
  */
-#define LEHMER_CHECK      399268537
+#define LEHMER_CHECK_SEED  399268537
+
+/**
+ * @param LEHMER_CHECK_VALUE Used in testing for validation
+ */
+#define LEHMER_CHECK_VALUE 0.0538031542
 
 /**
  * @brief Structure representing the state of the LCG RNG
