@@ -63,7 +63,7 @@
 /**
  * @param LEHMER_CHECK_SEED Used in testing for validation
  */
-#define LEHMER_CHECK_SEED  399268537
+#define LEHMER_CHECK_SEED  1753928844
 
 /**
  * @param LEHMER_CHECK_VALUE Used in testing for validation
