@@ -14,16 +14,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#ifndef MODULUS
-    #define MODULUS 2147483647
-#endif
-
-#ifndef MULTIPLIER
-    #define MULTIPLIER 16807
-#endif
-
 long lehmer_rng(long seed) {
-    return (seed * MULTIPLIER) % MODULUS;
+    return (seed * LEHMER_MULTIPLIER) % LEHMER_MODULUS;
 }
 
 /**
@@ -40,14 +32,14 @@ int test_full_period(void) {
     do {
         seed = lehmer_rng(seed);
         count++;
-    } while (seed != original_seed && count < MODULUS - 1);
+    } while (seed != original_seed && count < LEHMER_MODULUS - 1);
 
-    passed = count == (MODULUS - 1);
+    passed = count == (LEHMER_MODULUS - 1);
 
     if (passed) {
         printf("PASS: Full period detected.\n");
     } else {
-        printf("FAIL: %d is less than %d - 1.\n", count, MODULUS);
+        printf("FAIL: %d is less than %d - 1.\n", count, LEHMER_MODULUS);
     }
 
     return (passed) ? 0 : 1;
