@@ -3,7 +3,8 @@
  *
  * @file tests/test_lehmer_period.c
  *
- * @brief Proof-of-Concept for testing a full period of the Lehmer RNG
+ * @brief Test for checking if the multiplier and modulus produce a full period
+ *        output for the Lehmer RNG.
  *
  * @note This method can be sped up by applying asynchronous calculations as
  *       this is rather computationally expensive, even in isolation.
