@@ -32,6 +32,11 @@ lehmer_state_t* setup_lehmer_state(void) {
     return lehmer_state_create(LEHMER_STREAMS, LEHMER_SEED);
 }
 
+bool validate_random_seed(lehmer_state_t* state, int64_t expected_seed) {
+    int64_t seed = lehmer_seed_get(state);
+    return seed == expected_seed;
+}
+
 // Function to validate the number generation
 bool validate_random_value(lehmer_state_t* state, double expected_output) {
     double random_output = lehmer_random_gamma(state);
