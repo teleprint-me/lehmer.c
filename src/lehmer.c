@@ -118,19 +118,24 @@ void lehmer_generate_delta(lehmer_state_t* state) {
     state->seed[state->stream] = o;
 }
 
-// Generate the next random number
-double lehmer_generate(lehmer_state_t* state) {
-    const int64_t quotient     = MODULUS / MULTIPLIER;
-    const int64_t remainder    = MODULUS % MULTIPLIER;
-    const int64_t current_seed = state->seed[state->stream];
-    // Explicitly typecast signed results
-    const int64_t new_seed
-        = (int64_t) (MULTIPLIER * (current_seed % quotient)
-                     - remainder * (current_seed / quotient));
+// @note: the lehmer_random_* functions generate the next random value
 
-    state->seed[state->stream] = new_seed;
+// modulo random number generation
+double lehmer_random_modulo(lehmer_state_t* state) {
+    lehmer_generate_modulo(state);
+    return lehmer_seed_normalize(state);
+}
 
-    return ((double) new_seed / MODULUS);
+// gamma random number generation
+double lehmer_random_gamma(lehmer_state_t* state) {
+    lehmer_generate_gamma(state);
+    return lehmer_seed_normalize(state);
+}
+
+// delta random number generation
+double lehmer_random_delta(lehmer_state_t* state) {
+    lehmer_generate_delta(state);
+    return lehmer_seed_normalize(state);
 }
 
 /**
@@ -156,7 +161,7 @@ int lehmer_bernoulli(lehmer_state_t* state, double p) {
     // each trial must always end with a success or failure
     //     p + q = 1
     // returns 0 on success, 1 on failure
-    return ((lehmer_generate(state) < (1.0 - p)) ? 0 : 1);
+    return ((lehmer_random_gamma(state) < (1.0 - p)) ? 0 : 1);
 }
 
 /**
