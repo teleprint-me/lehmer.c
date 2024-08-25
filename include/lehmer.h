@@ -71,13 +71,11 @@
  * @param seed Pointer to the current state of each stream
  * @param stream Number representing the current stream index
  * @param size Number of streams
- * @param initialized True if RNG is initialized
  */
 typedef struct LehmerState {
     int64_t* seed;
     size_t   stream;
     size_t   size;
-    bool     initialized;
 } lehmer_state_t;
 
 // @note useful for autocomplete and mnemonic (easy to remember or ref)
