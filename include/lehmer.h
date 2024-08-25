@@ -83,7 +83,7 @@ typedef struct LehmerState {
 // prefix: lehmer, group: state, verb: create
 // -> lehmer_state_create
 
-lehmer_state_t* lehmer_state_create(size_t size);
+lehmer_state_t* lehmer_state_create(size_t size, int64_t value);
 void            lehmer_state_free(lehmer_state_t* state);
 void            lehmer_state_select(lehmer_state_t* state, size_t stream);
 
@@ -104,6 +104,6 @@ double lehmer_random_delta(lehmer_state_t* state);
 
 /* @todo variates are a work in progress */
 int lehmer_bernoulli(lehmer_state_t* state, double p);
-int lehmer_binomial(lehmer_state_t* state, double p, size_t n);
+int lehmer_binomial(lehmer_state_t* state, size_t n, double p);
 
 #endif // LEHMER_H
