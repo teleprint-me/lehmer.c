@@ -3,7 +3,11 @@
  *
  * @file tests/test_lehmer_generate.c
  *
- * @brief A simple suite of tests for the Lehmer RNG in pure C
+ * @brief Simple tests for checking the seed and value generation produced by
+ *        the Lehmer RNG.
+ *
+ * @note We don't need to test for randomness. Instead, we're simply validating
+ *       the expected outputs.
  */
 
 #include "float_is_close.h"
