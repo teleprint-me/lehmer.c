@@ -93,9 +93,9 @@ double  lehmer_seed_normalize(lehmer_state_t* state);
 void    lehmer_seed_streams(lehmer_state_t* state, int64_t value);
 
 // @note lehmer_generate_* functions generate new seeds
-int64_t lehmer_generate_modulo(lehmer_state_t* state);
-int64_t lehmer_generate_gamma(lehmer_state_t* state);
-int64_t lehmer_generate_delta(lehmer_state_t* state);
+void lehmer_generate_modulo(lehmer_state_t* state);
+void lehmer_generate_gamma(lehmer_state_t* state);
+void lehmer_generate_delta(lehmer_state_t* state);
 
 // @note lehmer_random_* functions generate normalized random numbers
 double lehmer_random_modulo(lehmer_state_t* state);
