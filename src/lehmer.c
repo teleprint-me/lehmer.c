@@ -37,7 +37,7 @@ lehmer_state_t* lehmer_state_create(size_t size, int64_t value) {
     // Initialize remaining streams based on the first one
     for (size_t i = 1; i < state->size; i++) {
         int64_t z      = state->seed[i - 1]; // previous seed
-        state->seed[i] = (int64_t) ((LEHMER_JUMP * (z % q)) - (r * (z / q)));
+        state->seed[i] = (int64_t) (((LEHMER_JUMP * z) % q) - ((r * z) / q));
     }
 
     return state;
@@ -88,7 +88,7 @@ void lehmer_seed_streams(lehmer_state_t* state, int64_t value) {
     // Initialize remaining streams based on the first one
     for (size_t i = 1; i < state->size; i++) {
         int64_t z      = state->seed[i - 1]; // previous seed
-        state->seed[i] = (int64_t) ((LEHMER_JUMP * (z % q)) - (r * (z / q)));
+        state->seed[i] = (int64_t) (((LEHMER_JUMP * z) % q) - ((r * z) / q));
     }
 }
 
@@ -105,7 +105,7 @@ void lehmer_generate_gamma(lehmer_state_t* state) {
     int64_t q = LEHMER_MODULUS / LEHMER_MULTIPLIER;
     int64_t r = LEHMER_MODULUS % LEHMER_MULTIPLIER;
     int64_t z = state->seed[state->stream];
-    int64_t y = (int64_t) ((LEHMER_MULTIPLIER * (z % q)) - (r * (z / q)));
+    int64_t y = (int64_t) (((LEHMER_MULTIPLIER * z) % q) - ((r * z) / q));
     int64_t o = (y > 0) ? (int64_t) y : (int64_t) (y + LEHMER_MODULUS);
     state->seed[state->stream] = o;
 }
@@ -113,7 +113,8 @@ void lehmer_generate_gamma(lehmer_state_t* state) {
 void lehmer_generate_delta(lehmer_state_t* state) {
     int64_t q = LEHMER_MODULUS / LEHMER_MULTIPLIER;
     int64_t z = state->seed[state->stream];
-    int64_t d = (int64_t) ((z / q) - (LEHMER_MULTIPLIER * z / LEHMER_MODULUS));
+    int64_t d
+        = (int64_t) ((z / q) - ((LEHMER_MULTIPLIER * z) / LEHMER_MODULUS));
     int64_t o = (d > 0) ? (int64_t) d : (int64_t) (d + LEHMER_MODULUS);
     state->seed[state->stream] = o;
 }
