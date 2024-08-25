@@ -61,31 +61,25 @@ install(
 # NOTE: Custom targets do not seem to be able to be simplified
 # due to the nature of their specificity.
 add_custom_target(
-    run_test_lehmer_period
-    COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer_period
-    DEPENDS test_lehmer_period
-    COMMENT "Running tests for lehmer_period"
-)
-
-add_custom_target(
     run_test_lehmer_generate
     COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer_generate
     DEPENDS test_lehmer_generate
     COMMENT "Running tests for lehmer_generate"
 )
-
 add_custom_target(
     run_test_lehmer_api
     COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer_api
     DEPENDS test_lehmer_api
     COMMENT "Running tests for lehmer_api"
 )
+add_custom_target(
+    run_test_lehmer_period
+    COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer_period
+    DEPENDS test_lehmer_period
+    COMMENT "Running tests for lehmer_period"
+)
 
 enable_testing()
-add_test(
-    NAME test_lehmer_period
-    COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer_period
-)
 add_test(
     NAME test_lehmer_generate
     COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer_generate
@@ -93,4 +87,8 @@ add_test(
 add_test(
     NAME test_lehmer_api
     COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer_api
+)
+add_test(
+    NAME test_lehmer_period
+    COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer_period
 )
