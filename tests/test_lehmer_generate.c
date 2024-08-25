@@ -45,11 +45,10 @@ bool validate_random_value(lehmer_state_t* state, double expected_output) {
 
 // Main test function
 int test_lehmer_generate(void) {
-    bool            passed          = true;
-    double          expected_output = 0.053803; // magic value
-    lehmer_state_t* state           = setup_lehmer_state();
+    bool            passed = true;
+    lehmer_state_t* state  = setup_lehmer_state();
 
-    passed = validate_random_value(state, expected_output);
+    passed = validate_random_value(state, /*expected_output*/ 0.053803);
     if (passed) {
         printf("PASS: test_lehmer_generate_value\n");
     } else {
