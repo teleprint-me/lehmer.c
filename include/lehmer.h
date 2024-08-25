@@ -63,12 +63,12 @@
 /**
  * @param LEHMER_CHECK_SEED Used in testing for validation
  */
-#define LEHMER_CHECK_SEED  1753928844
+#define LEHMER_CHECK_SEED  1753928844 // After 10,000 iterations
 
 /**
  * @param LEHMER_CHECK_VALUE Used in testing for validation
  */
-#define LEHMER_CHECK_VALUE 0.0538031542
+#define LEHMER_CHECK_VALUE 0.816736763 // After 10,000 iterations
 
 /**
  * @brief Structure representing the state of the LCG RNG
@@ -91,6 +91,7 @@ typedef struct LehmerState {
 lehmer_state_t* lehmer_state_create(size_t size, int64_t value);
 void            lehmer_state_free(lehmer_state_t* state);
 void            lehmer_state_select(lehmer_state_t* state, size_t stream);
+void            lehmer_state_print(lehmer_state_t* state);
 
 int64_t lehmer_seed_get(lehmer_state_t* state);
 void    lehmer_seed_set(lehmer_state_t* state, int64_t value);

@@ -9,6 +9,7 @@
 #include "lehmer.h"
 
 #include <math.h>
+#include <stdio.h>
 #include <time.h>
 
 // Create and initialize the state with dynamic stream handling
@@ -50,6 +51,22 @@ void lehmer_state_free(lehmer_state_t* state) {
             free(state->seed);
         }
         free(state);
+    }
+}
+
+void lehmer_state_print(lehmer_state_t* state) {
+    fprintf(stderr, "lehmer->size: %zu\n", state->size);
+    fprintf(stderr, "lehmer->stream: %zu\n", state->stream);
+    fprintf(stderr, "lehmer->seed:");
+    // print the first 10 seeds or size... whichever is less.
+    size_t boundary = (state->size > 10) ? 10 : state->size;
+    for (size_t i = 0; i < boundary; i++) {
+        fprintf(stderr, " %lu,", state->seed[i]);
+    }
+    if (state->size > boundary) {
+        fprintf(stderr, " ...\n");
+    } else {
+        fprintf(stderr, "\n");
     }
 }
 
@@ -102,17 +119,17 @@ void lehmer_generate_modulo(lehmer_state_t* state) {
 }
 
 void lehmer_generate_gamma(lehmer_state_t* state) {
+    int64_t z = state->seed[state->stream];
     int64_t q = LEHMER_MODULUS / LEHMER_MULTIPLIER;
     int64_t r = LEHMER_MODULUS % LEHMER_MULTIPLIER;
-    int64_t z = state->seed[state->stream];
     int64_t y = (int64_t) (((LEHMER_MULTIPLIER * z) % q) - ((r * z) / q));
     int64_t o = (y > 0) ? (int64_t) y : (int64_t) (y + LEHMER_MODULUS);
     state->seed[state->stream] = o;
 }
 
 void lehmer_generate_delta(lehmer_state_t* state) {
-    int64_t q = LEHMER_MODULUS / LEHMER_MULTIPLIER;
     int64_t z = state->seed[state->stream];
+    int64_t q = LEHMER_MODULUS / LEHMER_MULTIPLIER;
     int64_t d
         = (int64_t) ((z / q) - ((LEHMER_MULTIPLIER * z) / LEHMER_MODULUS));
     int64_t o = (d > 0) ? (int64_t) d : (int64_t) (d + LEHMER_MODULUS);
