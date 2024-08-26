@@ -22,7 +22,7 @@ def lehmer_generate_modulo(z: int) -> int:
 
 
 def lehmer_random_modulo(z: int) -> float:
-    """normalize the seed as the ration of the modulus"""
+    """normalize the seed as a ratio of the modulus"""
     return float(z) / float(m)
 
 
