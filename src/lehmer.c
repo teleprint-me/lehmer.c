@@ -28,17 +28,19 @@ lehmer_state_t* lehmer_state_create(size_t size, int64_t value) {
     state->stream = 0;                      // select the first stream
     state->size   = (0 == size) ? 1 : size; // coerce a size of 1
 
-    // get the quotient and remainder
-    const int64_t q = LEHMER_MODULUS / LEHMER_JUMP;
-    const int64_t r = LEHMER_MODULUS % LEHMER_JUMP;
-
     // set the first seed
     state->seed[state->stream] = (int64_t) (value % LEHMER_MODULUS);
+    if (0 > state->seed[state->stream]) {
+        state->seed[state->stream] += LEHMER_MODULUS;
+    }
 
     // Initialize remaining streams based on the first one
     for (size_t i = 1; i < state->size; i++) {
         int64_t z      = state->seed[i - 1]; // previous seed
-        state->seed[i] = (int64_t) (((LEHMER_JUMP * z) % q) - ((r * z) / q));
+        state->seed[i] = (int64_t) ((LEHMER_MULTIPLIER * z) % LEHMER_MODULUS);
+        if (state->seed[i] < 0) {
+            state->seed[i] += LEHMER_MODULUS;
+        }
     }
 
     return state;
