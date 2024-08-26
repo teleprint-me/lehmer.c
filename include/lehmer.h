@@ -36,7 +36,9 @@
 #define LEHMER_MODULUS     2147483647
 
 /**
- * @param LEHMER_MULTIPLIER Scale the seed with a prime number
+ * @param LEHMER_MULTIPLIER Multiplier for scaling seeds
+ *
+ * @note The multiplier must be a prime number.
  *
  * @note The multiplier was specifically selected to prevent overflow errors
  *       on hardware with 32-bit integer limitations. Despite being dated,
@@ -46,9 +48,11 @@
 #define LEHMER_MULTIPLIER  48271
 
 /**
- * @param LEHMER_JUMP Multiplier for stream separation (A256)
+ * @param LEHMER_JUMP Multiplier for "jump" scaling seeds
+ *
+ * @note The multiplier must be a prime number.
  */
-#define LEHMER_JUMP        22925
+#define LEHMER_JUMP        22937
 
 /**
  * @param LEHMER_STREAMS Number of streams

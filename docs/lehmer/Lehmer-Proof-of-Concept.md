@@ -111,6 +111,7 @@ into a robust and optimized C implementation.
 
 ## 8. References
 
+- [Prime Numbers](https://numbergenerator.org/numberlist/prime-numbers/10000-100000)
 - [Mersenne Primes](https://www.mersenne.org/primes/)
 - [Miller-Rabin Primality Test](https://www.geeksforgeeks.org/primality-test-set-3-miller-rabin/)
 - [Park, Stephen K. "Random number generators: good ones are hard to find."](https://dl.acm.org/doi/10.1145/63039.63042)
