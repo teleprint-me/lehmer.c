@@ -174,7 +174,7 @@ double lehmer_random_delta(lehmer_state_t* state) {
  *     0 otherwise
  * }
  */
-int lehmer_bernoulli(lehmer_state_t* state, double p) {
+int64_t lehmer_bernoulli(lehmer_state_t* state, double p) {
     // p is probability of success
     // q is probability of failure (1 - p)
     // The probability of success and failure must sum to 1
@@ -197,12 +197,10 @@ int lehmer_bernoulli(lehmer_state_t* state, double p) {
  *     0 otherwise
  * }
  */
-int lehmer_binomial(lehmer_state_t* state, size_t n, double p) {
-    long i, x = 0;
-
-    for (size_t i = 0; i < n; i++) {
-        x += lehmer_bernoulli(state, p);
+int64_t lehmer_binomial(lehmer_state_t* state, size_t n, double p) {
+    int count = 0;
+    for (size_t i = 0; i < n; ++i) {
+        count += lehmer_bernoulli(state, p);
     }
-
-    return (x);
+    return count;
 }

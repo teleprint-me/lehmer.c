@@ -118,7 +118,7 @@ double lehmer_random_gamma(lehmer_state_t* state);
 double lehmer_random_delta(lehmer_state_t* state);
 
 /* @todo variates are a work in progress */
-int lehmer_bernoulli(lehmer_state_t* state, double p);
-int lehmer_binomial(lehmer_state_t* state, size_t n, double p);
+int64_t lehmer_bernoulli(lehmer_state_t* state, double p);
+int64_t lehmer_binomial(lehmer_state_t* state, size_t n, double p);
 
 #endif // LEHMER_H
