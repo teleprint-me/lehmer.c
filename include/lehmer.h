@@ -75,6 +75,11 @@
 #define LEHMER_CHECK_VALUE 0.816736763 // After 10,000 iterations
 
 /**
+ * @param LEHMER_CHECK_JUMP Used in testing for validation
+ */
+#define LEHMER_CHECK_JUMP  399268537
+
+/**
  * @brief Structure representing the state of the LCG RNG
  *
  * @param seed Pointer to the current state of each stream
