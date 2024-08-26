@@ -40,10 +40,14 @@ bool validate_random_seed(lehmer_state_t* state, int64_t expected_seed) {
     return current_seed == expected_seed;
 }
 
-// Function to validate the number generation
 bool validate_random_value(lehmer_state_t* state, double expected_output) {
-    double current_value = lehmer_random_modulo(state);
-    return float_is_close(current_value, expected_output, /*significand*/ 6);
+    double current_value = lehmer_seed_normalize(state);
+    printf(
+        "Expected value: %.9f, Current value: %.9f\n",
+        expected_output,
+        current_value
+    );
+    return double_is_close(current_value, expected_output, /*significand*/ 6);
 }
 
 // Main test function
