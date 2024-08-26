@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Copyright © 2024 Austin Berrio
@@ -11,41 +11,48 @@ Brief: Super simple implementation for seed generation
 
 import argparse
 
-m = 2147483647  # modulus
-a = 48271  # multiplier
-j = 22925  # jump
+MODULUS = 2147483647
+MULTIPLIER = 48271
 
 
-def lehmer_generate_modulo(z: int) -> int:
-    """scale and then return the remainder"""
-    return (a * z) % m
+def lehmer_generate_modulo(seed: int) -> int:
+    """Scale the seed and return the remainder."""
+    return (MULTIPLIER * seed) % MODULUS
 
 
-def lehmer_random_modulo(z: int) -> float:
-    """normalize the seed as a ratio of the modulus"""
-    return float(z) / float(m)
+def lehmer_random_modulo(seed: int) -> float:
+    """Normalize the seed as a ratio of the modulus."""
+    return seed / MODULUS
 
 
 def get_arguments() -> argparse.Namespace:
-    """set and parse the command-line arguments"""
-    parser = argparse.ArgumentParser()
+    """Set and parse the command-line arguments."""
+    parser = argparse.ArgumentParser(description="Lehmer RNG seed generator.")
     parser.add_argument(
         "-s",
         "--seed",
+        type=int,
         default=123456789,
-        help="The seed used as input. Default is 123456789.",
+        help="The initial seed value. Default is 123456789.",
     )
     parser.add_argument(
         "-i",
         "--iterations",
+        type=int,
         default=10000,
-        help="Number of iterations before generating output. Default is 10000.",
+        help="Number of iterations. Default is 10000.",
+    )
+    parser.add_argument(
+        "-n",
+        "--normalize",
+        action="store_true",
+        help="Output the normalized value. Default is False.",
     )
     parser.add_argument(
         "-v",
-        "--value",
+        "--verbose",
         action="store_true",
-        help="Generate the normalized modulo value. Default is False.",
+        help="Output all generated seeds. Default is False.",
     )
     return parser.parse_args()
 
@@ -54,9 +61,14 @@ if __name__ == "__main__":
     args = get_arguments()
 
     seed = args.seed
-    for _ in range(args.iterations):
+    for i in range(args.iterations):
         seed = lehmer_generate_modulo(seed)
-    print("Seed:", seed)
+        if args.verbose:
+            print(f"Iteration {i + 1}: seed = {seed}")
 
-    if args.value:
-        print("Value:", lehmer_random_modulo(seed))
+    last_iteration = args.iterations
+    print(f"After {last_iteration} iterations: seed = {seed}")
+
+    if args.normalize:
+        normalized_value = lehmer_random_modulo(seed)
+        print(f"Normalized value: {normalized_value}")
