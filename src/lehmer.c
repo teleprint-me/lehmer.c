@@ -175,13 +175,16 @@ double lehmer_random_delta(lehmer_state_t* state) {
  * }
  */
 int64_t lehmer_bernoulli(lehmer_state_t* state, double p) {
-    // p is probability of success
-    // q is probability of failure (1 - p)
-    // The probability of success and failure must sum to 1
-    // each trial must always end with a success or failure
-    //     p + q = 1
-    // returns 0 on success, 1 on failure
-    return ((lehmer_random_gamma(state) < (1.0 - p)) ? 0 : 1);
+    // Ensure p is within the valid range
+    if (p <= 0.0) {
+        return 0; // Always fail
+    }
+    if (p >= 1.0) {
+        return 1; // Always succeed
+    }
+
+    // Generate the Bernoulli outcome
+    return ((lehmer_random_gamma(state) < p) ? 1 : 0);
 }
 
 /**
@@ -198,9 +201,23 @@ int64_t lehmer_bernoulli(lehmer_state_t* state, double p) {
  * }
  */
 int64_t lehmer_binomial(lehmer_state_t* state, size_t n, double p) {
-    int count = 0;
+    int64_t count = 0;
+
+    // Validate p and n
+    if (p <= 0.0) {
+        return 0; // No successes
+    }
+    if (p >= 1.0) {
+        return n; // All successes
+    }
+    if (n == 0) {
+        return 0; // No trials
+    }
+
+    // Sum up the results of n Bernoulli trials
     for (size_t i = 0; i < n; ++i) {
         count += lehmer_bernoulli(state, p);
     }
+
     return count;
 }
