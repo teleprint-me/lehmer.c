@@ -1,9 +1,9 @@
 /**
  * Copyright © 2024 Austin Berrio
  *
- * @file tests/test_lehmer_generate.c
+ * @file tests/test_lehmer_api.c
  *
- * @brief A simple suite of tests for the Lehmer RNG in pure C
+ * @brief A set of simple tests for validating selecting streams and seeding.
  */
 
 #include "lehmer.h"
