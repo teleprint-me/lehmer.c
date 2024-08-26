@@ -20,7 +20,8 @@ def lehmer_generate_modulo(seed: int) -> int:
     return (MULTIPLIER * seed) % MODULUS
 
 
-def lehmer_random_modulo(seed: int) -> float:
+# NOTE: Normalization "generates" the pseudo random number
+def lehmer_seed_normalize(seed: int) -> float:
     """Normalize the seed as a ratio of the modulus."""
     return seed / MODULUS
 
@@ -70,5 +71,5 @@ if __name__ == "__main__":
     print(f"After {last_iteration} iterations: seed = {seed}")
 
     if args.normalize:
-        normalized_value = lehmer_random_modulo(seed)
+        normalized_value = lehmer_seed_normalize(seed)
         print(f"Normalized value: {normalized_value}")
