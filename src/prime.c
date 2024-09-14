@@ -8,6 +8,7 @@
  */
 
 #include "prime.h"
+#include "logger.h"
 
 #include <stdbool.h>
 #include <stddef.h>
