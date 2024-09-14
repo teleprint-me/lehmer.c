@@ -211,8 +211,8 @@ int main(void) {
     passed |= test_seed_generation(state, LEHMER_CHECK_SEED);
     passed |= test_jump_state(state, LEHMER_CHECK_VALUE);
     passed |= test_full_period(state);
+    printf("\n");
 
     lehmer_state_free(state);
-
-    return (passed) ? 0 : 1;
+    return passed;
 }
