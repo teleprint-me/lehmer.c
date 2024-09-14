@@ -140,7 +140,7 @@ int test_random_value(lehmer_state_t* state, float expected_output) {
  *
  * @return 0 on success and 1 on failure.
  */
-int test_seed_generation(lehmer_state_t* state, uint32_t expected_seed) {
+int test_seed_generation(lehmer_state_t* state, int32_t expected_seed) {
     // stream is set to 0
     lehmer_state_select(state, 0);
     // seed is set to 1 in stream 0
@@ -179,7 +179,7 @@ int test_seed_generation(lehmer_state_t* state, uint32_t expected_seed) {
  *
  * @return 0 on success and 1 on failure.
  */
-int test_jump_state(lehmer_state_t* state, uint32_t expected_seed) {
+int test_jump_state(lehmer_state_t* state, int32_t expected_seed) {
     // stream is set to 1
     lehmer_state_select(state, 1);
     // reseed remaining streams
