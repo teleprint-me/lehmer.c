@@ -1,52 +1,54 @@
 cmake_minimum_required(VERSION 3.14)
-project(lehmer VERSION 0.1.0 DESCRIPTION "ANSI C library for Random Number Generation")
+project(lehmer VERSION 0.1.0 DESCRIPTION "ANSI C library for Number Generation")
 
 # Set C standard rules
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
 
+# Enable Shared Objects
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 
-# Add subdirectory for the float_is_close dependency
-add_subdirectory(float_is_close)
+# Setup submodule, module, and test names
+set(SUBMODULES logger float_is_close)
+set(MODULES lehmer prime) # Add more modules here as needed
 
-# Main library
-add_library(
-    lehmer
-    src/lehmer.c
-)
+# Set the output directory for built binaries
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
+# Add dependencies
+foreach(SUBMODULE IN LISTS SUBMODULES)
+    add_subdirectory(mods/${SUBMODULE})
+endforeach()
+
+# Collect all source files into lists
+foreach(MODULE IN LISTS MODULES)
+    list(APPEND LIB_HEADERS "include/${MODULE}.h")
+    list(APPEND LIB_SOURCES "src/${MODULE}.c")
+endforeach()
+
+# Add the library using the collected sources
+add_library(lehmer ${LIB_SOURCES})
 
 set_target_properties(
-    lehmer # [<targets>]...
-    PROPERTIES # PROPERTIES [<prop1> <value1>]...
+    lehmer PROPERTIES
     VERSION ${PROJECT_VERSION}
-    PUBLIC_HEADER include/lehmer.h
+    PUBLIC_HEADER "${LIB_HEADERS}"
 )
 
 target_include_directories(lehmer PUBLIC include)
-target_link_libraries(lehmer PUBLIC float_is_close)
+target_link_libraries(lehmer PUBLIC m logger float_is_close)
 
-# Set the output directory for built binaries
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
-set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
-
-# Add test executables
-add_executable(test_lehmer_period tests/test_lehmer_period.c)
-add_executable(test_lehmer_generate tests/test_lehmer_generate.c)
-add_executable(test_lehmer_api tests/test_lehmer_api.c)
-
-# Link test executables
-target_link_libraries(test_lehmer_period lehmer m)
-target_link_libraries(test_lehmer_generate lehmer m)
-target_link_libraries(test_lehmer_api lehmer m)
-
-# Set the output directory for the test executables
-set_target_properties(
-    test_lehmer_generate test_lehmer_api # [<targets>]...
-    PROPERTIES # PROPERTIES [<prop1> <value1>]...
-    RUNTIME_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}
-)
+# Add and link test executables
+foreach(MODULE IN LISTS MODULES)
+    add_executable("test_${MODULE}" "tests/test_${MODULE}.c")
+    target_link_libraries("test_${MODULE}" PRIVATE lehmer m)
+    set_target_properties("test_${MODULE}" PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+    )
+    add_test(NAME "test_${MODULE}" COMMAND "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/test_${MODULE}")
+endforeach()
 
 # Install rules for the library
 install(
@@ -56,41 +58,5 @@ install(
     PUBLIC_HEADER DESTINATION include
 )
 
-# Add custom targets to run tests
-#
-# NOTE: Custom targets do not seem to be able to be simplified
-# due to the nature of their specificity.
-add_custom_target(
-    run_test_lehmer_generate
-    COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer_generate
-    DEPENDS test_lehmer_generate
-    COMMENT "Running tests for lehmer_generate"
-)
-add_custom_target(
-    run_test_lehmer_api
-    COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer_api
-    DEPENDS test_lehmer_api
-    COMMENT "Running tests for lehmer_api"
-)
-# NOTE: Slow tests should always be last and testing the period is slow.
-add_custom_target(
-    run_test_lehmer_period
-    COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer_period
-    DEPENDS test_lehmer_period
-    COMMENT "Running tests for lehmer_period"
-)
-
+# Enable testing
 enable_testing()
-add_test(
-    NAME test_lehmer_generate
-    COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer_generate
-)
-add_test(
-    NAME test_lehmer_api
-    COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer_api
-)
-# NOTE: Slow tests should always be last and testing the period is slow.
-add_test(
-    NAME test_lehmer_period
-    COMMAND ${EXECUTABLE_OUTPUT_PATH}/test_lehmer_period
-)
