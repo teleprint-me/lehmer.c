@@ -1,3 +1,6 @@
 [submodule "float_is_close"]
 	path = mods/float_is_close
 	url = https://github.com/teleprint-me/float_is_close.c
+[submodule "mods/logger"]
+	path = mods/logger
+	url = https://github.com/teleprint-me/logger.c
