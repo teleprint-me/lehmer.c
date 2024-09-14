@@ -5,61 +5,56 @@
  *
  * @note Will need Mersenne twister for enhanced statistical properties. Use
  * Lehmer LCG PRNG for now since that's mostly implemented.
- *
- * @ref Miller-Rabin Primality Test
- * - https://rosettacode.org/wiki/Miller%E2%80%93Rabin_primality_test
  */
 
 #include "prime.h"
-#include "lehmer.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 
-int32_t
-prime_modular_exponent(int32_t base, int32_t exponent, int32_t modulus) {
+int32_t prime_modular_exponent(int32_t a, int32_t b, uint32_t m) {
     int32_t result = 1;
-    base           = base % modulus;
+    a              = a % m; // Ensuring base is within bounds of modulus
 
-    while (0 < exponent) {
-        if (1 == (exponent % 2)) {
-            result = (result * base) % modulus;
+    while (0 < b) {
+        if (b % 2 == 1) {
+            result = (result * a) % m;
         }
-        exponent = exponent >> 1; // Divide exp by 2
-        base     = (base * base) % modulus;
+        b = b >> 1;      // Right-shift b by 1 (dividing by 2)
+        a = (a * a) % m; // Square a and reduce modulo m
     }
 
     return result;
 }
 
-bool prime_miller_rabin(int32_t n, int16_t k) {
+bool prime_miller_rabin(lehmer_state_t* state, uint32_t n, uint16_t k) {
     if (n <= 1 || (n > 2 && n % 2 == 0)) {
-        return false;
+        return false; // Handle non-prime edge cases
     }
 
     int32_t s = n - 1;
-    while (0 == (s & 1)) {
-        s >>= 1;
+    while ((s & 1) == 0) {
+        s >>= 1; // Remove factors of 2
     }
 
     for (int16_t i = 0; i < k; ++i) {
         // Generate a random base in the range [2, n-2]
-        int32_t a = 2 + rand() % (n - 3);
+        lehmer_generate_modulo(state);
+        int32_t seed = lehmer_seed_get(state);
+        int32_t a    = 2 + (seed % (n - 3));
 
-        // Compute a^s mod n
         int32_t x = prime_modular_exponent(a, s, n);
 
         if (x == 1 || x == n - 1) {
             continue;
         }
 
-        // Repeat squaring up to k times
         bool is_composite = true;
-        for (int32_t r = s; r != n - 1; r *= 2) {
+        for (int32_t r = s; r != n - 1; r <<= 1) {
             x = (x * x) % n;
 
             if (x == 1) {
-                return false;
+                return false; // Definitely composite
             }
             if (x == n - 1) {
                 is_composite = false;
