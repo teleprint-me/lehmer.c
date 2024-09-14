@@ -4,3 +4,6 @@
 [submodule "mods/logger"]
 	path = mods/logger
 	url = https://github.com/teleprint-me/logger.c
+[submodule "mods/ccheck"]
+	path = mods/ccheck
+	url = https://github.com/teleprint-me/ccheck.c
