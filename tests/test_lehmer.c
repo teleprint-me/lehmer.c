@@ -19,10 +19,29 @@
 #include <stdlib.h>
 
 /**
- * @brief Creates a Lehmer RNG state with default parameters
+ * @brief A fixture that creates a deterministic Lehmer state using default
+ * parameters.
  */
-lehmer_state_t* create_deterministic_lehmer_state(void) {
-    return lehmer_state_create(LEHMER_STREAMS, LEHMER_SEED);
+lehmer_state_t* setup_lehmer_state(void) {
+    lehmer_state_t* state = lehmer_state_create(LEHMER_STREAMS, LEHMER_SEED);
+    return state;
+}
+
+/**
+ * @brief Generalized fixture to free a Lehmer state.
+ */
+void teardown_lehmer_state(lehmer_state_t* state) {
+    if (state) {
+        lehmer_state_free(state);
+    }
+}
+
+// Helper function for logging errors and results
+void log_test_result(bool passed, const char* test_name, const char* message) {
+    if (!passed) {
+        LOG_ERROR("%s failed: %s\n", test_name, message);
+    }
+    printf("%s", passed ? "." : "x");
 }
 
 /**
@@ -38,12 +57,14 @@ lehmer_state_t* create_deterministic_lehmer_state(void) {
  * @warning This test unit is slow and consumes time and resources. This test
  * should always be executed last to allow fast tests to execute first.
  */
-int test_full_period(lehmer_state_t* state) {
-    bool passed = true;
-
+int test_full_period(void) {
+    bool     passed        = true;
     uint32_t count         = 0;
     int32_t  seed          = 1;
     int32_t  original_seed = seed;
+
+    // Use the new fixture functions
+    lehmer_state_t* state = setup_lehmer_state();
 
     do {
         lehmer_generate_modulo(state);
@@ -62,8 +83,11 @@ int test_full_period(lehmer_state_t* state) {
         lehmer_state_print(state); // print state to stderr for debugging
     }
 
+    // Teardown
+    teardown_lehmer_state(state);
+
     printf("%s", passed ? "." : "x");
-    return (passed) ? 0 : 1;
+    return passed ? 0 : 1;
 }
 
 /**
@@ -76,10 +100,14 @@ int test_full_period(lehmer_state_t* state) {
  *
  * @return 0 on success and 1 on failure.
  */
-int test_random_seed(lehmer_state_t* state, int32_t expected_seed) {
+int test_random_seed(void) {
+    const int32_t   expected_seed = LEHMER_CHECK_SEED;
+    lehmer_state_t* state         = setup_lehmer_state();
+
     for (size_t i = 0; i < 10000; i++) {
         lehmer_generate_modulo(state);
     }
+
     int32_t current_seed = lehmer_seed_get(state);
     bool    passed       = current_seed == expected_seed;
 
@@ -92,7 +120,8 @@ int test_random_seed(lehmer_state_t* state, int32_t expected_seed) {
         lehmer_state_print(state); // print state to stderr for debugging
     }
 
-    printf("%s", passed ? "." : "x");
+    teardown_lehmer_state(state);
+
     return passed ? 0 : 1;
 }
 
@@ -108,10 +137,13 @@ int test_random_seed(lehmer_state_t* state, int32_t expected_seed) {
  *
  * @return 0 on success and 1 on failure.
  */
-int test_random_value(lehmer_state_t* state, float expected_output) {
-    float current_value = lehmer_seed_normalize(state);
-    bool  passed
-        = float_is_close(current_value, expected_output, /*significand*/ 6);
+int test_random_value(void) {
+    float           expected_output = LEHMER_CHECK_VALUE;
+    lehmer_state_t* state           = setup_lehmer_state();
+    float           current_value   = lehmer_seed_normalize(state);
+
+    bool passed
+        = float_is_close(current_value, expected_output, /* significand */ 6);
 
     if (!passed) {
         LOG_ERROR(
@@ -122,6 +154,8 @@ int test_random_value(lehmer_state_t* state, float expected_output) {
 
         lehmer_state_print(state);
     }
+
+    teardown_lehmer_state(state);
 
     printf("%s", passed ? "." : "x");
     return passed ? 0 : 1;
@@ -140,7 +174,10 @@ int test_random_value(lehmer_state_t* state, float expected_output) {
  *
  * @return 0 on success and 1 on failure.
  */
-int test_seed_generation(lehmer_state_t* state, int32_t expected_seed) {
+int test_seed_generation(void) {
+    const int32_t   expected_seed = LEHMER_CHECK_SEED;
+    lehmer_state_t* state         = setup_lehmer_state();
+
     // stream is set to 0
     lehmer_state_select(state, 0);
     // seed is set to 1 in stream 0
@@ -164,6 +201,8 @@ int test_seed_generation(lehmer_state_t* state, int32_t expected_seed) {
         lehmer_state_print(state); // print state to stderr for debugging
     }
 
+    teardown_lehmer_state(state);
+
     printf("%s", passed ? "." : "x");
     return passed ? 0 : 1;
 }
@@ -179,7 +218,10 @@ int test_seed_generation(lehmer_state_t* state, int32_t expected_seed) {
  *
  * @return 0 on success and 1 on failure.
  */
-int test_jump_state(lehmer_state_t* state, int32_t expected_seed) {
+int test_jump_state(void) {
+    const int32_t   expected_seed = LEHMER_CHECK_JUMP;
+    lehmer_state_t* state         = setup_lehmer_state();
+
     // stream is set to 1
     lehmer_state_select(state, 1);
     // reseed remaining streams
@@ -197,22 +239,22 @@ int test_jump_state(lehmer_state_t* state, int32_t expected_seed) {
         lehmer_state_print(state); // print state to stderr for debugging
     }
 
+    teardown_lehmer_state(state);
+
     printf("%s", passed ? "." : "x");
     return passed ? 0 : 1;
 }
 
 int main(void) {
     // both shell and cmake expect 0 on success and 1 on failure
-    int             passed = 0; // Assuming success
-    lehmer_state_t* state  = create_deterministic_lehmer_state();
+    int passed = 0; // Assuming success
 
-    passed |= test_random_seed(state, LEHMER_CHECK_JUMP);
-    passed |= test_random_value(state, LEHMER_JUMP);
-    passed |= test_seed_generation(state, LEHMER_CHECK_SEED);
-    passed |= test_jump_state(state, LEHMER_CHECK_VALUE);
-    passed |= test_full_period(state);
+    passed |= test_random_seed();
+    passed |= test_random_value();
+    passed |= test_seed_generation();
+    passed |= test_jump_state();
+    passed |= test_full_period();
     printf("\n");
 
-    lehmer_state_free(state);
     return passed;
 }
