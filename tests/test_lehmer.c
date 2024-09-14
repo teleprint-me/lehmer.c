@@ -37,7 +37,7 @@ void teardown_lehmer_state(lehmer_state_t* state) {
 }
 
 /**
- * @brief Tests the construction and destruction of a lehmer state
+ * @brief Tests creating and freeing a lehmer state
  */
 int test_lehmer_state(void) {
     bool passed = true;
@@ -50,7 +50,8 @@ int test_lehmer_state(void) {
     // @todo stream is type uint32_t and is set to 0
     // state->stream == 0
 
-    // what is the first seed?
+    // @todo initial seed should be 123456789
+    // state->seed[0] == 123456789
 
     teardown_lehmer_state(state);
 
