@@ -48,7 +48,7 @@ AlignConsecutiveMacros:
 AlignEscapedNewlines: DontAlign
 MaxEmptyLinesToKeep: 1
 AlignTrailingComments:
-  Kind: Always
+  Kind: Never
   OverEmptyLines: 0  # Is set to 1 is MaxEmptyLinesToKeep is 2
 
 # Spacing
