@@ -19,6 +19,13 @@
 
 #include <stdint.h>
 
+// POSIX
+
+// @ref http://man7.org/linux/man-pages/man2/clock_gettime.2.html
+
+#define _POSIX_C_SOURCE   199309L
+#define __USE_POSIX199309 _POSIX_C_SOURCE
+
 // Macros
 
 #define ASSERT_EQUAL(actual, expected, meta) \
@@ -99,12 +106,25 @@ typedef struct {
 
 // Prototypes
 
-// @note A helper function for type checking might make this even more concise,
-// so we don’t repeat checks throughout.
+/**
+ * @brief Checks if the provided `test_parameter_t` matches the expected data
+ * type, making it more concise and reducing redundancy throughout your
+ * codebase.
+ */
 int test_data_type_check(test_parameter_t* param, test_data_t expected_type);
 
-// @note Simple test runner function that would sequentially execute all test
-// cases
+/**
+ * @brief Runs a single test case within a custom suite by executing its
+ * callback function with the supplied `test_meta_t`.
+ */
+void test_case_run(test_case_t* test);
+
+/**
+ * @brief A simple lightweight test runner that sequentially executes all
+ * provided test cases in the given array, making it easy to run the entire
+ * test suite from one place instead of manually calling each individual test
+ * case.
+ */
 void test_suite_run(test_case_t* tests, uint32_t num_tests);
 
 #endif // TEST_H
