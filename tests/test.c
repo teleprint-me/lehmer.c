@@ -34,20 +34,23 @@ typedef enum TestState {
     TEST_PENDING = 0x10
 } test_state_t;
 
+// @note Consider refactoring if this becomes bloated.
+// Avoid "The Blob" at all costs, or face your own peril.
 typedef struct TestMetaData {
     test_state_t state;
     const char*  name;
     const char*  message;
     void*        expected;
     void*        actual;
-} test_meta_t;
+    uint64_t     elapsed_time_ns; // Track elapsed time in nanoseconds
+} test_meta_t; // e.g. data->state
 
 typedef struct TestParameter {
     void**   cases; // Array of void pointers for each test case
-    uint32_t size;  // Number of parameters
-} test_parameter_t; // e.g. test_parameter_t parameter->cases
+    uint32_t size; // Number of parameters
+} test_parameter_t; // e.g. parameter->cases
 
-typedef void (*test_callback_t)(test_meta_t* meta);
+typedef void (*test_callback_t)(test_meta_t* data);
 
 typedef struct {
     const char*     name;
