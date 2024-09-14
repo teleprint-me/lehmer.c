@@ -67,15 +67,15 @@ int test_full_period(lehmer_state_t* state) {
     return (passed) ? 0 : 1;
 }
 
-bool validate_random_seed(lehmer_state_t* state, int32_t expected_seed) {
+int test_random_seed(lehmer_state_t* state, int32_t expected_seed) {
     for (size_t i = 0; i < 10000; i++) {
         lehmer_generate_modulo(state);
     }
     int32_t current_seed = lehmer_seed_get(state);
-    return current_seed == expected_seed;
+    return current_seed == expected_seed ? 0 : 1;
 }
 
-int validate_random_value(lehmer_state_t* state, float expected_output) {
+int test_random_value(lehmer_state_t* state, float expected_output) {
     float current_value = lehmer_seed_normalize(state);
     printf(
         "Expected value: %.9f, Current value: %.9f\n",
