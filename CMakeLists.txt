@@ -10,7 +10,7 @@ set(CMAKE_C_EXTENSIONS ON)
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 
 # Setup submodule, module, and test names
-set(SUBMODULES logger float_is_close)
+set(SUBMODULES ccheck) # logger and float_is_close are implied
 set(MODULES lehmer prime) # Add more modules here as needed
 
 # Set the output directory for built binaries
@@ -38,7 +38,7 @@ set_target_properties(
 )
 
 target_include_directories(lehmer PUBLIC include)
-target_link_libraries(lehmer PUBLIC m logger float_is_close)
+target_link_libraries(lehmer PUBLIC m rt logger float_is_close ccheck)
 
 # Add and link test executables
 foreach(MODULE IN LISTS MODULES)
