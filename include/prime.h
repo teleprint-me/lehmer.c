@@ -30,8 +30,11 @@ typedef struct PrimeSample {
  *
  * @param a Base integer
  * @param b Exponent
- * @param m Modulus
+ * @param m Modulus (must be greater than 0)
  * @return Computed result of a^b mod m
+ *
+ * @note This function assumes m > 0 and b >= 0. For a^0, the result is 1
+ * (with any base a). Negative exponents are not supported.
  */
 int32_t prime_modular_exponent(uint32_t a, uint32_t b, uint32_t m);
 
@@ -43,14 +46,16 @@ int32_t prime_modular_exponent(uint32_t a, uint32_t b, uint32_t m);
  * `k` determines the accuracy of the test (higher values increase
  * confidence but decrease performance).
  *
- * @param n Odd integer to be tested for primality
+ * @param n Odd integer to be tested for primality (must be > 2)
  * @param k Hyperparameter that controls the number of iterations in
- * Miller-Rabin's algorithm
- * @return true if prime, else false
+ * the Miller-Rabin algorithm. Higher `k` values improve accuracy but
+ * decrease performance.
+ * @return true if n is likely prime, otherwise false.
  *
- * @note Configuring k is a trade off between performance and accuracy,
- * depending on the size of n. A typical value of k ranges from 5 to 50 for
- * most applications.
+ * @note Typical values of `k` range from 5 to 50. A value of `k = 5`
+ * offers good performance and accuracy for smaller integers, while larger
+ * values of `k` (e.g., 20-50) are useful for very large integers or
+ * when high accuracy is needed.
  */
 bool prime_miller_rabin(uint32_t n, int16_t k);
 
@@ -61,14 +66,15 @@ bool prime_miller_rabin(uint32_t n, int16_t k);
  * @param size Number of prime numbers to generate.
  * @return Pointer to a dynamically allocated prime_sample_t structure.
  *
- * @note It's cute <3
+ * @note The user is responsible for ensuring appropriate memory usage based
+ * on the hardware's available resources.
  */
 prime_sample_t* prime_sample_create(uint32_t size);
 
 /**
  * @brief Free the allocated sample data.
  *
- * @param samples Pointer to the sample_data_t structure.
+ * @param samples Pointer to the prime_sample_t structure.
  */
 void prime_sample_free(prime_sample_t* samples);
 
