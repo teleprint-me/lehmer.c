@@ -71,7 +71,7 @@
     "editor.insertSpaces": true
   },
   "files.associations": {
-    "*.tcss": "jinja-css",
-    "*.h": "c"
+    "*.h": "c",
+    "*.c": "c"
   }
 }
