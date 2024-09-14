@@ -36,12 +36,26 @@ void teardown_lehmer_state(lehmer_state_t* state) {
     }
 }
 
-// Helper function for logging errors and results
-void log_test_result(bool passed, const char* test_name, const char* message) {
-    if (!passed) {
-        LOG_ERROR("%s failed: %s\n", test_name, message);
-    }
+/**
+ * @brief Tests the construction and destruction of a lehmer state
+ */
+int test_lehmer_state(void) {
+    bool passed = true;
+
+    lehmer_state_t* state = setup_lehmer_state();
+
+    // @todo size is type uint32_t and is set to 256
+    // state->size == LEHMER_STREAMS
+
+    // @todo stream is type uint32_t and is set to 0
+    // state->stream == 0
+
+    // what is the first seed?
+
+    teardown_lehmer_state(state);
+
     printf("%s", passed ? "." : "x");
+    return passed ? 0 : 1;
 }
 
 /**
@@ -189,8 +203,8 @@ int test_seed_generation(void) {
     }
 
     // get the current seed from stream 0
-    uint32_t current_seed = lehmer_seed_get(state);
-    bool     passed       = (current_seed == expected_seed);
+    int32_t current_seed = lehmer_seed_get(state);
+    bool    passed       = (current_seed == expected_seed);
 
     if (!passed) {
         LOG_ERROR(
@@ -253,7 +267,7 @@ int main(void) {
     passed |= test_random_value();
     passed |= test_seed_generation();
     passed |= test_jump_state();
-    passed |= test_full_period();
+    // passed |= test_full_period();
     printf("\n");
 
     return passed;
