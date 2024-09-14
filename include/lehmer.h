@@ -87,9 +87,9 @@
  * @param size Number of streams
  */
 typedef struct LehmerState {
-    int64_t* seed;
-    size_t   stream;
-    size_t   size;
+    int32_t* seed;
+    uint32_t stream;
+    uint32_t size;
 } lehmer_state_t;
 
 // @note useful for autocomplete and mnemonic (easy to remember or ref)
@@ -97,15 +97,15 @@ typedef struct LehmerState {
 // prefix: lehmer, group: state, verb: create
 // -> lehmer_state_create
 
-lehmer_state_t* lehmer_state_create(size_t size, int64_t value);
+lehmer_state_t* lehmer_state_create(uint32_t size, int32_t value);
 void            lehmer_state_free(lehmer_state_t* state);
-void            lehmer_state_select(lehmer_state_t* state, size_t stream);
+void            lehmer_state_select(lehmer_state_t* state, uint32_t stream);
 void            lehmer_state_print(lehmer_state_t* state);
 
-int64_t lehmer_seed_get(lehmer_state_t* state);
-void    lehmer_seed_set(lehmer_state_t* state, int64_t value);
-double  lehmer_seed_normalize(lehmer_state_t* state);
-void    lehmer_seed_streams(lehmer_state_t* state, int64_t value);
+int32_t lehmer_seed_get(lehmer_state_t* state);
+void    lehmer_seed_set(lehmer_state_t* state, int32_t value);
+float   lehmer_seed_normalize(lehmer_state_t* state);
+void    lehmer_seed_streams(lehmer_state_t* state, int32_t value);
 
 // @note lehmer_generate_* functions generate new seeds
 void lehmer_generate_modulo(lehmer_state_t* state);
@@ -113,12 +113,12 @@ void lehmer_generate_gamma(lehmer_state_t* state);
 void lehmer_generate_delta(lehmer_state_t* state);
 
 // @note lehmer_random_* functions generate normalized random numbers
-double lehmer_random_modulo(lehmer_state_t* state);
-double lehmer_random_gamma(lehmer_state_t* state);
-double lehmer_random_delta(lehmer_state_t* state);
+float lehmer_random_modulo(lehmer_state_t* state);
+float lehmer_random_gamma(lehmer_state_t* state);
+float lehmer_random_delta(lehmer_state_t* state);
 
 /* @todo variates are a work in progress */
-int64_t lehmer_bernoulli(lehmer_state_t* state, double p);
-int64_t lehmer_binomial(lehmer_state_t* state, size_t n, double p);
+int32_t lehmer_bernoulli(lehmer_state_t* state, float p);
+int32_t lehmer_binomial(lehmer_state_t* state, uint32_t n, float p);
 
 #endif // LEHMER_H
