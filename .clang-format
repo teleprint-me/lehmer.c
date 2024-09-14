@@ -45,7 +45,7 @@ AlignConsecutiveMacros:
   Enabled: true
   AcrossEmptyLines: true
   AcrossComments: true
-AlignEscapedNewlines: Left
+AlignEscapedNewlines: DontAlign
 MaxEmptyLinesToKeep: 1
 AlignTrailingComments:
   Kind: Always
