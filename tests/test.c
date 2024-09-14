@@ -8,6 +8,14 @@
 
 #include <stdint.h>
 
+typedef enum {
+    TEST_PASSED  = 0x1,
+    TEST_FAILED  = 0x2,
+    TEST_SKIPPED = 0x4,
+    TEST_RUNNING = 0x8,
+    TEST_PENDING = 0x10
+} test_state_t;
+
 typedef struct {
     uint32_t             state; // enum flags regarding test state
     const unsigned char* name;
