@@ -4,10 +4,9 @@
  * @file tests/test_prime.c
  *
  * @note Keep fixtures and tests as simple as reasonably possible.
- *       - Tests must be kept simple. The simpler, the better.
- *       - Tests must return an integer with 0 on success and 1 on failure.
- *         - I'll admit this is weird, but the shell and cmake test for this.
- *
+ * - Tests must be kept simple. The simpler, the better.
+ * - Tests must return an integer with 0 on success and 1 on failure.
+ *   - I'll admit this is weird, but the shell and cmake test for this.
  */
 
 #include "prime.h"
