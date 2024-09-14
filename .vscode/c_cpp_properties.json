@@ -5,8 +5,9 @@
       "includePath": [
         "/usr/include",
         "/usr/local/include",
-        "${workspaceFolder}/include",
-        "${workspaceFolder}/float_is_close/include"
+        "${workspaceFolder}/mods/logger/include",
+        "${workspaceFolder}/mods/float_is_close/include",
+        "${workspaceFolder}/include"
       ],
       "defines": [],
       "cStandard": "c17",
