@@ -13,17 +13,17 @@
 
 /**
  * @param LEHMER_MODULUS Mersenne prime number used as modulus (2^31 - 1)
+ *
+ * @note Must be a mersenne prime number
  */
-#ifndef LEHMER_MODULUS
-    #define LEHMER_MODULUS 2147483647
-#endif
+#define LEHMER_MODULUS    2147483647
 
 /**
  * @param LEHMER_MULTIPLIER Chosen for safe 32-bit arithmetic (16807)
+ *
+ * @note Must be a prime number
  */
-#ifndef LEHMER_MULTIPLIER
-    #define LEHMER_MULTIPLIER 48271
-#endif
+#define LEHMER_MULTIPLIER 48271
 
 /**
  * @param lehmer_seed Global variable used to track the current seed
