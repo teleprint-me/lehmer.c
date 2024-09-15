@@ -123,7 +123,7 @@ static struct option long_options[]
 int main(int argc, char* argv[]) {
     int      seed  = 123456789;
     uint32_t count = 10;
-    char     mode  = 'g'; // Default mode is gamma
+    char     mode  = 'm'; // Default mode is modulo
 
     while (true) {
         static int opt_index = 0;
@@ -171,7 +171,7 @@ int main(int argc, char* argv[]) {
 
     // generate random numbers based on the selected mode
     for (uint32_t i = 0; i < count; i++) {
-        double random_value;
+        float random_value;
         switch (mode) {
             case 'g':
                 random_value = lehmer_random_gamma();
