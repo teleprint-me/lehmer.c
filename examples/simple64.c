@@ -1,7 +1,7 @@
 /**
  * Copyright © 2024 Austin Berrio
  *
- * @file examples/lehmer.c
+ * @file examples/simple64.c
  *
  * @brief Proof of concept for the Lehmer RNG in pure C from scratch
  */
