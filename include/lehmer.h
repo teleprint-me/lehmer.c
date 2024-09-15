@@ -36,7 +36,7 @@
 #define LEHMER_MODULUS     2147483647
 
 /**
- * @param LEHMER_MULTIPLIER Multiplier for scaling seeds
+ * @param LEHMER_MULTIPLIER Multiplier used to scale the seed
  *
  * @note The multiplier must be a prime number.
  *
