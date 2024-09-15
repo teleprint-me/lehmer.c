@@ -87,11 +87,11 @@ float lehmer_random_delta(void) {
 
 int main(void) {
     lehmer_set_seed(123456789);
-    printf("lehmer_seed: %llu\n", lehmer_get_seed());
+    printf("lehmer_seed: %lu\n", lehmer_get_seed());
 
     // generate lehmer gamma values
-    for (size_t i = 0; i < 10; i++) {
-        printf("%zu: %.9f\n", i, lehmer_random_gamma());
+    for (uint32_t i = 0; i < 10; i++) {
+        printf("%lu: %.9f\n", i, lehmer_random_gamma());
     }
 
     return 0;
