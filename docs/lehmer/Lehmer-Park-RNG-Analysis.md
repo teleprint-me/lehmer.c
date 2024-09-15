@@ -59,13 +59,13 @@ equation $f(z) = az \mod m$.
 
 - **Bounded Results**: The equation $f(z) = \gamma(z) + m \cdot \delta(z)$
   ensures that all intermediate results are bounded by $m - 1$. Here:
-  - $\gamma(z) = a \cdot (z \mod q) - r \cdot (z \div q)$
-  - $\delta(z) = (z \div q) - (a \cdot z \div m)$
+  - $\gamma(z) = ((a \cdot z) \mod q) - ((r \cdot z) \div q)$
+  - $\delta(z) = (z \div q) - ((a \cdot z) \div m)$
 - **Significance of Constants**:
   - $\delta(z)$ is either 0 or 1.
-  - Both $a \cdot (z \mod q)$ and $r \cdot (z \div q)$ are within the range
+  - Both $((a \cdot z) \mod q)$ and $((r \cdot z) \div q)$ are within the range
     $0, \dots, m-1$.
-  - $| \gamma(z) | \leq m-1$.
+  - $\lvert \gamma(z) \rvert \leq m-1$.
 
 ## Practical Application
 
