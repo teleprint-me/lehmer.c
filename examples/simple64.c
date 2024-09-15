@@ -25,6 +25,8 @@
 /**
  * @param LEHMER_MODULUS Mersenne prime number used as modulus (2^31 - 1)
  *
+ * m: A large prime number
+ *
  * @note Must be a mersenne prime number
  * - 32-bit: 2^31 - 1 = 2147483647
  * - 64-bit: 2^61 - 1 = 2305843009213693951
@@ -34,70 +36,79 @@
 /**
  * @param LEHMER_MULTIPLIER Multiplier used to scale the seed
  *
+ * a: A smaller prime number in the range 2, ..., m - 1
+ *
  * @note Must be a prime number
  */
 #define LEHMER_MULTIPLIER 48271
 
 /**
  * @param lehmer_seed Global variable used to track the current seed
+ *
+ * z: A value between 0, ..., m - 1
+ *
+ * @note May be any value within the defined range
  */
 uint64_t lehmer_seed = 0;
 
-void lehmer_set_seed(uint64_t value) {
+void lehmer_seed_set(uint64_t value) {
     lehmer_seed = value;
 }
 
-uint64_t lehmer_get_seed(void) {
+uint64_t lehmer_seed_get(void) {
     return lehmer_seed;
 }
 
 // @note: the generate functions generate the next seed
 
-uint64_t lehmer_generate_gamma(void) {
+uint64_t lehmer_generate_gamma(uint64_t z) {
     uint64_t q = LEHMER_MODULUS / LEHMER_MULTIPLIER;
     uint64_t r = LEHMER_MODULUS % LEHMER_MULTIPLIER;
-    int64_t  y = (int64_t) LEHMER_MULTIPLIER * (lehmer_seed % q)
-                - r * (lehmer_seed / q);
+    int64_t  y = (int64_t) LEHMER_MULTIPLIER * (z % q) - r * (z / q);
     printf("q: %llu, r: %llu, y: %lld\n", q, r, y); // Debug print
     return (y > 0) ? (uint64_t) y : (uint64_t) (y + LEHMER_MODULUS);
 }
 
-uint64_t lehmer_generate_delta(void) {
-    uint64_t q = LEHMER_MODULUS / LEHMER_MODULUS;
-    int64_t  d
-        = (int64_t) ((lehmer_seed / q)
-                     - (LEHMER_MULTIPLIER * lehmer_seed / LEHMER_MODULUS));
+uint64_t lehmer_generate_delta(uint64_t z) {
+    uint64_t q = LEHMER_MODULUS / LEHMER_MULTIPLIER;
+    int64_t d = (int64_t) ((z / q) - (LEHMER_MULTIPLIER * z / LEHMER_MODULUS));
     printf("q: %llu, d: %lld\n", q, d); // Debug print
     return (d > 0) ? (uint64_t) d : (uint64_t) (d + LEHMER_MODULUS);
 }
 
-uint64_t lehmer_generate_modulo(void) {
-    uint64_t z = (uint64_t) (LEHMER_MULTIPLIER * lehmer_seed) % LEHMER_MODULUS;
-    printf("z: %llu\n", z); // Debug print
-    return z;
+uint64_t lehmer_generate_modulo(uint64_t z) {
+    // I suppose q could be s (a new seed)?
+    uint64_t q = (uint64_t) (LEHMER_MULTIPLIER * z) % LEHMER_MODULUS;
+    printf("q: %llu\n", q); // Debug print
+    return q;
 }
 
 // @note: generates a number in the range 0.0 to 1.0
 double lehmer_normalize(void) {
-    return (double) lehmer_seed / (double) LEHMER_MODULUS;
+    uint64_t z = lehmer_seed_get();
+    return (double) z / (double) LEHMER_MODULUS;
 }
 
 // modulo generation
 double lehmer_random_modulo(void) {
-    lehmer_seed = lehmer_generate_modulo();
+    uint64_t z = lehmer_seed_get();
+    lehmer_seed_set(lehmer_generate_modulo(z));
     return lehmer_normalize();
 }
 
 // gamma generation
 double lehmer_random_gamma(void) {
-    lehmer_seed = lehmer_generate_gamma();
+    uint64_t z = lehmer_seed_get();
+    lehmer_seed_set(lehmer_generate_gamma(z));
     return lehmer_normalize();
 }
 
 // delta generation
+// @todo this is broken
 double lehmer_random_delta(void) {
-    lehmer_seed = lehmer_generate_gamma();
-    lehmer_seed = lehmer_generate_delta();
+    // f(z) = gamma(z) + m * delta(z)
+    uint64_t z = lehmer_seed_get();
+    lehmer_seed_set(lehmer_generate_gamma(lehmer_generate_delta(z)));
     return lehmer_normalize();
 }
 
@@ -166,7 +177,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    lehmer_set_seed(seed); // Set seed for the generator
+    lehmer_seed_set(seed); // Set seed for the generator
 
     // generate random numbers based on the selected mode
     for (size_t i = 0; i < count; i++) {
