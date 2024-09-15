@@ -47,7 +47,7 @@ int test_lehmer_state(void) {
     // Test: state->size == LEHMER_STREAMS
     if (state->size != LEHMER_STREAMS) {
         LOG_ERROR(
-            "\nFailed: Expected size to be %u, but got %u",
+            "Failed: Expected size to be %u, but got %u\n",
             LEHMER_STREAMS,
             state->size
         );
@@ -58,7 +58,7 @@ int test_lehmer_state(void) {
     // Test: state->stream == 0
     if (state->stream != 0) {
         LOG_ERROR(
-            "\nFailed: Expected stream to be 0, but got %u", state->stream
+            "Failed: Expected stream to be 0, but got %u\n", state->stream
         );
         lehmer_state_print(state);
         passed = false;
@@ -67,7 +67,7 @@ int test_lehmer_state(void) {
     // Test: state->seed[0] == LEHMER_SEED
     if (state->seed[0] != LEHMER_SEED) {
         LOG_ERROR(
-            "\nFailed: Expected initial seed to be %d, but got %d",
+            "Failed: Expected initial seed to be %d, but got %d\n",
             LEHMER_SEED,
             state->seed[0]
         );
@@ -81,19 +81,46 @@ int test_lehmer_state(void) {
     return passed ? 0 : 1;
 }
 
-test_lehmer_state_select(void) {
+int test_lehmer_state_select(void) {
     bool passed = true;
 
     lehmer_state_t* state = setup_lehmer_state();
 
-    // @todo select a stream for the state
-    // default is 0, so we slecect the next stream
-    // lehmer_state_select(state, 1)
-    // @todo validate the stream is selected
-    // state->stream == 1
-    // @todo test for overflow and ensure values wrap around
-    // @note I don't know what the values are for this stream. will need to
-    // determine what the valid values are regardless.
+    // Test 1: Select stream 1 (default is 0)
+    lehmer_state_select(state, 1);
+    if (state->stream != 1) {
+        LOG_ERROR(
+            "Failed: Expected stream to be 1, but got %u\n", state->stream
+        );
+        lehmer_state_print(state);
+        passed = false;
+    }
+
+    // Test 2: Select stream out of bounds to test wrap-around
+    uint32_t out_of_bounds_stream = LEHMER_STREAMS + 1; // greater than size
+    lehmer_state_select(state, out_of_bounds_stream);
+    if (state->stream != 1) { // Expect wrap-around
+        LOG_ERROR(
+            "Failed: Expected stream to wrap around to 1, but got %u\n",
+            state->stream
+        );
+        lehmer_state_print(state);
+        passed = false;
+    }
+
+    // Test 3: Validate seed value (expected value: 115541394)
+    lehmer_state_select(state, 1);
+    const int32_t current_seed  = state->seed[1];
+    const int32_t expected_seed = 115541394;
+    if (current_seed != expected_seed) {
+        LOG_ERROR(
+            "Failed: Expected seed %d, but got %d.\n",
+            expected_seed,
+            current_seed
+        );
+        lehmer_state_print(state);
+        passed = false;
+    }
 
     teardown_lehmer_state(state);
 
@@ -307,6 +334,7 @@ int main(void) {
     int passed = 0; // Assuming success
 
     passed |= test_lehmer_state();
+    passed |= test_lehmer_state_select();
     // passed |= test_random_seed();
     // passed |= test_random_value();
     // passed |= test_seed_generation();
