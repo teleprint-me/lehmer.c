@@ -15,10 +15,12 @@
  * No other changes are made and both source files should mirror one another.
  */
 
+#include <getopt.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 /**
  * @param LEHMER_MODULUS Mersenne prime number used as modulus (2^31 - 1)
@@ -30,7 +32,7 @@
 #define LEHMER_MODULUS    2147483647
 
 /**
- * @param LEHMER_MULTIPLIER Chosen for safe 32-bit arithmetic (16807)
+ * @param LEHMER_MULTIPLIER Multiplier used to scale the seed
  *
  * @note Must be a prime number
  */
@@ -70,7 +72,9 @@ uint64_t lehmer_generate_delta(void) {
 }
 
 uint64_t lehmer_generate_modulo(void) {
-    return (uint64_t) (LEHMER_MULTIPLIER * lehmer_seed) % LEHMER_MODULUS;
+    uint64_t z = (uint64_t) (LEHMER_MULTIPLIER * lehmer_seed) % LEHMER_MODULUS;
+    printf("z: %llu\n", z); // Debug print
+    return z;
 }
 
 // @note: generates a number in the range 0.0 to 1.0
@@ -96,14 +100,92 @@ double lehmer_random_delta(void) {
     return lehmer_normalize();
 }
 
-int main(void) {
-    lehmer_set_seed(123456789);
-    printf("lehmer_seed: %llu\n", lehmer_get_seed());
+void print_usage(char* argv[]) {
+    fprintf(stderr, "Usage:\n");
+    fprintf(
+        stderr,
+        "\t%s [--seed <value>] [--count <number of random numbers to "
+        "generate>] [--mode <g|m|d>]\n",
+        argv[0]
+    );
+}
 
-    // generate lehmer gamma values
-    for (size_t i = 0; i < 10; i++) {
-        printf("%zu: %.9f\n", i, lehmer_random_gamma());
+// Define command line option structure
+static struct option long_options[]
+    = {{"help", optional_argument, 0, 'h'},
+       {"seed", required_argument, 0, 's'},
+       {"count", required_argument, 0, 'n'},
+       {"mode", required_argument, 0, 'm'}, // Adding mode option
+       {0, 0, 0, 0}};
+
+int main(int argc, char* argv[]) {
+    int    seed  = 123456789;
+    size_t count = 10;
+    char   mode  = 'm'; // Default mode is modulo
+
+    while (true) {
+        static int opt_index = 0;
+
+        int c = getopt_long(argc, argv, "h:s:n:m:", long_options, &opt_index);
+
+        if (c == -1) {
+            break;
+        }
+
+        switch (c) {
+            case 's':
+                seed = atoi(optarg); // Convert seed input
+                printf("Setting seed to: %d\n", seed);
+                break;
+
+            case 'n':
+                count = atoi(optarg); // Convert count input
+                break;
+
+            case 'm':
+                mode = optarg[0]; // Capture the first character of mode
+                if (mode != 'g' && mode != 'm' && mode != 'd') {
+                    fprintf(
+                        stderr,
+                        "Invalid mode. Use g (gamma), m (modulo), or d "
+                        "(delta).\n"
+                    );
+                    print_usage(argv);
+                    return EXIT_FAILURE;
+                }
+                break;
+
+            case 'h':
+                print_usage(argv);
+                return EXIT_SUCCESS;
+
+            default:
+                print_usage(argv);
+                return EXIT_FAILURE;
+        }
     }
 
-    return 0;
+    lehmer_set_seed(seed); // Set seed for the generator
+
+    // generate random numbers based on the selected mode
+    for (size_t i = 0; i < count; i++) {
+        double random_value;
+        switch (mode) {
+            case 'g':
+                random_value = lehmer_random_gamma();
+                break;
+
+            case 'm':
+                random_value = lehmer_random_modulo();
+                break;
+
+            case 'd':
+                random_value = lehmer_random_delta();
+                break;
+        }
+
+        printf("%zu: %.9f\n", i, random_value);
+    }
+
+    return EXIT_SUCCESS;
 }
