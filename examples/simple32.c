@@ -4,6 +4,15 @@
  * @file examples/simple32.c
  *
  * @brief Proof of concept for the Lehmer RNG in pure C from scratch
+ *
+ * @note The only difference between the 64-bit and 32-bit implementations are
+ * the data types.
+ *
+ * - The 64-bit utilizes double, uint64_t, and int64_t
+ * - The 32-bit utilizes float, uint32_t, and int32_t
+ * - The format specifiers for printing output are adjusted from llu to lu
+ *
+ * No other changes are made and both source files should mirror one another.
  */
 
 #include <stdbool.h>
@@ -15,6 +24,8 @@
  * @param LEHMER_MODULUS Mersenne prime number used as modulus (2^31 - 1)
  *
  * @note Must be a mersenne prime number
+ * - 32-bit: 2^31 - 1 = 2147483647
+ * - 64-bit: 2^61 - 1 = 2305843009213693951
  */
 #define LEHMER_MODULUS    2147483647
 
