@@ -73,7 +73,7 @@ equation $f(z) = az \mod m$.
 
 1. **Lehmer’s Core Equation**:
 
-   $$ z\_{n+1} = f(z_n) = a \cdot z_n \mod m $$
+$$z\_{n+1} = f(z_n) = a \cdot z_n \mod m$$
 
    - **`a`**: Multiplier (an integer)
    - **`m`**: Modulus (a large prime integer)
@@ -81,7 +81,7 @@ equation $f(z) = az \mod m$.
 
 2. **Normalization**:
 
-   $$ u_n = \frac{z_n}{m} $$
+$$u_n = \frac{z_n}{m}$$
 
    - This converts the raw output into the [0, 1) interval.
 
@@ -89,15 +89,13 @@ equation $f(z) = az \mod m$.
 
 1. **Binding Function (`f`)**:
 
-   $$ f(z) = \gamma(z) + m \cdot \delta(z) $$
+$$f(z) = \gamma(z) + m \cdot \delta(z)$$
 
    - The binding function combines the results of `gamma` and `delta`.
 
 2. **Gamma Function (`γ`)**:
 
-   $$
-   \gamma(z) = ((a \cdot z) \mod q) - \left(\frac{r \cdot z}{q}\right)
-   $$
+$$\gamma(z) = ((a \cdot z) \mod q) - \left(\frac{r \cdot z}{q}\right)$$
 
    - **`a * z`**: Part of the Lehmer iteration
    - **`q`**: A modulus, different from `m`. Typically a smaller modulus used
@@ -115,9 +113,7 @@ equation $f(z) = az \mod m$.
 
 3. **Delta Function (`δ`)**:
 
-   $$
-   \delta(z) = \frac{z}{q} - \left(\frac{a \cdot z}{m}\right)
-   $$
+$$\delta(z) = \frac{z}{q} - \left(\frac{a \cdot z}{m}\right)$$
 
    - **`z / q`**: Normalization or scaling term.
    - **`a * z / m`**: Scaled by the multiplier and modulus, which might adjust
