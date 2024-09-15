@@ -51,6 +51,7 @@ int test_lehmer_state(void) {
             LEHMER_STREAMS,
             state->size
         );
+        lehmer_state_print(state);
         passed = false;
     }
 
@@ -59,6 +60,7 @@ int test_lehmer_state(void) {
         LOG_ERROR(
             "\nFailed: Expected stream to be 0, but got %u", state->stream
         );
+        lehmer_state_print(state);
         passed = false;
     }
 
@@ -69,6 +71,7 @@ int test_lehmer_state(void) {
             LEHMER_SEED,
             state->seed[0]
         );
+        lehmer_state_print(state);
         passed = false;
     }
 
