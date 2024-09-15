@@ -3,10 +3,10 @@
 """
 Copyright © 2024 Austin Berrio
 
-Script: examples/lehmer.py
+@file lehmer/simple.py
 
-Brief: Super simple implementation for seed generation
-       for the Lehmer RNG in pure Python from scratch.
+@brief Super simple implementation for seed generation for the Lehmer RNG in
+pure Python from scratch.
 """
 
 import argparse
