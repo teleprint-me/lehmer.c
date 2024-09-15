@@ -59,13 +59,91 @@ equation $f(z) = az \mod m$.
 
 - **Bounded Results**: The equation $f(z) = \gamma(z) + m \cdot \delta(z)$
   ensures that all intermediate results are bounded by $m - 1$. Here:
-  - $\gamma(z) = ((a \cdot z) \mod q) - ((r \cdot z) \div q)$
-  - $\delta(z) = (z \div q) - ((a \cdot z) \div m)$
+  - $\gamma(z) = a \cdot (z \mod q) - r \cdot (z \div q)$
+  - $\delta(z) = (z \div q) - (a \cdot z \div m)$
 - **Significance of Constants**:
   - $\delta(z)$ is either 0 or 1.
-  - Both $((a \cdot z) \mod q)$ and $((r \cdot z) \div q)$ are within the range
+  - Both $a \cdot (z \mod q)$ and $r \cdot (z \div q)$ are within the range
     $0, \dots, m-1$.
   - $\lvert \gamma(z) \rvert \leq m-1$.
+
+## Deep Analysis
+
+### Core Components of Lehmer’s RNG:
+
+1. **Lehmer’s Core Equation**:
+   
+   $$ z_{n+1} = f(z_n) = a \cdot z_n \mod m $$
+   
+   - **`a`**: Multiplier (an integer)
+   - **`m`**: Modulus (a large prime integer)
+   - **`z_n`**: Seed or current value in the sequence
+
+2. **Normalization**:
+
+   $$ u_n = \frac{z_n}{m} $$
+
+   - This converts the raw output into the [0, 1) interval.
+
+### Functions in Detail:
+
+1. **Binding Function (`f`)**:
+
+   $$ f(z) = \gamma(z) + m \cdot \delta(z) $$
+
+   - The binding function combines the results of `gamma` and `delta`.
+
+2. **Gamma Function (`γ`)**:
+   
+   $$
+   \gamma(z) = ((a \cdot z) \mod q) - \left(\frac{r \cdot z}{q}\right)
+   $$
+   
+   - **`a * z`**: Part of the Lehmer iteration
+   - **`q`**: A modulus, different from `m`. Typically a smaller modulus used to limit the range of the intermediate value.
+   - **`r`**: An integer that modifies the quotient part of the gamma function. It’s not necessarily the remainder but serves as a scaling factor for the second term.
+
+   **Interpreting `r * z / q`**:
+   - `r` is the remainder, or ratio, of `m` and `a`.
+   - `q` is likely chosen to control the range of values in the gamma function.
+   - Essentially, `γ(z)` computes a scaled and shifted version of the original Lehmer sequence, adjusting the range.
+
+3. **Delta Function (`δ`)**:
+   
+   $$
+   \delta(z) = \frac{z}{q} - \left(\frac{a \cdot z}{m}\right)
+   $$
+   
+   - **`z / q`**: Normalization or scaling term.
+   - **`a * z / m`**: Scaled by the multiplier and modulus, which might adjust the overall range or distribution.
+
+   **Significance of `δ`**:
+   - The delta function provides a way to normalize or adjust values coming from the gamma function. By subtracting these terms, it might smooth out the distribution or adjust the bias introduced by the gamma function.
+
+### Analysis and Insights:
+
+1. **Seed Usage**:
+   - The seed (`z`) undergoes transformations through `gamma` and `delta`, which modify its distribution and range.
+
+2. **Normalization Effects**:
+   - The gamma function adjusts the raw output, and the delta function further normalizes it, producing values within a desired distribution range.
+
+3. **Constants (`a`, `m`, `q`, `r`)**:
+   - Constants play crucial roles in shaping the output. They influence the distribution, range, and normalization behavior.
+
+4. **Refinement**:
+   - To improve the implementation, ensure that the values of `q`, `r`, and other constants are chosen appropriately to balance the distribution. The behavior of `gamma` and `delta` should be validated against theoretical expectations and empirical results.
+
+### Testing and Verification:
+
+1. **Check Ranges and Distributions**:
+   - Verify if the values produced by `gamma` and `delta` are within expected ranges and show desired statistical properties.
+
+2. **Adjust Parameters**:
+   - Experiment with different values for `q`, `r`, and other constants to see their impact on the distribution.
+
+3. **Compare with Theory**:
+   - Ensure that the outputs align with theoretical expectations for randomness and distribution.
 
 ## Practical Application
 
