@@ -75,15 +75,15 @@ equation $f(z) = az \mod m$.
 
 $$z\_{n+1} = f(z_n) = a \cdot z_n \mod m$$
 
-   - **`a`**: Multiplier (an integer)
-   - **`m`**: Modulus (a large prime integer)
-   - **`z_n`**: Seed or current value in the sequence
+- **`a`**: Multiplier (an integer)
+- **`m`**: Modulus (a large prime integer)
+- **`z_n`**: Seed or current value in the sequence
 
 2. **Normalization**:
 
 $$u_n = \frac{z_n}{m}$$
 
-   - This converts the raw output into the [0, 1) interval.
+- This converts the raw output into the [0, 1) interval.
 
 ### Functions in Detail:
 
@@ -91,39 +91,40 @@ $$u_n = \frac{z_n}{m}$$
 
 $$f(z) = \gamma(z) + m \cdot \delta(z)$$
 
-   - The binding function combines the results of `gamma` and `delta`.
+- The binding function combines the results of `gamma` and `delta`.
 
 2. **Gamma Function (`γ`)**:
 
 $$\gamma(z) = ((a \cdot z) \mod q) - \left(\frac{r \cdot z}{q}\right)$$
 
-   - **`a * z`**: Part of the Lehmer iteration
-   - **`q`**: A modulus, different from `m`. Typically a smaller modulus used
-     to limit the range of the intermediate value.
-   - **`r`**: An integer that modifies the quotient part of the gamma function.
-     It’s not necessarily the remainder but serves as a scaling factor for the
-     second term.
+- **`a * z`**: Part of the Lehmer iteration
+- **`q`**: A modulus, different from `m`. Typically a smaller modulus used to
+  limit the range of the intermediate value.
+- **`r`**: An integer that modifies the quotient part of the gamma function.
+  It’s not necessarily the remainder but serves as a scaling factor for the
+  second term.
 
-   **Interpreting `r * z / q`**:
+**Interpreting `r * z / q`**:
 
-   - `r` is the remainder, or ratio, of `m` and `a`.
-   - `q` is likely chosen to control the range of values in the gamma function.
-   - Essentially, `γ(z)` computes a scaled and shifted version of the original
-     Lehmer sequence, adjusting the range.
+- `r` is the remainder of `m` and `a`.
+- `q` is the ration of `m` and `a` and is likely chosen to control the range of
+  values in the gamma function.
+- Essentially, `γ(z)` computes a scaled and shifted version of the original
+  Lehmer sequence, adjusting the range.
 
 3. **Delta Function (`δ`)**:
 
 $$\delta(z) = \frac{z}{q} - \left(\frac{a \cdot z}{m}\right)$$
 
-   - **`z / q`**: Normalization or scaling term.
-   - **`a * z / m`**: Scaled by the multiplier and modulus, which might adjust
-     the overall range or distribution.
+- **`z / q`**: Normalization or scaling term.
+- **`a * z / m`**: Scaled by the multiplier and modulus, which might adjust the
+  overall range or distribution.
 
-   **Significance of `δ`**:
+**Significance of `δ`**:
 
-   - The delta function provides a way to normalize or adjust values coming
-     from the gamma function. By subtracting these terms, it might smooth out
-     the distribution or adjust the bias introduced by the gamma function.
+- The delta function provides a way to normalize or adjust values coming from
+  the gamma function. By subtracting these terms, it might smooth out the
+  distribution or adjust the bias introduced by the gamma function.
 
 ### Analysis and Insights:
 
@@ -175,7 +176,7 @@ $$\delta(z) = \frac{z}{q} - \left(\frac{a \cdot z}{m}\right)$$
 ### Adjustments for 64-bit Systems
 
 - The constants and implementations can be scaled to accommodate 64-bit systems
-  by adjusting the modulus $m$ to $2^{63} - 1$ and recalculating the dependent
+  by adjusting the modulus $m$ to $2^{61} - 1$ and recalculating the dependent
   variables accordingly.
 
 ### Critique and Limitations
