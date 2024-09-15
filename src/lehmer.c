@@ -25,7 +25,7 @@ lehmer_state_t* lehmer_state_create(uint32_t size, int32_t value) {
         return NULL;
     }
 
-    state->stream = 0;                      // select the first stream
+    state->stream = 0; // select the first stream
     state->size   = (0 == size) ? 1 : size; // coerce a size of 1
 
     // set the first seed
@@ -72,8 +72,9 @@ void lehmer_state_print(lehmer_state_t* state) {
     }
 }
 
-// Stream selection should not trigger seeding; assume streams are initialized.
 void lehmer_state_select(lehmer_state_t* state, uint32_t stream) {
+    // Stream selection should not trigger seeding;
+    // assume streams are initialized.
     state->stream = stream % state->size;
 }
 
