@@ -81,6 +81,26 @@ int test_lehmer_state(void) {
     return passed ? 0 : 1;
 }
 
+test_lehmer_state_select(void) {
+    bool passed = true;
+
+    lehmer_state_t* state = setup_lehmer_state();
+
+    // @todo select a stream for the state
+    // default is 0, so we slecect the next stream
+    // lehmer_state_select(state, 1)
+    // @todo validate the stream is selected
+    // state->stream == 1
+    // @todo test for overflow and ensure values wrap around
+    // @note I don't know what the values are for this stream. will need to
+    // determine what the valid values are regardless.
+
+    teardown_lehmer_state(state);
+
+    printf("%s", passed ? "." : "x");
+    return passed ? 0 : 1;
+}
+
 /**
  * @brief Tests if the Lehmer RNG generates numbers in its full period
  *
