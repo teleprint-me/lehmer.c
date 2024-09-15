@@ -17,21 +17,22 @@ class LehmerState:
 
     def __init__(self, size: int, seed: int):
         """
-        mimic the c implementation for consistency and validity
+        Mimic the C implementation for consistency and validity
         """
-        # select the first stream
+        # Select the first stream
         self.stream = 0
-        # coerce a size of 1 if size is 0
+        # Coerce a size of 1 if size is 0
         self.size = 1 if 0 == size else size
-        # set the first seed
-        self.seed = [seed % self.MODULUS]
-        if 0 > self.seed[self.stream]:
+        # Initialize the seed list with correct size and set the first seed
+        self.seed = [seed % self.MODULUS] * self.size
+        if self.seed[self.stream] < 0:
             self.seed[self.stream] += self.MODULUS
-        # initialize remaining streams based on the first one
-        for i in range(size):
-            seed = self.seed[i - 1]  # previous seed
-            self.seed[i] = (self.MULTIPLIER * seed) % self.MODULUS
-            if 0 > self.seed[i]:  # out of bounds
+
+        # Initialize remaining streams based on the first one
+        for i in range(1, self.size):
+            z = self.seed[i - 1]  # Previous seed
+            self.seed[i] = (self.MULTIPLIER * z) % self.MODULUS
+            if self.seed[i] < 0:  # Handle any negative seeds
                 self.seed[i] += self.MODULUS
 
     @property
