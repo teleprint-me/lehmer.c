@@ -3,10 +3,9 @@
 """
 Copyright © 2024 Austin Berrio
 
-Script: lehmer/cli.py
+@file lehmer/cli.py
 
-Brief: Super simple implementation for seed generation
-       for the Lehmer RNG in pure Python from scratch.
+@brief CLI tool for validating the Lehmer RNG in pure Python from scratch.
 """
 
 import argparse
@@ -16,32 +15,46 @@ class LehmerState:
     MODULUS = 2147483647
     MULTIPLIER = 48271
 
-    def __init__(self, size: int, value: int):
-        self.seed = []
+    def __init__(self, size: int, seed: int):
+        """
+        mimic the c implementation for consistency and validity
+        """
+        # select the first stream
         self.stream = 0
-        self.size = 0
+        # coerce a size of 1 if size is 0
+        self.size = 1 if 0 == size else size
+        # set the first seed
+        self.seed = [seed % self.MODULUS]
+        if 0 > self.seed[self.stream]:
+            self.seed[self.stream] += self.MODULUS
+        # initialize remaining streams based on the first one
+        for i in range(size):
+            seed = self.seed[i - 1]  # previous seed
+            self.seed[i] = (self.MULTIPLIER * seed) % self.MODULUS
+            if 0 > self.seed[i]:  # out of bounds
+                self.seed[i] += self.MODULUS
 
     @property
-    def seed(self) -> int:
+    def current_seed(self) -> int:
         return self.seed[self.stream]
 
-    @seed.setter
-    def seed(self, value: int):
+    @current_seed.setter
+    def current_seed(self, value: int) -> None:
         self.seed[self.stream] = value % self.MODULUS
 
-    def select(self, stream: int):
+    def select(self, stream: int) -> None:
         self.stream = stream % self.size
 
-    # NOTE: Modulo "generates" the pseudo random seed
     def modulo(self) -> int:
-        """Scale the seed and return the remainder."""
-        seed = self.seed[self.stream]
-        return (self.MULTIPLIER * seed) % self.MODULUS
+        """Generate a new pseudo random seed."""
+        self.current_seed = (
+            self.MULTIPLIER * self.current_seed
+        ) % self.MODULUS
+        return self.current_seed
 
-    # NOTE: Normalization "generates" the pseudo random number
     def normalize(self) -> float:
         """Normalize the seed as a ratio of the modulus."""
-        return self.seed[self.stream] / self.MODULUS
+        return self.current_seed / self.MODULUS
 
 
 def get_arguments() -> argparse.Namespace:
@@ -53,6 +66,13 @@ def get_arguments() -> argparse.Namespace:
         type=int,
         default=123456789,
         help="The initial seed value. Default is 123456789.",
+    )
+    parser.add_argument(
+        "-z",
+        "--size",
+        type=int,
+        default=256,
+        help="The number of streams. Default is 256.",
     )
     parser.add_argument(
         "-i",
@@ -76,18 +96,37 @@ def get_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-if __name__ == "__main__":
+def main():
     args = get_arguments()
 
-    seed = args.seed
-    for i in range(args.iterations):
-        seed = lehmer_generate_modulo(seed)
-        if args.verbose:
-            print(f"Iteration {i + 1}: seed = {seed}")
+    # Initialize LehmerState
+    lehmer = LehmerState(size=args.size, seed=args.seed)
 
-    last_iteration = args.iterations
-    print(f"After {last_iteration} iterations: seed = {seed}")
+    for i in range(args.iterations):
+        lehmer.select(0)  # Stream 0
+        seed_0 = lehmer.modulo()
+
+        lehmer.select(1)  # Stream 1
+        seed_1 = lehmer.modulo()
+
+        if args.verbose:
+            print(
+                f"Iteration {i + 1}: "
+                f"Stream 0 seed = {seed_0}, "
+                f"Stream 1 seed = {seed_1}"
+            )
+
+    print(f"After {args.iterations} iterations:")
+    print(f"Stream 0 final seed: {lehmer.seed[0]}")
+    print(f"Stream 1 final seed: {lehmer.seed[1]}")
 
     if args.normalize:
-        normalized_value = lehmer_seed_normalize(seed)
-        print(f"Normalized value: {normalized_value}")
+        normalized_value_0 = lehmer.normalize()
+        lehmer.select(1)
+        normalized_value_1 = lehmer.normalize()
+        print(f"Normalized Stream 0 value: {normalized_value_0}")
+        print(f"Normalized Stream 1 value: {normalized_value_1}")
+
+
+if __name__ == "__main__":
+    main()
