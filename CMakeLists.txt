@@ -22,6 +22,9 @@ foreach(SUBMODULE IN LISTS SUBMODULES)
     add_subdirectory(mods/${SUBMODULE})
 endforeach()
 
+# Add examples
+add_subdirectory(examples)
+
 # Collect all source files into lists
 foreach(MODULE IN LISTS MODULES)
     list(APPEND LIB_HEADERS "include/${MODULE}.h")
