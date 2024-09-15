@@ -107,7 +107,7 @@ $$\gamma(z) = ((a \cdot z) \mod q) - \left(\frac{r \cdot z}{q}\right)$$
 **Interpreting `r * z / q`**:
 
 - `r` is the remainder of `m` and `a`.
-- `q` is the ration of `m` and `a` and is likely chosen to control the range of
+- `q` is the ratio of `m` and `a` and is likely chosen to control the range of
   values in the gamma function.
 - Essentially, `γ(z)` computes a scaled and shifted version of the original
   Lehmer sequence, adjusting the range.
@@ -187,6 +187,8 @@ $$\delta(z) = \frac{z}{q} - \left(\frac{a \cdot z}{m}\right)$$
   random, and improper parameters can lead to non-full-period generation.
 - The method's simplicity makes it appealing, but it requires careful attention
   to the choice of modulus and multiplier to avoid pitfalls.
+- The generator is sensitive to minor adjustments and may become unbounded,
+  indicating fragility in the method.
 
 ## Conclusion
 
