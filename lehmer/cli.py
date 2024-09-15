@@ -113,8 +113,8 @@ def main():
         if args.verbose:
             print(
                 f"Iteration {i + 1}: "
-                f"Stream 0 seed = {seed_0}, "
-                f"Stream 1 seed = {seed_1}"
+                f"[stream = 0, seed = {seed_0}], "
+                f"[stream = 1, seed = {seed_1}]"
             )
 
     print(f"After {args.iterations} iterations:")
