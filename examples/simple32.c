@@ -97,7 +97,7 @@ float lehmer_random_gamma(void) {
 }
 
 // delta generation
-double lehmer_random_delta(void) {
+float lehmer_random_delta(void) {
     lehmer_seed = lehmer_generate_gamma();
     lehmer_seed = lehmer_generate_delta();
     return lehmer_normalize();
