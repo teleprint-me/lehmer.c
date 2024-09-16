@@ -3,7 +3,7 @@
  *
  * @file examples/simple64.c
  *
- * @brief Proof of concept for the Lehmer RNG in pure C from scratch
+ * @brief Implementation of Lehmer RNG using 64-bit data types in C
  *
  * @note The only difference between the 64-bit and 32-bit implementations are
  * the data types.
@@ -51,15 +51,42 @@
  */
 uint64_t lehmer_seed = 0;
 
+/**
+ * @brief Set the current seed value
+ *
+ * @param[in] value The new seed value to be set
+ */
 void lehmer_seed_set(uint64_t value) {
     lehmer_seed = value;
 }
 
+/**
+ * @brief Retrieve the current seed value
+ *
+ * @return The current seed value as a uint64_t
+ */
 uint64_t lehmer_seed_get(void) {
     return lehmer_seed;
 }
 
 // @note: the generate functions generate the next seed
+
+/**
+ * @brief The Lehmer Random Number Generator is a simple yet elegant method
+ * based on the equation f(z) = az \mod m.
+ *
+ * The core of Lehmer’s RNG is defined by the iterative equation
+ *     z_{n+1} = f(z_n), where f(z) = a \cdot z \mod m.
+ *
+ * @param z An integer representing the current seed.
+ * @return The newly calculated seed.
+ */
+uint64_t lehmer_generate_modulo(uint64_t z) {
+    // I suppose q could be s (a new seed)?
+    uint64_t q = (uint64_t) (LEHMER_MULTIPLIER * z) % LEHMER_MODULUS;
+    printf("q: %llu\n", q); // Debug print
+    return q;
+}
 
 uint64_t lehmer_generate_gamma(uint64_t z) {
     uint64_t q = LEHMER_MODULUS / LEHMER_MULTIPLIER;
@@ -74,13 +101,6 @@ uint64_t lehmer_generate_delta(uint64_t z) {
     int64_t d = (int64_t) ((z / q) - (LEHMER_MULTIPLIER * z / LEHMER_MODULUS));
     printf("q: %llu, d: %lld\n", q, d); // Debug print
     return (d > 0) ? (uint64_t) d : (uint64_t) (d + LEHMER_MODULUS);
-}
-
-uint64_t lehmer_generate_modulo(uint64_t z) {
-    // I suppose q could be s (a new seed)?
-    uint64_t q = (uint64_t) (LEHMER_MULTIPLIER * z) % LEHMER_MODULUS;
-    printf("q: %llu\n", q); // Debug print
-    return q;
 }
 
 // @note: generates a number in the range 0.0 to 1.0
