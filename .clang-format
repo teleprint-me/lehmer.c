@@ -35,7 +35,7 @@ FixNamespaceComments: true
 # Alignment
 AlignAfterOpenBracket: BlockIndent
 AlignConsecutiveAssignments:
-  Enabled: true
+  Enabled: false
   AcrossComments: true
   AlignCompound: true
 AlignConsecutiveDeclarations:
