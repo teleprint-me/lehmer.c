@@ -73,8 +73,8 @@ static struct option long_options[]
 
 int main(int argc, char* argv[]) {
     uint32_t stream = 0; // default stream is 0
-    bool     test = false;
-    bool     verbose = false;
+    bool test = false;
+    bool verbose = false;
 
     while (true) {
         static int opt_index = 0;
