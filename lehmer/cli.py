@@ -15,12 +15,12 @@ class LehmerState:
     MODULUS = 2147483647
     MULTIPLIER = 48271
 
-    def __init__(self, size: int, seed: int, stream: int):
+    def __init__(self, size: int, seed: int):
         """
         Mimic the C implementation for consistency and validity
         """
         # Select the first stream
-        self.stream = stream
+        self.stream = 0
         # Coerce a size of 1 if size is 0
         self.size = 1 if 0 == size else size
         # Initialize the seed list with correct size and set the first seed
@@ -111,8 +111,9 @@ def main():
     lehmer = LehmerState(
         size=args.size,
         seed=args.seed,
-        stream=args.stream,
     )
+
+    lehmer.select(args.stream)
 
     for i in range(args.iterations):
         seed = lehmer.modulo()
@@ -120,7 +121,7 @@ def main():
         if args.verbose:
             print(
                 f"Iteration {i + 1}: "
-                f"[stream = {lehmer.stream}, seed = {seed}]"
+                f"stream = {lehmer.stream}, seed = {seed}"
             )
 
     print(f"After {args.iterations} iterations:")
