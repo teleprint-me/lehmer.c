@@ -34,37 +34,66 @@
 // the general idea is that we select a seed
 // then generate a new sequence from the selected seed
 
-// plant the seeds that take root
 typedef struct LehmerState {
     int32_t* seed; // Array of seeds representing the initial state
+    uint32_t index; // The selected seed to generate sequences from
     uint32_t size; // The number of seeds (upper limit)
 } lehmer_state_t;
 
-int32_t lehmer_generate_modulo(lehmer_state_t* state, uint32_t index) {
+void lehmer_generate_modulo(lehmer_state_t* state) {
+    uint32_t i = state->index;
     uint32_t a = LEHMER_MULTIPLIER;
     uint32_t m = LEHMER_MODULUS;
-    int32_t z = state->seed[index]; // Initial seed?
-    return (int32_t) ((a * z) % m);
+    int32_t z = state->seed[i];
+    int32_t r = (int64_t) (a * z) % m; // remainder
+    int32_t o = (r > 0) ? (int32_t) r : (int32_t) (r + m) % m; // output
+    state->seed[i] = o;
 }
 
-void lehmer_generator(lehmer_state_t* state, int32_t seed) {
+void lehmer_generate_gamma(lehmer_state_t* state) {
+    uint32_t i = state->index;
+    int32_t z = state->seed[i];
+    uint64_t a = LEHMER_MULTIPLIER;
+    uint64_t m = LEHMER_MODULUS;
+    uint64_t q = m / a; // quotient
+    uint64_t r = m % a; // remainder
+    int32_t y = (int32_t) (((a * z) % q) - ((r * z) / q)); // gamma
+    int32_t o = (y > 0) ? (int32_t) y : (int32_t) (y + m) % m; // output
+    state->seed[i] = o;
+}
+
+void lehmer_generate_delta(lehmer_state_t* state) {
+    uint32_t i = state->index;
+    int32_t z = state->seed[i];
+    uint64_t a = LEHMER_MULTIPLIER;
+    uint64_t m = LEHMER_MODULUS;
+    int32_t q = m / a; // quotient
+    int32_t d = (int32_t) ((z / q) - ((a * z) / m)); // delta
+    int32_t o = (d > 0) ? (int32_t) d : (int32_t) (d + m) % m; // output
+    state->seed[i] = o;
+}
+
+void lehmer_generate(
+    lehmer_state_t* state, void (*generate)(lehmer_state_t* s), int32_t seed
+) {
     // Initialize first seed
     state->seed[0] = seed;
 
     // Generate sequence of seeds
     for (uint32_t i = 1; i < state->size; i++) {
-        int32_t z = state->seed[i - 1];
-        state->seed[i] = (int32_t) ((LEHMER_MULTIPLIER * z) % LEHMER_MODULUS);
-        if (state->seed[i] < 0) {
-            state->seed[i] += LEHMER_MODULUS;
-        }
+        state->index = i - 1;
+        generate(state);
     }
 }
 
 // @warning This will generate non-deterministic results
-void lehmer_generator_time(lehmer_state_t* state) {
-    time_t now = time(NULL); // Get the current time as the seed
-    lehmer_generator(state, (int32_t) now); // Generate sequence based on time
+void lehmer_generate_time(
+    lehmer_state_t* state, void (*generate)(lehmer_state_t* s)
+) {
+    // Get the current time as the seed
+    time_t now = time(NULL);
+    // Generate sequence based on time
+    lehmer_generate(state, generate, (int32_t) now);
 }
 
 // Create and initialize the state with dynamic stream handling
