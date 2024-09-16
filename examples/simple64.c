@@ -88,6 +88,16 @@ uint64_t lehmer_generate_modulo(uint64_t z) {
     return q;
 }
 
+/**
+ * @brief Implementation of the gamma function for the Lehmer LCG PRNG
+ *
+ * This function calculates a scaled and shifted version of the original Lehmer
+ * sequence, adjusting the range. It is an essential part of the binding
+ * function for the Lehmer LCG PRNG.
+ *
+ * @param[in] z An integer representing the current seed.
+ * @return The gamma value as a uint64_t.
+ */
 uint64_t lehmer_generate_gamma(uint64_t z) {
     uint64_t q = LEHMER_MODULUS / LEHMER_MULTIPLIER;
     uint64_t r = LEHMER_MODULUS % LEHMER_MULTIPLIER;
@@ -96,6 +106,18 @@ uint64_t lehmer_generate_gamma(uint64_t z) {
     return (y > 0) ? (uint64_t) y : (uint64_t) (y + LEHMER_MODULUS);
 }
 
+/**
+ * @brief Implementation of the delta function for the Lehmer LCG PRNG
+ *
+ * This function calculates the delta value for the Lehmer LCG PRNG, which
+ * might serve as an error correction term for the seed produced by the gamma
+ * function. The implementation is based on the hypothesis that delta depends
+ * on the same variables as gamma and is computed in a way that tries to
+ * minimize the error introduced in the seed.
+ *
+ * @param[in] z An integer representing the current seed.
+ * @return The delta value as a uint64_t.
+ */
 uint64_t lehmer_generate_delta(uint64_t z) {
     uint64_t q = LEHMER_MODULUS / LEHMER_MULTIPLIER;
     int64_t d = (int64_t) ((z / q) - (LEHMER_MULTIPLIER * z / LEHMER_MODULUS));
@@ -103,7 +125,16 @@ uint64_t lehmer_generate_delta(uint64_t z) {
     return (d > 0) ? (uint64_t) d : (uint64_t) (d + LEHMER_MODULUS);
 }
 
-// @note: generates a number in the range 0.0 to 1.0
+/**
+ * @brief Normalizes the current seed to a value in the range 0.0 to 1.0
+ *
+ * This function retrieves the current seed and normalizes it by dividing it
+ * by `LEHMER_MODULUS`, converting the value to the range [0, 1]. This function
+ * can be used to generate numbers uniformly distributed in the range 0.0
+ * to 1.0.
+ *
+ * @return The normalized value as a double.
+ */
 double lehmer_normalize(void) {
     uint64_t z = lehmer_seed_get();
     return (double) z / (double) LEHMER_MODULUS;
