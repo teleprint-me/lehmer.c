@@ -39,7 +39,7 @@ AlignConsecutiveAssignments:
   AcrossComments: true
   AlignCompound: true
 AlignConsecutiveDeclarations:
-  Enabled: true
+  Enabled: false
   AcrossComments: true
 AlignConsecutiveMacros:
   Enabled: true
