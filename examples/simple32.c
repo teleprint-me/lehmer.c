@@ -25,6 +25,8 @@
 /**
  * @param LEHMER_MODULUS Mersenne prime number used as modulus (2^31 - 1)
  *
+ * m: A large prime number
+ *
  * @note Must be a mersenne prime number
  * - 32-bit: 2^31 - 1 = 2147483647
  * - 64-bit: 2^61 - 1 = 2305843009213693951
@@ -34,6 +36,8 @@
 /**
  * @param LEHMER_MULTIPLIER Multiplier used to scale the seed
  *
+ * a: A smaller prime number in the range 2, ..., m - 1
+ *
  * @warning 16807 was originally chosen for safe 32-bit arithmetic
  *
  * @note Must be a prime number
@@ -42,6 +46,10 @@
 
 /**
  * @param lehmer_seed Global variable used to track the current seed
+ *
+ * z: A value between 0, ..., m - 1
+ *
+ * @note May be any value within the defined range
  */
 uint32_t lehmer_seed = 0;
 
