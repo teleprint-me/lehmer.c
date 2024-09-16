@@ -74,6 +74,8 @@
     "*.tcss": "jinja-css",
     "*.h": "c",
     "*.c": "c",
-    "expected": "c"
+    "expected": "c",
+    "compare": "c",
+    "cstdint": "c"
   }
 }
