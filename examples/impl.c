@@ -9,7 +9,6 @@
 #include "lehmer.h"
 #include "logger.h"
 
-#include <assert.h>
 #include <stdio.h>
 
 #define MAX_SEEDS 10
@@ -27,15 +26,27 @@ int32_t expected_seeds[MAX_SEEDS] = {
     1819611286,
 };
 
+#define LEHMER_ASSERT(iteration, expected, current) \
+    if (expected != current) { \
+        LOG_ERROR( \
+            "Iteration %u: Expected %d, Got %d\n", \
+            iteration, \
+            expected, \
+            current \
+        ); \
+        exit(1); \
+    }
+
 int main(void) {
     lehmer_state_t* state = lehmer_state_create(LEHMER_STREAMS, LEHMER_SEED);
 
     for (uint32_t i = 0; i < MAX_SEEDS; i++) {
+        lehmer_state_select(state, 0);
         lehmer_generate_modulo(state);
         int32_t current  = lehmer_seed_get(state);
         int32_t expected = expected_seeds[i];
         printf("Iteration %u: Expected %d, Got %d\n", i, expected, current);
-        assert(expected == current);
+        LEHMER_ASSERT(i, expected, current);
     }
 
     float output = lehmer_seed_normalize(state);
