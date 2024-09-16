@@ -76,7 +76,8 @@ uint64_t lehmer_seed_get(void) {
  * based on the equation f(z) = az \mod m.
  *
  * The core of Lehmer’s RNG is defined by the iterative equation
- *     z_{n+1} = f(z_n), where f(z) = a \cdot z \mod m.
+ *
+ * z_{n+1} = \f(z_n), where \f(z) = a \cdot z \mod m.
  *
  * @param z An integer representing the current seed.
  * @return The newly calculated seed.
@@ -88,12 +89,17 @@ uint64_t lehmer_generate_modulo(uint64_t z) {
     return q;
 }
 
+// @note Intermediate results are bounded by m - 1
+// \f(z) = \gamma(z) + m \cdot \delta(z)
+
 /**
  * @brief Implementation of the gamma function for the Lehmer LCG PRNG
  *
  * This function calculates a scaled and shifted version of the original Lehmer
  * sequence, adjusting the range. It is an essential part of the binding
  * function for the Lehmer LCG PRNG.
+ *
+ * \gamma(z) = a \cdot (z \mod q) - r \cdot (z \div q)
  *
  * @param[in] z An integer representing the current seed.
  * @return The gamma value as a uint64_t.
@@ -114,6 +120,8 @@ uint64_t lehmer_generate_gamma(uint64_t z) {
  * function. The implementation is based on the hypothesis that delta depends
  * on the same variables as gamma and is computed in a way that tries to
  * minimize the error introduced in the seed.
+ *
+ * \delta(z) = (z \div q) - (a \cdot z \div m)
  *
  * @param[in] z An integer representing the current seed.
  * @return The delta value as a uint64_t.
@@ -159,7 +167,7 @@ double lehmer_random_gamma(void) {
 double lehmer_random_delta(void) {
     // f(z) = gamma(z) + m * delta(z)
     uint64_t z = lehmer_seed_get();
-    lehmer_seed_set(lehmer_generate_gamma(lehmer_generate_delta(z)));
+    lehmer_seed_set(lehmer_generate_delta(z));
     return lehmer_normalize();
 }
 
