@@ -40,16 +40,17 @@ typedef struct LehmerState {
     uint32_t size; // The number of seeds (upper limit)
 } lehmer_state_t;
 
+// Generates a sequence of numbers using modulo approach
 void lehmer_generate_modulo(lehmer_state_t* state) {
     uint32_t i = state->index;
     uint32_t a = LEHMER_MULTIPLIER;
     uint32_t m = LEHMER_MODULUS;
     int32_t z = state->seed[i];
     int32_t r = (int64_t) (a * z) % m; // remainder
-    int32_t o = (r > 0) ? (int32_t) r : (int32_t) (r + m) % m; // output
-    state->seed[i] = o;
+    state->seed[i] = (r > 0) ? r : (r + m) % m; // output
 }
 
+// Generates a sequence using gamma approach
 void lehmer_generate_gamma(lehmer_state_t* state) {
     uint32_t i = state->index;
     int32_t z = state->seed[i];
@@ -58,10 +59,10 @@ void lehmer_generate_gamma(lehmer_state_t* state) {
     uint64_t q = m / a; // quotient
     uint64_t r = m % a; // remainder
     int32_t y = (int32_t) (((a * z) % q) - ((r * z) / q)); // gamma
-    int32_t o = (y > 0) ? (int32_t) y : (int32_t) (y + m) % m; // output
-    state->seed[i] = o;
+    state->seed[i] = (y > 0) ? y : (y + m) % m; // output
 }
 
+// Generates a sequence using delta approach
 void lehmer_generate_delta(lehmer_state_t* state) {
     uint32_t i = state->index;
     int32_t z = state->seed[i];
@@ -69,30 +70,29 @@ void lehmer_generate_delta(lehmer_state_t* state) {
     uint64_t m = LEHMER_MODULUS;
     int32_t q = m / a; // quotient
     int32_t d = (int32_t) ((z / q) - ((a * z) / m)); // delta
-    int32_t o = (d > 0) ? (int32_t) d : (int32_t) (d + m) % m; // output
-    state->seed[i] = o;
+    state->seed[i] = (d > 0) ? d : (d + m) % m; // output
 }
 
+// Generalized Lehmer sequence generator
 void lehmer_generate(
-    lehmer_state_t* state, void (*generate)(lehmer_state_t* s), int32_t seed
+    lehmer_state_t* state, void (*generate)(lehmer_state_t*), int32_t seed
 ) {
-    // Initialize first seed
+    // Initialize the first seed
     state->seed[0] = seed;
 
     // Generate sequence of seeds
     for (uint32_t i = 1; i < state->size; i++) {
         state->index = i - 1;
-        generate(state);
+        generate(state); // Apply the generation function
     }
 }
 
-// @warning This will generate non-deterministic results
+// Generates a sequence using the current time as seed (non-deterministic)
 void lehmer_generate_time(
-    lehmer_state_t* state, void (*generate)(lehmer_state_t* s)
+    lehmer_state_t* state, void (*generate)(lehmer_state_t*)
 ) {
-    // Get the current time as the seed
+    // Get the current time as seed
     time_t now = time(NULL);
-    // Generate sequence based on time
     lehmer_generate(state, generate, (int32_t) now);
 }
 
