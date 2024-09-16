@@ -15,12 +15,12 @@ class LehmerState:
     MODULUS = 2147483647
     MULTIPLIER = 48271
 
-    def __init__(self, size: int, seed: int):
+    def __init__(self, size: int, seed: int, stream: int):
         """
         Mimic the C implementation for consistency and validity
         """
         # Select the first stream
-        self.stream = 0
+        self.stream = stream
         # Coerce a size of 1 if size is 0
         self.size = 1 if 0 == size else size
         # Initialize the seed list with correct size and set the first seed
@@ -76,6 +76,13 @@ def get_arguments() -> argparse.Namespace:
         help="The number of streams. Default is 256.",
     )
     parser.add_argument(
+        "-r",
+        "--stream",
+        type=int,
+        default=0,
+        help="The selected stream. Default is 0.",
+    )
+    parser.add_argument(
         "-i",
         "--iterations",
         type=int,
@@ -101,32 +108,27 @@ def main():
     args = get_arguments()
 
     # Initialize LehmerState
-    lehmer = LehmerState(size=args.size, seed=args.seed)
+    lehmer = LehmerState(
+        size=args.size,
+        seed=args.seed,
+        stream=args.stream,
+    )
 
     for i in range(args.iterations):
-        lehmer.select(0)  # Stream 0
-        seed_0 = lehmer.modulo()
-
-        lehmer.select(1)  # Stream 1
-        seed_1 = lehmer.modulo()
+        seed = lehmer.modulo()
 
         if args.verbose:
             print(
                 f"Iteration {i + 1}: "
-                f"[stream = 0, seed = {seed_0}], "
-                f"[stream = 1, seed = {seed_1}]"
+                f"[stream = {lehmer.stream}, seed = {seed}]"
             )
 
     print(f"After {args.iterations} iterations:")
-    print(f"Stream 0 final seed: {lehmer.seed[0]}")
-    print(f"Stream 1 final seed: {lehmer.seed[1]}")
+    print(f"Stream {lehmer.stream} final seed: {lehmer.seed[0]}")
 
     if args.normalize:
-        normalized_value_0 = lehmer.normalize()
-        lehmer.select(1)
-        normalized_value_1 = lehmer.normalize()
-        print(f"Normalized Stream 0 value: {normalized_value_0}")
-        print(f"Normalized Stream 1 value: {normalized_value_1}")
+        normalized_value = lehmer.normalize()
+        print(f"Normalized Stream {lehmer.stream} value: {normalized_value}")
 
 
 if __name__ == "__main__":
