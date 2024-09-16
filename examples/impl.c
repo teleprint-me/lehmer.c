@@ -37,9 +37,7 @@ int32_t expected_seeds[MAX_SEEDS] = {
         exit(1); \
     }
 
-int main(void) {
-    lehmer_state_t* state = lehmer_state_create(LEHMER_STREAMS, LEHMER_SEED);
-
+int test_lehmer_generator_modulo(lehmer_state_t* state) {
     for (uint32_t i = 0; i < MAX_SEEDS; i++) {
         lehmer_state_select(state, 0);
         lehmer_generate_modulo(state);
@@ -48,6 +46,11 @@ int main(void) {
         printf("Iteration %u: Expected %d, Got %d\n", i, expected, current);
         LEHMER_ASSERT(i, expected, current);
     }
+}
+
+int main(void) {
+    lehmer_state_t* state = lehmer_state_create(LEHMER_STREAMS, LEHMER_SEED);
+    test_lehmer_generator_modulo(state);
 
     float output = lehmer_seed_normalize(state);
     printf("Normalized Seed: %.9f\n", output);
