@@ -27,13 +27,13 @@
 #include <stdlib.h>
 
 /**
- * @param LEHMER_MODULUS Mersenne prime number used as modulus (2^31 - 1)
+ * @param LEHMER_MODULUS Mersenne prime number used as modulus (2^31 - 1).
  *
  * @note Originally chosen for the IBM System/360 to avoid overflow errors
  *       in 32-bit integer arithmetic. This choice remains relevant for
  *       modern embedded systems with similar constraints.
  */
-#define LEHMER_MODULUS     2147483647
+#define LEHMER_MODULUS 2147483647
 
 /**
  * @param LEHMER_MULTIPLIER Multiplier used to scale the seed
@@ -45,29 +45,29 @@
  *       this choice is still effective in modern contexts where 32-bit
  *       constraints apply.
  */
-#define LEHMER_MULTIPLIER  48271
+#define LEHMER_MULTIPLIER 48271
 
 /**
  * @param LEHMER_JUMP Multiplier for "jump" scaling seeds
  *
  * @note The multiplier must be a prime number.
  */
-#define LEHMER_JUMP        22937
+#define LEHMER_JUMP 22937
 
 /**
  * @param LEHMER_STREAMS Number of streams
  */
-#define LEHMER_STREAMS     256
+#define LEHMER_STREAMS 256
 
 /**
  * @param LEHMER_SEED Default seed value
  */
-#define LEHMER_SEED        123456789
+#define LEHMER_SEED 123456789
 
 /**
  * @param LEHMER_CHECK_SEED Used in testing for validation
  */
-#define LEHMER_CHECK_SEED  1753928844 // After 10,000 iterations
+#define LEHMER_CHECK_SEED 1753928844 // After 10,000 iterations
 
 /**
  * @param LEHMER_CHECK_VALUE Used in testing for validation
@@ -77,7 +77,7 @@
 /**
  * @param LEHMER_CHECK_JUMP Used in testing for validation
  */
-#define LEHMER_CHECK_JUMP  399268537
+#define LEHMER_CHECK_JUMP 399268537
 
 /**
  * @brief Structure representing the state of the LCG RNG
@@ -98,14 +98,14 @@ typedef struct LehmerState {
 // -> lehmer_state_create
 
 lehmer_state_t* lehmer_state_create(uint32_t size, int32_t value);
-void            lehmer_state_free(lehmer_state_t* state);
-void            lehmer_state_select(lehmer_state_t* state, uint32_t stream);
-void            lehmer_state_print(lehmer_state_t* state);
+void lehmer_state_free(lehmer_state_t* state);
+void lehmer_state_select(lehmer_state_t* state, uint32_t stream);
+void lehmer_state_print(lehmer_state_t* state);
 
 int32_t lehmer_seed_get(lehmer_state_t* state);
-void    lehmer_seed_set(lehmer_state_t* state, int32_t value);
-float   lehmer_seed_normalize(lehmer_state_t* state);
-void    lehmer_seed_streams(lehmer_state_t* state, int32_t value);
+void lehmer_seed_set(lehmer_state_t* state, int32_t value);
+float lehmer_seed_normalize(lehmer_state_t* state);
+void lehmer_seed_streams(lehmer_state_t* state, int32_t value);
 
 // @note lehmer_generate_* functions generate new seeds
 void lehmer_generate_modulo(lehmer_state_t* state);
