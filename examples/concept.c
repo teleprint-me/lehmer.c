@@ -11,22 +11,32 @@
 #include <time.h>
 
 /**
- * @param LEHMER_MODULUS Mersenne prime number used as modulus (2^31 - 1)
+ * @param LEHMER_MODULUS Mersenne prime number used as modulus (2^31 - 1).
  */
 #define LEHMER_MODULUS     2147483647
 
 /**
- * @param LEHMER_MULTIPLIER Multiplier is a prime number used to scale the seed
+ * @param LEHMER_MULTIPLIER Prime number used to scale the seed.
  */
 #define LEHMER_MULTIPLIER  48271
 
 /**
- * @param LEHMER_JUMP A prime number used as a multiplier to "jump" scale seeds
+ * @param LEHMER_JUMP Prime number used as a multiplier to "jump" scale seeds.
  */
 #define LEHMER_JUMP        22937
 
-// @todo Figure out what these values mean; Needs research.
+/**
+ * @param LEHMER_QUOTIENT Result of dividing LEHMER_MODULUS by
+ * LEHMER_MULTIPLIER. Useful for range normalization in Lehmer-based
+ * calculations.
+ */
 #define LEHMER_QUOTIENT    ((LEHMER_MODULUS) / (LEHMER_MULTIPLIER))
+
+/**
+ * @param LEHMER_REMAINDER Result of modulus operation between LEHMER_MODULUS
+ * and LEHMER_MULTIPLIER. Important for handling overflows and adjusting
+ * outputs.
+ */
 #define LEHMER_REMAINDER   ((LEHMER_MODULUS) % (LEHMER_MULTIPLIER))
 
 /**
