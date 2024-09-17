@@ -16,7 +16,7 @@
  * @ref Introduction to Probability and Mathematical Statistics
  * @cite 9.3: The Bernoulli and Binomial Random Variables
  *
- * @note Some loose deveopment guidelines
+ * @note Some loose development guidelines
  * - Keep the interface clean and transparent.
  * - Keep the implementation simple and to the point.
  * - Do not obfuscate user interaction.
@@ -132,14 +132,14 @@ void lehmer_state_print(lehmer_state_t* state);
 void lehmer_seed_select(lehmer_state_t* state, uint32_t index);
 int32_t lehmer_seed_get(lehmer_state_t* state);
 void lehmer_seed_set(lehmer_state_t* state, int32_t value);
-void lehmer_seed_initialization(
+void lehmer_seed_regenerate(
     lehmer_state_t* state, lehmer_generate_t generator
 );
 
 // Lehmer seed normalization
 
-int32_t lehmer_seed_normalize_int(int32_t value, uint32_t modulus);
-float lehmer_seed_normalize_float(lehmer_state_t* state);
+float lehmer_seed_normalize_to_float(lehmer_state_t* state);
+int32_t lehmer_seed_normalize_to_int(int32_t value, uint32_t modulus);
 
 // Generate related functions
 
@@ -200,7 +200,7 @@ void lehmer_generate(
 
 void lehmer_generate_time(lehmer_state_t* state, lehmer_generate_t generator);
 
-// Randome related functions
+// Lehmer random functions
 
 // @note lehmer_random_* functions generate normalized random numbers
 float lehmer_random_modulo(lehmer_state_t* state);
