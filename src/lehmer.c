@@ -26,7 +26,7 @@ lehmer_state_t* lehmer_state_create(uint32_t size, int32_t value) {
     }
 
     state->stream = 0; // select the first stream
-    state->size   = (0 == size) ? 1 : size; // coerce a size of 1
+    state->size = (0 == size) ? 1 : size; // coerce a size of 1
 
     // set the first seed
     state->seed[state->stream] = (int32_t) (value % LEHMER_MODULUS);
@@ -36,7 +36,7 @@ lehmer_state_t* lehmer_state_create(uint32_t size, int32_t value) {
 
     // Initialize remaining streams based on the first one
     for (uint32_t i = 1; i < state->size; i++) {
-        int32_t z      = state->seed[i - 1]; // previous seed
+        int32_t z = state->seed[i - 1]; // previous seed
         state->seed[i] = (int32_t) ((LEHMER_MULTIPLIER * z) % LEHMER_MODULUS);
         if (state->seed[i] < 0) {
             state->seed[i] += LEHMER_MODULUS;
@@ -94,8 +94,8 @@ float lehmer_seed_normalize(lehmer_state_t* state) {
 
 // Initialize the RNG state with seeds; decoupled from stream selection.
 void lehmer_seed_streams(lehmer_state_t* state, int32_t value) {
-    const int32_t  q = LEHMER_MODULUS / LEHMER_JUMP;
-    const int32_t  r = LEHMER_MODULUS % LEHMER_JUMP;
+    const int32_t q = LEHMER_MODULUS / LEHMER_JUMP;
+    const int32_t r = LEHMER_MODULUS % LEHMER_JUMP;
     const uint32_t s = state->stream; // backup
 
     // Select the first stream
@@ -107,7 +107,7 @@ void lehmer_seed_streams(lehmer_state_t* state, int32_t value) {
 
     // Initialize remaining streams based on the first one
     for (uint32_t i = 1; i < state->size; i++) {
-        int32_t z      = state->seed[i - 1]; // previous seed
+        int32_t z = state->seed[i - 1]; // previous seed
         state->seed[i] = (int32_t) (((LEHMER_JUMP * z) % q) - ((r * z) / q));
     }
 }
@@ -116,26 +116,31 @@ void lehmer_seed_streams(lehmer_state_t* state, int32_t value) {
 
 void lehmer_generate_modulo(lehmer_state_t* state) {
     int32_t z = state->seed[state->stream];
-    int32_t m = (int32_t) ((LEHMER_MULTIPLIER * z) % LEHMER_MODULUS);
-    int32_t o = (m > 0) ? (int32_t) m : (int32_t) (m + LEHMER_MODULUS);
+    int64_t a = LEHMER_MULTIPLIER;
+    int64_t m = LEHMER_MODULUS;
+    int64_t r = (int64_t) (a * z) % m; // remainder
+    int32_t o = (r > 0) ? (int32_t) r : (int32_t) (r + m); // output
     state->seed[state->stream] = o;
 }
 
 void lehmer_generate_gamma(lehmer_state_t* state) {
     int32_t z = state->seed[state->stream];
-    int32_t q = LEHMER_MODULUS / LEHMER_MULTIPLIER;
-    int32_t r = LEHMER_MODULUS % LEHMER_MULTIPLIER;
-    int32_t y = (int32_t) (((LEHMER_MULTIPLIER * z) % q) - ((r * z) / q));
-    int32_t o = (y > 0) ? (int32_t) y : (int32_t) (y + LEHMER_MODULUS);
+    uint64_t a = LEHMER_MULTIPLIER;
+    uint64_t m = LEHMER_MODULUS;
+    uint64_t q = m / a; // quotient
+    uint64_t r = m % a; // remainder
+    int32_t y = (int32_t) (((a * z) % q) - ((r * z) / q)); // gamma
+    int32_t o = (y > 0) ? (int32_t) y : (int32_t) (y + m); // output
     state->seed[state->stream] = o;
 }
 
 void lehmer_generate_delta(lehmer_state_t* state) {
     int32_t z = state->seed[state->stream];
-    int32_t q = LEHMER_MODULUS / LEHMER_MULTIPLIER;
-    int32_t d
-        = (int32_t) ((z / q) - ((LEHMER_MULTIPLIER * z) / LEHMER_MODULUS));
-    int32_t o = (d > 0) ? (int32_t) d : (int32_t) (d + LEHMER_MODULUS);
+    uint64_t a = LEHMER_MULTIPLIER;
+    uint64_t m = LEHMER_MODULUS;
+    int32_t q = m / a; // quotient
+    int32_t d = (int32_t) ((z / q) - ((a * z) / m)); // delta
+    int32_t o = (d > 0) ? (int32_t) d : (int32_t) (d + m); // output
     state->seed[state->stream] = o;
 }
 
