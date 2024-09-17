@@ -58,7 +58,7 @@ typedef struct LehmerState {
     uint32_t size; // The number of seeds (upper limit)
 } lehmer_state_t;
 
-static inline int32_t lehmer_generate_output(int32_t val, uint32_t mod) {
+static inline int32_t lehmer_seed_bind(int32_t val, uint32_t mod) {
     return (int32_t) ((val + mod) % mod);
 }
 
@@ -70,7 +70,7 @@ void lehmer_generate_modulo(lehmer_state_t* state) {
     int32_t z = state->seed[i];
 
     int32_t r = (int32_t) (a * z) % m;
-    state->seed[i] = lehmer_generate_output(r, m);
+    state->seed[i] = lehmer_seed_bind(r, m);
 }
 
 // Generates a sequence using gamma approach
@@ -85,7 +85,7 @@ void lehmer_generate_gamma(lehmer_state_t* state) {
 
     // @todo Validate the order of operations
     int32_t y = (int32_t) ((a * (z % q)) - (r * (z / q))); // gamma
-    state->seed[i] = lehmer_generate_output(y, m);
+    state->seed[i] = lehmer_seed_bind(y, m);
 }
 
 // Generates a sequence using delta approach
@@ -99,7 +99,7 @@ void lehmer_generate_delta(lehmer_state_t* state) {
 
     // @todo Validate the order of operations
     int32_t d = (int32_t) ((z / q) - (a * (z / m))); // delta
-    state->seed[i] = lehmer_generate_output(d, m);
+    state->seed[i] = lehmer_seed_bind(d, m);
 }
 
 void lehmer_generate_jump(lehmer_state_t* state) {
@@ -112,7 +112,7 @@ void lehmer_generate_jump(lehmer_state_t* state) {
     int32_t z = state->seed[i];
 
     int32_t j = (int32_t) ((a * (z % q)) - (r * (z / q)));
-    state->seed[i] = lehmer_generate_output(j, m);
+    state->seed[i] = lehmer_seed_bind(j, m);
 }
 
 // Generalized Lehmer sequence generator
@@ -178,31 +178,41 @@ void lehmer_state_free(lehmer_state_t* state) {
     }
 }
 
-uint32_t lehmer_state_select(lehmer_state_t* state, uint32_t index) {
-    return index % state->index;
+// select a seed from the current state
+static inline uint32_t
+lehmer_state_select(lehmer_state_t* state, uint32_t index) {
+    // bind the index to the size of seed else nullify to 0.
+    return (0 == state->size) ? 0 : index % state->size;
 }
 
-void lehmer_state_reseed(lehmer_state_t* state, uint32_t index) {
+void lehmer_state_reseed(
+    lehmer_state_t* state, void (*generate)(lehmer_state_t*), uint32_t index
+) {
     // Prevent out-of-bounds indexing
     state->index = lehmer_state_select(state, index);
     // Get the selected seed
     int32_t seed = state->seed[state->index];
     // Generate a new stream based on this seed
-    lehmer_generate(state, lehmer_generate_modulo, seed);
+    lehmer_generate(state, generate, seed);
 }
 
 int32_t lehmer_seed_get(lehmer_state_t* state) {
+    // Prevent out-of-bounds indexing
+    state->index = lehmer_state_select(state, state->index);
     return state->seed[state->index];
 }
 
-void lehmer_seed_set(lehmer_state_t* state, int32_t value) {
+void lehmer_seed_set(
+    lehmer_state_t* state, void (*generate)(lehmer_state_t*), int32_t value
+) {
     // Ensure seed is within the modulus range
     int32_t seed = (int32_t) (value % LEHMER_MODULUS);
     // Generate a new stream based on this seed
-    lehmer_generate(state, lehmer_generate_modulo, seed);
+    lehmer_generate(state, generate, seed);
 }
 
 // @note: generates a number in the range 0.0 to 1.0
 float lehmer_seed_normalize(lehmer_state_t* state) {
-    return (float) state->seed[state->index] / (float) LEHMER_MODULUS;
+    int32_t seed = lehmer_seed_bind(state->seed[state->index], LEHMER_MODULUS);
+    return (float) seed / (float) LEHMER_MODULUS;
 }
