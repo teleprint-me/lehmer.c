@@ -213,6 +213,13 @@ void lehmer_seed_set(
 
 // @note: generates a number in the range 0.0 to 1.0
 float lehmer_seed_normalize(lehmer_state_t* state) {
-    int32_t seed = lehmer_seed_bind(state->seed[state->index], LEHMER_MODULUS);
+    int32_t seed = state->seed[state->index];
+    seed = lehmer_seed_bind(seed, LEHMER_MODULUS);
     return (float) seed / (float) LEHMER_MODULUS;
+}
+
+// Generalized random number generation
+float lehmer_random(lehmer_state_t* state, void (*generate)(lehmer_state_t*)) {
+    generate(state);
+    return lehmer_seed_normalize(state);
 }
