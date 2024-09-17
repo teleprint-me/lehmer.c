@@ -120,24 +120,21 @@ typedef void (*lehmer_generate_t)(lehmer_state_t*);
 
 lehmer_state_t* lehmer_state_create(uint32_t size, int32_t seed);
 void lehmer_state_free(lehmer_state_t* state);
-void lehmer_state_reseed(
-    lehmer_state_t* state, lehmer_generate_t generate, uint32_t index
-);
-void lehmer_state_reseed(
-    lehmer_state_t* state, lehmer_generate_t generate, uint32_t index
-);
-void lehmer_state_select(lehmer_state_t* state, uint32_t index);
 void lehmer_state_print(lehmer_state_t* state);
 
-// Seed seed management
+// Lehmer seed management
 
-int32_t lehmer_seed_bind(int32_t value, uint32_t modulus);
+void lehmer_seed_select(lehmer_state_t* state, uint32_t index);
 int32_t lehmer_seed_get(lehmer_state_t* state);
-void lehmer_seed_set(
-    lehmer_state_t* state, lehmer_generate_t generate, int32_t value
+void lehmer_seed_set(lehmer_state_t* state, int32_t value);
+void lehmer_seed_initialization(
+    lehmer_state_t* state, lehmer_generate_t generator
 );
-float lehmer_seed_normalize(lehmer_state_t* state);
-void lehmer_seed_streams(lehmer_state_t* state, int32_t value);
+
+// Lehmer seed normalization
+
+int32_t lehmer_seed_normalize_int(int32_t value, uint32_t modulus);
+float lehmer_seed_normalize_float(lehmer_state_t* state);
 
 // Generate related functions
 
@@ -189,10 +186,12 @@ void lehmer_generate_gamma(lehmer_state_t* state);
 void lehmer_generate_delta(lehmer_state_t* state);
 
 void lehmer_generate_jump(lehmer_state_t* state);
+
 void lehmer_generate(
-    lehmer_state_t* state, lehmer_generate_t generate, int32_t seed
+    lehmer_state_t* state, lehmer_generate_t generator, int32_t seed
 );
-void lehmer_generate_time(lehmer_state_t* state, lehmer_generate_t generate);
+
+void lehmer_generate_time(lehmer_state_t* state, lehmer_generate_t generator);
 
 // Randome related functions
 
@@ -200,7 +199,7 @@ void lehmer_generate_time(lehmer_state_t* state, lehmer_generate_t generate);
 float lehmer_random_modulo(lehmer_state_t* state);
 float lehmer_random_gamma(lehmer_state_t* state);
 float lehmer_random_delta(lehmer_state_t* state);
-float lehmer_random(lehmer_state_t* state, lehmer_generate_t generate);
+float lehmer_random(lehmer_state_t* state, lehmer_generate_t generator);
 
 // Variate related functions
 
