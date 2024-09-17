@@ -53,7 +53,10 @@ typedef struct LehmerState {
     uint32_t size; // The number of seeds (upper limit)
 } lehmer_state_t;
 
-// Generates a sequence of numbers using modulo approach
+static inline int32_t lehmer_generate_output(int32_t val, uint32_t mod) {
+    return (val > 0) ? val : (val + mod) % mod;
+}
+
 void lehmer_generate_modulo(lehmer_state_t* state) {
     const uint32_t a = LEHMER_MULTIPLIER;
     const uint32_t m = LEHMER_MODULUS;
@@ -61,8 +64,8 @@ void lehmer_generate_modulo(lehmer_state_t* state) {
     uint32_t i = state->index;
     int32_t z = state->seed[i];
 
-    int32_t r = (int64_t) (a * z) % m; // remainder
-    state->seed[i] = (r > 0) ? r : (r + m) % m; // output
+    int32_t r = (int64_t) (a * z) % m;
+    state->seed[i] = lehmer_generate_output(r, m);
 }
 
 // Generates a sequence using gamma approach
@@ -77,7 +80,7 @@ void lehmer_generate_gamma(lehmer_state_t* state) {
 
     // @todo Validate the order of operations
     int32_t y = (int32_t) ((a * (z % q)) - (r * (z / q))); // gamma
-    state->seed[i] = (y > 0) ? y : (y + m) % m; // output
+    state->seed[i] = lehmer_generate_output(y, m);
 }
 
 // Generates a sequence using delta approach
@@ -91,7 +94,7 @@ void lehmer_generate_delta(lehmer_state_t* state) {
 
     // @todo Validate the order of operations
     int32_t d = (int32_t) ((z / q) - (a * (z / m))); // delta
-    state->seed[i] = (d > 0) ? d : (d + m) % m; // output
+    state->seed[i] = lehmer_generate_output(d, m);
 }
 
 // Generalized Lehmer sequence generator
@@ -119,20 +122,25 @@ void lehmer_generate_time(
 
 // Create and initialize the state with dynamic stream handling
 lehmer_state_t* lehmer_state_create(uint32_t size, int32_t seed) {
+    // Allocate memory for managing the LCG PRNG state
     lehmer_state_t* state = (lehmer_state_t*) malloc(sizeof(lehmer_state_t));
     if (NULL == state) {
         return NULL;
     }
 
-    state->seed = (int32_t*) malloc(sizeof(int32_t) * size);
+    // Initialize the index
+    state->index = 0;
+    // Ensure size is at least 1
+    state->size = (size == 0) ? 1 : size;
+
+    // Allocate memory for generating seeds
+    state->seed = (int32_t*) malloc(sizeof(int32_t) * state->size);
     if (NULL == state->seed) {
         free(state);
         return NULL;
     }
 
-    // Ensure size is at least 1
-    state->size = (size == 0) ? 1 : size;
-    // Generate initial seed sequence
+    // Initialize the seed state object
     lehmer_generate(state, lehmer_generate_modulo, seed);
 
     return state;
@@ -171,3 +179,5 @@ void lehmer_seed_set(lehmer_state_t* state, int32_t value) {
     // Generate a new stream based on this seed
     lehmer_generate(state, lehmer_generate_modulo, seed);
 }
+
+// Placeholder for stream skipping functionality via LEHMER_JUMP
