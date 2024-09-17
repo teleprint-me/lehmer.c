@@ -16,6 +16,7 @@
  * @ref Introduction to Probability and Mathematical Statistics
  * @cite 9.3: The Bernoulli and Binomial Random Variables
  *
+ * @note Some loose deveopment guidelines
  * - Keep the interface clean and transparent.
  * - Keep the implementation simple and to the point.
  * - Do not obfuscate user interaction.
