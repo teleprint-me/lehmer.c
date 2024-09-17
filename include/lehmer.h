@@ -3,20 +3,24 @@
  *
  * @file include/lehmer.h
  *
- * @brief A comprehensive implementation of the Lehmer RNG in pure C
+ * @brief A 32-bit implementation of the Lehmer RNG in pure C
  *
- * Title: Random number generators: good ones are hard to find
- * Paper: https://dl.acm.org/doi/10.1145/63039.63042
- * Source: https://www.cs.wm.edu/~va/software/park/park.html
+ * @ref Random number generators: good ones are hard to find
+ * @cite https://dl.acm.org/doi/10.1145/63039.63042
+ * @cite https://www.cs.wm.edu/~va/software/park/park.html
  *
- * If you get stuck, see the following for more details:
+ * @ref Discrete Mathematics
+ * @cite 1.2 Binomial Coefficients for definitions
+ * @cite 5.1 Generating Functions for details
  *
- *   Discrete Mathematics
- *     - 1.2 Binomial Coefficients for definitions
- *     - 5.1 Generating Functions for details
+ * @ref Introduction to Probability and Mathematical Statistics
+ * @cite 9.3: The Bernoulli and Binomial Random Variables
  *
- *   Introduction to Probability and Mathematical Statistics
- *     - 9.3: The Bernoulli and Binomial Random Variables
+ * - Keep the interface clean and transparent.
+ * - Keep the implementation simple and to the point.
+ * - Do not obfuscate user interaction.
+ * - Encapsulate critical aspects of the interface.
+ * - Hide complexity if and only if reasonably possible.
  */
 
 #ifndef LEHMER_H
@@ -185,6 +189,8 @@ void lehmer_generate_gamma(lehmer_state_t* state);
  */
 void lehmer_generate_delta(lehmer_state_t* state);
 
+// @brief similar to the gamma function. the only difference is the use of a
+// jump multiplier. otherwise, they're identical.
 void lehmer_generate_jump(lehmer_state_t* state);
 
 void lehmer_generate(
