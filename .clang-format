@@ -42,7 +42,7 @@ AlignConsecutiveDeclarations:
   Enabled: false
   AcrossComments: true
 AlignConsecutiveMacros:
-  Enabled: true
+  Enabled: false
   AcrossEmptyLines: true
   AcrossComments: true
 AlignEscapedNewlines: DontAlign
