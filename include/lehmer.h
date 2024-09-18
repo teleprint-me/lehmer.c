@@ -213,7 +213,7 @@ void lehmer_seed_regenerate(
  *
  * @return The normalized seed as a float in the range 0.0 to 1.0
  */
-float lehmer_seed_normalize_to_float(lehmer_state_t* state);
+static inline float lehmer_seed_normalize_to_float(lehmer_state_t* state);
 
 /**
  * @brief Normalizes a seed to an integer in the range 0 to m - 1
@@ -223,7 +223,8 @@ float lehmer_seed_normalize_to_float(lehmer_state_t* state);
  *
  * @return The normalized seed as an integer in the range 0 to m - 1
  */
-int32_t lehmer_seed_normalize_to_int(int32_t value, uint32_t modulus);
+static inline int32_t
+lehmer_seed_normalize_to_int(int32_t value, uint32_t modulus);
 
 // Generate related functions
 

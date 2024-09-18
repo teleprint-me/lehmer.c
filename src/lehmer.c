@@ -117,13 +117,14 @@ void lehmer_seed_regenerate(
 // Lehmer seed normalization
 
 // @brief Normalizes a seed to a float in the range 0.0 to 1.0
-float lehmer_seed_normalize_to_float(lehmer_state_t* state) {
+static inline float lehmer_seed_normalize_to_float(lehmer_state_t* state) {
     lehmer_seed_select(state, state->index);
     return (float) state->seed[state->index] / (float) LEHMER_MODULUS;
 }
 
 // @brief Normalizes a seed to a integer in the range 0 to m - 1
-int32_t lehmer_seed_normalize_to_int(int32_t value, uint32_t modulus) {
+static inline int32_t
+lehmer_seed_normalize_to_int(int32_t value, uint32_t modulus) {
     return (int32_t) ((value + modulus) % modulus);
 }
 
