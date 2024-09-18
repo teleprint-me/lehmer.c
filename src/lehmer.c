@@ -31,7 +31,7 @@
 
 // Lehmer state management
 
-// Create and initialize the state with dynamic stream handling
+// Create and initialize the state with dynamic seed generation
 lehmer_state_t* lehmer_state_create(uint32_t size, int32_t seed) {
     // Allocate memory for managing the LCG PRNG state
     lehmer_state_t* state = (lehmer_state_t*) malloc(sizeof(lehmer_state_t));
@@ -95,13 +95,13 @@ void lehmer_seed_select(lehmer_state_t* state, uint32_t index) {
 
 int32_t lehmer_seed_get(lehmer_state_t* state) {
     // bind and fetch the selected seed
-    lehmer_state_select(state, state->index);
+    lehmer_seed_select(state, state->index);
     return state->seed[state->index];
 }
 
 void lehmer_seed_set(lehmer_state_t* state, int32_t value) {
     // Bind the state and index for the value
-    lehmer_state_select(state, state->index);
+    lehmer_seed_select(state, state->index);
     // Bind the value to the modulus
     state->seed[state->index] = (int32_t) (value % LEHMER_MODULUS);
 }
@@ -118,7 +118,7 @@ void lehmer_seed_regenerate(
 
 // @brief Normalizes a seed to a float in the range 0.0 to 1.0
 float lehmer_seed_normalize_to_float(lehmer_state_t* state) {
-    lehmer_state_select(state, state->index);
+    lehmer_seed_select(state, state->index);
     return (float) state->seed[state->index] / (float) LEHMER_MODULUS;
 }
 
