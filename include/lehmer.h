@@ -22,6 +22,13 @@
  * - Do not obfuscate user interaction.
  * - Encapsulate critical aspects of the interface.
  * - Hide complexity if and only if reasonably possible.
+ *
+ * @note useful for autocomplete and mnemonic (easy to remember or ref)
+ *
+ * (prefix)_(group)_(v.|adj.|n.)
+ *
+ * prefix: lehmer, group: state, verb: create
+ * -> lehmer_state_create
  */
 
 #ifndef LEHMER_H
@@ -108,15 +115,6 @@ typedef struct LehmerState {
     uint32_t size; // The number of seeds (upper limit)
     uint32_t index; // The selected seed to generate sequences from
 } lehmer_state_t;
-
-/**
- * @note useful for autocomplete and mnemonic (easy to remember or ref)
- *
- * (prefix)_(group)_(v.|adj.|n.)
- *
- * prefix: lehmer, group: state, verb: create
- * -> lehmer_state_create
- */
 
 /**
  * @brief Callback function for generating new seeds in the Lehmer RNG.
@@ -227,7 +225,7 @@ int32_t lehmer_seed_normalize_to_int(int32_t value, uint32_t modulus);
  *
  * The core of Lehmer’s RNG is defined by the iterative equation
  *
- * z_{n+1} = \f(z_n), where \f(z) = a \cdot z \mod m.
+ * z_{n+1} = \f(z_n), where \f(z) = a \cdot z \mod m
  *
  * @param[in] state The current state object.
  */
@@ -274,7 +272,7 @@ void lehmer_generate_delta(lehmer_state_t* state);
  * The core of the Lehmer LCG PRNG with a jump multiplier is defined by the
  * iterative equation
  *
- * \gamma(z) = a \cdot (z \mod q) - r \cdot (z \div q).
+ * \gamma(z) = a \cdot (z \mod q) - r \cdot (z \div q)
  *
  * @param[in] state The current state object.
  */
