@@ -8,10 +8,13 @@
  * gcc -o concept examples/concept.c
  */
 
+#include <math.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+/** Simplified conceptual API */
 
 #define LEHMER_MODULUS 2147483647 // Mersenne prime number (2^31 - 1)
 #define LEHMER_MULTIPLIER 48271 // Prime number
@@ -103,6 +106,8 @@ void lehmer_state_free(lehmer_state_t* state) {
     }
 }
 
+/** State output */
+
 void lehmer_state_print(lehmer_state_t* state) {
     fprintf(stderr, "lehmer->size: %zu\n", state->size);
     fprintf(stderr, "lehmer->index: %zu\n", state->index);
@@ -119,6 +124,48 @@ void lehmer_state_print(lehmer_state_t* state) {
     }
 }
 
+/** Debugging */
+
+// @brief Valid stream for selected state at stream 0 using LEHMER_SEED
+// @ref python -m lehmer.cli -v -i 10 -r 0
+// `python -m lehmer.cli -h` for more info
+int32_t expected_stream[LEHMER_SIZE] = {
+    115541394,
+    283598515,
+    1523151587,
+    652633738,
+    1845549155,
+    291648857,
+    1426670162,
+    1289797906,
+    2136310349,
+    1819611286,
+};
+
+#define LEHMER_ASSERT_INTEGER(iteration, expected, current) \
+    if ((expected) != (current)) { \
+        fprintf( \
+            stderr, \
+            "Iteration %u: Expected %d, Got %d\n", \
+            iteration, \
+            expected, \
+            current \
+        ); \
+        exit(1); \
+    }
+
+#define LEHMER_ASSERT_FLOAT(iteration, expected, current) \
+    if (!((fabsf(expected - current)) < (0.000001f))) { \
+        fprintf( \
+            stderr, \
+            "Iteration %u: Expected %f, Got %f\n", \
+            iteration, \
+            expected, \
+            current \
+        ); \
+        exit(1); \
+    }
+
 int main(void) {
     lehmer_state_t* state = lehmer_state_create(LEHMER_SIZE, LEHMER_SEED);
 
@@ -128,12 +175,15 @@ int main(void) {
     for (uint32_t i = 1; i < state->size; i++) {
         state->index = i;
         printf("Iteration %u: Seed = %d\n", i, state->seed[i]);
+        LEHMER_ASSERT_INTEGER(i, expected_stream[i], state->seed[i]);
     }
 
     // last seed
     int32_t seed = state->seed[state->index];
     float random = lehmer_seed_normalize_to_float(seed);
+    float expected = 0.847322534f;
     printf("Random Number = %.7f\n", random);
+    LEHMER_ASSERT_FLOAT(state->index, expected, random);
 
     lehmer_state_free(state);
 
