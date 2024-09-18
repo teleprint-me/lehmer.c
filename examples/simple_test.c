@@ -3,7 +3,7 @@
  *
  * @file examples/lehmer.c
  *
- * @brief Minimal implementation
+ * @brief Minimal test cases
  */
 
 #include "lehmer.h"
