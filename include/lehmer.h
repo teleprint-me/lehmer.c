@@ -34,6 +34,11 @@
  *
  * where prefix = lehmer, group = state, and verb = create
  * yields lehmer_state_create
+ *
+ * @todo Variates are a work in progress.
+ *
+ * @note new issue arises because each of the variates requires a generator as
+ * well.
  */
 
 #ifndef LEHMER_H
@@ -334,42 +339,40 @@ float lehmer_random(lehmer_state_t* state, lehmer_generate_t generator);
 // Variate related functions
 
 /**
- * @todo variates are a work in progress
+ * @brief Checks if the provided probability is within the valid range
  *
- * @note new issue arises because each of the variates requires a generator as
- * well
+ * @param p The probability to check
+ *
+ * @return true if the probability is within the valid range (0.0 < p < 1.0),
+ *         false otherwise
  */
+static inline bool lehmer_is_valid_probability(float p);
 
 /**
- * @brief Returns 1 with probability p or 0 with probability 1 - p.
- * NOTE: use 0.0 < p < 1.0
+ * @brief Generates a Bernoulli random variable with parameter p
  *
- * A random variable X whose probability mass function is given is called a
- * Bernoulli Random Variable with parameter p and we write X ~ Bern(p).
+ * The Bernoulli random variable X takes on the values 0 or 1 with
+ * probabilities 1 - p and p, respectively.
  *
- * f(x) = P(X = x) = {
- *     1 - p if x = 0,
- *     p if x = 1,
- *     0 otherwise
- * } = {
- *     (p^x)((1 - p)^(1-x)) if x = (0, 1)
- *     0 otherwise
- * }
+ * @param state The Lehmer RNG state object
+ * @param p The probability of generating a 1 (0 < p < 1)
+ *
+ * @return 1 if the generated value is 1, 0 otherwise
  */
 int32_t lehmer_bernoulli(lehmer_state_t* state, float p);
 
 /**
- * @brief Returns a binomial distributed integer between 0 and n inclusive.
- * @note use n > 0 and 0.0 < p < 1.0
+ * @brief Generates a Binomial random variable with parameters n and p
  *
- * For each integer n ≥ 0 and integer k with 0 ≤ k ≤ n there is a number (n k).
- * A random variable X whose probability mass function is given is called a
- * Binomial random variable with parameters n and p.
+ * The Binomial random variable X takes on the values 0, 1, 2, ..., n with
+ * probabilities given by the binomial probability mass function.
  *
- * f(x) = P(X = x) = {
- *     (n x) p^x (1 - p)^(n - x) if x = 0, 1, 2, ..., n
- *     0 otherwise
- * }
+ * @param state The Lehmer RNG state object
+ * @param n The number of trials
+ * @param p The probability of success in each trial (0 < p < 1)
+ *
+ * @return A value between 0 and n inclusive, representing the number of
+ * successes in n independent Bernoulli trials with probability p of success
  */
 int32_t lehmer_binomial(lehmer_state_t* state, uint32_t n, float p);
 
