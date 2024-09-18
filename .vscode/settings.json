@@ -76,6 +76,7 @@
     "*.c": "c",
     "expected": "c",
     "compare": "c",
-    "cstdint": "c"
+    "cstdint": "c",
+    "bitset": "c"
   }
 }
