@@ -28,12 +28,12 @@
  * - Encapsulate critical aspects of the interface.
  * - Hide complexity if and only if reasonably possible.
  *
- * @note Useful for autocomplete and mnemonic (easy to remember or ref)
+ * Useful for autocomplete and mnemonic (easy to remember or ref)
  *
- * (prefix)_(group)_(v.|adj.|n.)
+ * - (prefix)_(group)_(v.|adj.|n.)
  *
- * prefix: lehmer, group: state, verb: create
- * -> lehmer_state_create
+ * where prefix = lehmer, group = state, and verb = create
+ * yields lehmer_state_create
  */
 
 #ifndef LEHMER_H
@@ -307,12 +307,28 @@ void lehmer_generate(
  */
 void lehmer_generate_time(lehmer_state_t* state, lehmer_generate_t generator);
 
-// Lehmer random functions
+// Lehmer random number generators
 
-// @note lehmer_random_* functions generate normalized random numbers
+/**
+ * @brief Generate a random number using the Lehmer LCG modulo method
+ *
+ * @param state The Lehmer RNG state object
+ *
+ * @return A random number in the range 0.0 to 1.0
+ */
 float lehmer_random_modulo(lehmer_state_t* state);
 float lehmer_random_gamma(lehmer_state_t* state);
 float lehmer_random_delta(lehmer_state_t* state);
+
+/**
+ * @brief Generate a random number using a custom Lehmer LCG generation
+ * function
+ *
+ * @param state The Lehmer RNG state object
+ * @param generator The Lehmer LCG generation function to use
+ *
+ * @return A random number in the range 0.0 to 1.0
+ */
 float lehmer_random(lehmer_state_t* state, lehmer_generate_t generator);
 
 // Variate related functions
@@ -324,7 +340,37 @@ float lehmer_random(lehmer_state_t* state, lehmer_generate_t generator);
  * well
  */
 
+/**
+ * @brief Returns 1 with probability p or 0 with probability 1 - p.
+ * NOTE: use 0.0 < p < 1.0
+ *
+ * A random variable X whose probability mass function is given is called a
+ * Bernoulli Random Variable with parameter p and we write X ~ Bern(p).
+ *
+ * f(x) = P(X = x) = {
+ *     1 - p if x = 0,
+ *     p if x = 1,
+ *     0 otherwise
+ * } = {
+ *     (p^x)((1 - p)^(1-x)) if x = (0, 1)
+ *     0 otherwise
+ * }
+ */
 int32_t lehmer_bernoulli(lehmer_state_t* state, float p);
+
+/**
+ * @brief Returns a binomial distributed integer between 0 and n inclusive.
+ * @note use n > 0 and 0.0 < p < 1.0
+ *
+ * For each integer n ≥ 0 and integer k with 0 ≤ k ≤ n there is a number (n k).
+ * A random variable X whose probability mass function is given is called a
+ * Binomial random variable with parameters n and p.
+ *
+ * f(x) = P(X = x) = {
+ *     (n x) p^x (1 - p)^(n - x) if x = 0, 1, 2, ..., n
+ *     0 otherwise
+ * }
+ */
 int32_t lehmer_binomial(lehmer_state_t* state, uint32_t n, float p);
 
 #endif // LEHMER_H
