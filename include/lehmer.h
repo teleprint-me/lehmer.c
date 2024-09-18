@@ -337,7 +337,7 @@ float lehmer_random_delta(lehmer_state_t* state);
  */
 float lehmer_random(lehmer_state_t* state, lehmer_generate_t generator);
 
-// Variate related functions
+// Lehmer probability functions
 
 /**
  * @brief Checks if the provided probability is within the valid range
@@ -351,6 +351,7 @@ static inline bool lehmer_is_valid_probability(float p);
 
 /**
  * @brief Generates a Bernoulli random variable with parameter p
+ * @note Use 0.0 < p < 1.0
  *
  * The Bernoulli random variable X takes on the values 0 or 1 with
  * probabilities 1 - p and p, respectively.
@@ -364,6 +365,7 @@ int32_t lehmer_bernoulli(lehmer_state_t* state, float p);
 
 /**
  * @brief Generates a Binomial random variable with parameters n and p
+ * @note Use n > 0 and 0.0 < p < 1.0
  *
  * The Binomial random variable X takes on the values 0, 1, 2, ..., n with
  * probabilities given by the binomial probability mass function.
