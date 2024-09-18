@@ -266,14 +266,42 @@ void lehmer_generate_gamma(lehmer_state_t* state);
  */
 void lehmer_generate_delta(lehmer_state_t* state);
 
-// @brief similar to the gamma function. the only difference is the use of a
-// jump multiplier. otherwise, they're identical.
+/**
+ * @brief The Lehmer Random Number Generator with a jump multiplier is a
+ * variation of the original Lehmer’s RNG, which aims to further reduce
+ * correlation between consecutive values.
+ *
+ * The core of the Lehmer LCG PRNG with a jump multiplier is defined by the
+ * iterative equation
+ *
+ * \gamma(z) = a \cdot (z \mod q) - r \cdot (z \div q).
+ *
+ * @param[in] state The current state object.
+ */
 void lehmer_generate_jump(lehmer_state_t* state);
 
+// Generalized Lehmer sequence generator
+
+/**
+ * @brief Generate a sequence of seeds using a specified generation function
+ *
+ * @param state The Lehmer RNG state object
+ * @param generator The Lehmer RNG generation function to use
+ * @param seed The initial seed value
+ */
 void lehmer_generate(
     lehmer_state_t* state, lehmer_generate_t generator, int32_t seed
 );
 
+// Generates a sequence using the current time as seed (non-deterministic)
+
+/**
+ * @brief Generate a sequence of seeds using the current time as the seed
+ * (non-deterministic)
+ *
+ * @param state The Lehmer RNG state object
+ * @param generator The Lehmer RNG generation function to use
+ */
 void lehmer_generate_time(lehmer_state_t* state, lehmer_generate_t generator);
 
 // Lehmer random functions
