@@ -103,16 +103,35 @@ void lehmer_state_free(lehmer_state_t* state) {
     }
 }
 
+void lehmer_state_print(lehmer_state_t* state) {
+    fprintf(stderr, "lehmer->size: %zu\n", state->size);
+    fprintf(stderr, "lehmer->index: %zu\n", state->index);
+    fprintf(stderr, "lehmer->seed:");
+    // print the first 10 seeds or size... whichever is less.
+    uint32_t boundary = (state->size > 10) ? 10 : state->size;
+    for (uint32_t i = 0; i < boundary; i++) {
+        fprintf(stderr, " %lu,", state->seed[i]);
+    }
+    if (state->size > boundary) {
+        fprintf(stderr, " ..., %u - 1\n", state->size);
+    } else {
+        fprintf(stderr, " ...\n");
+    }
+}
+
 int main(void) {
     lehmer_state_t* state = lehmer_state_create(LEHMER_SIZE, LEHMER_SEED);
 
+    lehmer_state_print(state);
+
     // Generate and print Lehmer RNG sequence
     for (uint32_t i = 1; i < state->size; i++) {
-        printf("Iteration %u: Seed = %d\n", i + 1, state->seed[i]);
+        state->index = i;
+        printf("Iteration %u: Seed = %d\n", i, state->seed[i]);
     }
 
     // last seed
-    int32_t seed = state->seed[state->size - 1];
+    int32_t seed = state->seed[state->index];
     float random = lehmer_seed_normalize_to_float(seed);
     printf("Random Number = %.7f\n", random);
 
