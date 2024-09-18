@@ -5,7 +5,7 @@
  *
  * @brief Minimal example showcasing the core algorithm.
  *
- * gcc -o generator examples/simple_exam.c
+ * gcc -o algorithm examples/algorithm.c
  */
 
 #include <stdint.h>
@@ -43,11 +43,11 @@ int main(void) {
     // Generate and print Lehmer RNG sequence
     for (uint32_t i = 0; i < LEHMER_SIZE; i++) {
         seed = lehmer_generate_modulo(seed);
-        printf("iteration %u: seed = %d\n", i + 1, seed);
+        printf("Iteration %u: Seed = %d\n", i + 1, seed);
     }
 
     float random = lehmer_seed_normalize_to_float(seed);
-    printf("random number = %.7f\n", random);
+    printf("Random Number = %.7f\n", random);
 
     return 0;
 }
