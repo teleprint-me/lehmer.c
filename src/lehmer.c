@@ -136,7 +136,7 @@ void lehmer_generate_modulo(lehmer_state_t* state) {
     uint32_t i = state->index;
     int32_t z = state->seed[i];
 
-    int32_t r = (int32_t) (a * z) % m;
+    int32_t r = (int32_t) (a * z) % m; // modulo
     state->seed[i] = lehmer_seed_normalize_to_int(r, m);
 }
 
@@ -233,60 +233,31 @@ float lehmer_random(lehmer_state_t* state, lehmer_generate_t generator) {
     return lehmer_seed_normalize_to_float(state);
 }
 
-/**
- * @brief Returns 1 with probability p or 0 with probability 1 - p.
- * NOTE: use 0.0 < p < 1.0
- *
- * A random variable X whose probability mass function is given is called a
- * Bernoulli Random Variable with parameter p and we write X ~ Bern(p).
- *
- * f(x) = P(X = x) = {
- *     1 - p if x = 0,
- *     p if x = 1,
- *     0 otherwise
- * } = {
- *     (p^x)((1 - p)^(1-x)) if x = (0, 1)
- *     0 otherwise
- * }
- */
+// Lehmer probability mass functions
+
+static inline bool lehmer_is_valid_probability(float p) {
+    return (0.0 < p && p < 1.0);
+}
+
 int32_t lehmer_bernoulli(lehmer_state_t* state, float p) {
-    // Ensure p is within the valid range
-    if (p <= 0.0) {
-        return 0; // Always fail
-    }
-    if (p >= 1.0) {
-        return 1; // Always succeed
+    if (!lehmer_is_valid_probability(p)) {
+        // Return edge case (0 or 1) based on probability
+        return (p <= 0.0) ? 0 : 1;
     }
 
     // Generate the Bernoulli outcome
-    return ((lehmer_random_gamma(state) < p) ? 1 : 0);
+    return (lehmer_random_gamma(state) < p) ? 1 : 0;
 }
 
-/**
- * @brief Returns a binomial distributed integer between 0 and n inclusive.
- * @note use n > 0 and 0.0 < p < 1.0
- *
- * For each integer n ≥ 0 and integer k with 0 ≤ k ≤ n there is a number (n k).
- * A random variable X whose probability mass function is given is called a
- * Binomial random variable with parameters n and p.
- *
- * f(x) = P(X = x) = {
- *     (n x) p^x (1 - p)^(n - x) if x = 0, 1, 2, ..., n
- *     0 otherwise
- * }
- */
 int32_t lehmer_binomial(lehmer_state_t* state, uint32_t n, float p) {
     int32_t count = 0;
 
     // Validate p and n
-    if (p <= 0.0) {
-        return 0; // No successes
-    }
-    if (p >= 1.0) {
-        return n; // All successes
+    if (!lehmer_is_valid_probability(p)) {
+        return (p <= 0.0) ? 0 : n; // All failures or all successes
     }
     if (n == 0) {
-        return 0; // No trials
+        return 0; // No trials, no successes
     }
 
     // Sum up the results of n Bernoulli trials
