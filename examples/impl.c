@@ -108,8 +108,8 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    lehmer_state_t* state = lehmer_state_create(LEHMER_STREAMS, LEHMER_SEED);
-    lehmer_state_select(state, stream);
+    lehmer_state_t* state = lehmer_state_create(LEHMER_SIZE, LEHMER_SEED);
+    lehmer_seed_select(state, stream);
     if (test) {
         test_lehmer_generator_modulo(state, expected_stream_0);
     } else {
@@ -124,7 +124,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    float output = lehmer_seed_normalize(state);
+    float output = lehmer_seed_normalize_to_float(state);
     printf("Normalized Seed: %.9f\n", output);
 
     lehmer_state_free(state);
