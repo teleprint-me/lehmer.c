@@ -234,7 +234,7 @@ float lehmer_random(lehmer_state_t* state, lehmer_generate_t generator) {
     return lehmer_seed_normalize_to_float(state);
 }
 
-// Lehmer probability mass functions
+// Lehmer probability functions
 
 static inline bool lehmer_is_valid_probability(float p) {
     return (0.0 < p && p < 1.0);
@@ -247,7 +247,7 @@ int32_t lehmer_bernoulli(lehmer_state_t* state, float p) {
     }
 
     // Generate the Bernoulli outcome
-    return (lehmer_random_gamma(state) < p) ? 1 : 0;
+    return (lehmer_random_modulo(state) < p) ? 1 : 0;
 }
 
 int32_t lehmer_binomial(lehmer_state_t* state, uint32_t n, float p) {
