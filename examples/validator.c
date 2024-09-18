@@ -1,7 +1,7 @@
 /**
  * Copyright © 2024 Austin Berrio
  *
- * @file examples/lehmer.c
+ * @file examples/validator.c
  *
  * @brief Minimal test cases
  */

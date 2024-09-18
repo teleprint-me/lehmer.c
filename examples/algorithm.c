@@ -1,7 +1,7 @@
 /**
  * Copyright © 2024 Austin Berrio
  *
- * @file examples/simple_exam.c
+ * @file examples/algorithm.c
  *
  * @brief Minimal example showcasing the core algorithm.
  *

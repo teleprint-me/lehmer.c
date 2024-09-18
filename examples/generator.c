@@ -1,7 +1,7 @@
 /**
  * Copyright © 2024 Austin Berrio
  *
- * @file examples/simple_impl.c
+ * @file examples/generator.c
  *
  * @brief Minimal implementation utilizing the core library.
  *
