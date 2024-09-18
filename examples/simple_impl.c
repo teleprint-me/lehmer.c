@@ -1,9 +1,13 @@
 /**
  * Copyright © 2024 Austin Berrio
  *
- * @file examples/lehmer.c
+ * @file examples/simple_impl.c
  *
- * @brief Minimal implementation
+ * @brief Minimal implementation utilizing the core library.
+ *
+ * @note See lehmer.h and lehmer.c for details.
+ * @ref lehmer.h is well documented and contains more high-level details.
+ * @ref lehmer.c is the core implementation for the primary interface.
  */
 
 #include "lehmer.h"
