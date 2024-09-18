@@ -3,7 +3,12 @@
  *
  * @file include/lehmer.h
  *
- * @brief A 32-bit implementation of the Lehmer RNG in pure C
+ * @brief A 32-bit implementation of the Lehmer Random Number Generator (LCG)
+ * in pure C
+ *
+ * The Lehmer Random Number Generator (LCG) is a simple yet elegant method
+ * based on the equation f(z) = az \mod m. This implementation provides a
+ * 32-bit version of the Lehmer LCG in pure C.
  *
  * @ref Random number generators: good ones are hard to find
  * @cite https://dl.acm.org/doi/10.1145/63039.63042
@@ -16,14 +21,14 @@
  * @ref Introduction to Probability and Mathematical Statistics
  * @cite 9.3: The Bernoulli and Binomial Random Variables
  *
- * @note Some loose development guidelines
+ * @note Development guidelines
  * - Keep the interface clean and transparent.
  * - Keep the implementation simple and to the point.
  * - Do not obfuscate user interaction.
  * - Encapsulate critical aspects of the interface.
  * - Hide complexity if and only if reasonably possible.
  *
- * @note useful for autocomplete and mnemonic (easy to remember or ref)
+ * @note Useful for autocomplete and mnemonic (easy to remember or ref)
  *
  * (prefix)_(group)_(v.|adj.|n.)
  *
