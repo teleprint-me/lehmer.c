@@ -42,11 +42,14 @@ static struct option long_options[]
 int main(int argc, char* argv[]) {
     // uint32_t stream = 0; // default stream is 0
 
-    lehmer_state_t* state = lehmer_state_create(LEHMER_SIZE, LEHMER_SEED);
+    lehmer_state_t* state = lehmer_state_create(LEHMER_SEED, LEHMER_SIZE);
 
     lehmer_state_print(state);
 
-    float output = lehmer_seed_normalize_to_float(state);
+    lehmer_position_set(state, MAX_SEEDS - 1);
+    int32_t seed = lehmer_sequence_get(state);
+    printf("current seed = %d\n", seed);
+    float output = lehmer_seed_normalize_to_float(seed);
     printf("Normalized Seed: %.9f\n", output);
 
     lehmer_state_free(state);

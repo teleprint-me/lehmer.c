@@ -225,12 +225,9 @@ void lehmer_generate(
     lehmer_position_set(state, 0);
     lehmer_sequence_set(state, generator(lehmer_seed_get(state)));
 
-    // Generate and store the sequence
+    // Generate the sequence and store it in the stream array
     for (uint32_t i = 1; i < state->length; i++) {
-        // Move to the next position
-        lehmer_position_set(state, i);
-        // Generate based on previous value
-        lehmer_sequence_set(state, generator(lehmer_sequence_get(state)));
+        state->sequence[i] = generator(state->sequence[i - 1]);
     }
 }
 
