@@ -219,15 +219,15 @@ int32_t lehmer_generate_delta(int32_t seed) {
 void lehmer_generate(
     lehmer_state_t* state, lehmer_generate_t generator, int32_t seed
 ) {
-    // Set initial seed with boundary enforcement
-    lehmer_seed_set(state, seed);
-    // Initialize the first position and set the first sequence value
-    lehmer_position_set(state, 0);
-    lehmer_sequence_set(state, generator(lehmer_seed_get(state)));
+    // Set the initial seed
+    state->seed = seed % LEHMER_MODULUS;
+    state->sequence[0] = generator(seed);
 
     // Generate the sequence and store it in the stream array
     for (uint32_t i = 1; i < state->length; i++) {
-        state->sequence[i] = generator(state->sequence[i - 1]);
+        uint32_t position = (i - 1) % state->length;
+        int32_t seed = state->sequence[position] % LEHMER_MODULUS;
+        state->sequence[i] = generator(seed);
     }
 }
 
