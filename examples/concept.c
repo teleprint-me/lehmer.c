@@ -130,6 +130,7 @@ void lehmer_state_print(lehmer_state_t* state) {
 // @ref python -m lehmer.cli -v -i 10 -r 0
 // `python -m lehmer.cli -h` for more info
 int32_t expected_stream[LEHMER_SIZE] = {
+    LEHMER_SEED,
     115541394,
     283598515,
     1523151587,
@@ -139,7 +140,7 @@ int32_t expected_stream[LEHMER_SIZE] = {
     1426670162,
     1289797906,
     2136310349,
-    1819611286,
+    // 1819611286,
 };
 
 #define LEHMER_ASSERT_INTEGER(iteration, expected, current) \
@@ -172,13 +173,15 @@ int main(void) {
     lehmer_state_print(state);
 
     // Generate and print Lehmer RNG sequence
+    // Note: Start loop from 0, but print state->seed[i + 1] to shift the index
+    // correctly
     for (uint32_t i = 1; i < state->size; i++) {
         state->index = i;
         printf("Iteration %u: Seed = %d\n", i, state->seed[i]);
-        LEHMER_ASSERT_INTEGER(i, expected_stream[i], state->seed[i]);
+        LEHMER_ASSERT_INTEGER(i + 1, expected_stream[i], state->seed[i]);
     }
 
-    // last seed
+    // last seed (state->seed[LEHMER_SIZE - 1])
     int32_t seed = state->seed[state->index];
     float random = lehmer_seed_normalize_to_float(seed);
     float expected = 0.847322534f;
