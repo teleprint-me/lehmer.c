@@ -78,6 +78,16 @@
     "compare": "c",
     "cstdint": "c",
     "bitset": "c",
-    "source_location": "c"
+    "source_location": "c",
+    "*.ipp": "c",
+    "array": "c",
+    "string_view": "c",
+    "format": "c",
+    "initializer_list": "c",
+    "ranges": "c",
+    "span": "c",
+    "regex": "c",
+    "chrono": "c",
+    "variant": "c"
   }
 }
