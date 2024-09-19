@@ -5,7 +5,7 @@
  *
  * @brief Minimal conceptual example showcasing the core API.
  *
- * gcc -o concept examples/concept.c
+ * @note gcc -o concept examples/concept.c -lm
  */
 
 #include <math.h>
