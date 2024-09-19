@@ -364,11 +364,11 @@ void lehmer_regenerate(lehmer_state_t* state, lehmer_generate_t generator);
 // Lehmer random number generators
 
 /**
- * @brief Generate a random number using the Lehmer LCG modulo method
+ * @brief Generate a random number using the modulo approach.
  *
- * @param state The Lehmer RNG state object
+ * @param state Pointer to the Lehmer state structure.
  *
- * @return A random number in the range 0.0 to 1.0
+ * @return Random float between 0 and 1.
  */
 float lehmer_random_modulo(lehmer_state_t* state);
 float lehmer_random_gamma(lehmer_state_t* state);
@@ -376,13 +376,13 @@ float lehmer_random_jump(lehmer_state_t* state);
 float lehmer_random_delta(lehmer_state_t* state);
 
 /**
- * @brief Generate a random number using a custom Lehmer LCG generation
- * function
+ * @brief Generate a random number using a custom generator.
  *
- * @param state The Lehmer RNG state object
- * @param generator The Lehmer LCG generation function to use
+ * @param state Pointer to the Lehmer state structure.
+ * @param generator Function pointer to the generator method (e.g., modulo,
+ * gamma).
  *
- * @return A random number in the range 0.0 to 1.0
+ * @return Random float between 0 and 1.
  */
 float lehmer_random(lehmer_state_t* state, lehmer_generate_t generator);
 
