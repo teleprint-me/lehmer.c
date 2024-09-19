@@ -23,9 +23,9 @@
 
 typedef struct LehmerState {
     int32_t seed; // The initial seed used to start the sequence
-    int32_t* stream; // The sequence of generated integers
-    uint32_t size; // The number of values to generate
-    uint32_t index; // The current index in the sequence
+    int32_t* sequence; // The sequence of generated integers
+    uint32_t length; // The number of values to generate
+    uint32_t position; // The current position in the sequence
 } lehmer_state_t;
 
 /**
@@ -41,8 +41,8 @@ float lehmer_seed_normalize_to_float(int32_t seed) {
 }
 
 // @brief Normalizes a seed to a integer in the range 0 to m - 1
-int32_t lehmer_seed_normalize_to_int(int32_t value, uint32_t modulus) {
-    return (int32_t) ((value + modulus) % modulus);
+int32_t lehmer_seed_normalize_to_int(int32_t seed, uint32_t modulus) {
+    return (int32_t) ((seed + modulus) % modulus);
 }
 
 // Generate the next random number in the sequence
@@ -61,12 +61,12 @@ void lehmer_generate(
     lehmer_state_t* state, lehmer_generate_t generator, int32_t seed
 ) {
     // Set the initial seed
-    state->seed = seed;
-    state->stream[0] = generator(seed);
+    state->seed = (0 >= seed) ? LEHMER_SEED : seed;
+    state->sequence[0] = generator(seed);
 
     // Generate the sequence and store it in the stream array
-    for (uint32_t i = 1; i < state->size; i++) {
-        state->stream[i] = generator(state->stream[i - 1]);
+    for (uint32_t i = 1; i < state->length; i++) {
+        state->sequence[i] = generator(state->sequence[i - 1]);
     }
 }
 
@@ -79,15 +79,15 @@ lehmer_state_t* lehmer_state_create(int32_t seed, uint32_t size) {
     }
 
     // Zero-initialize the index
-    state->index = 0;
+    state->position = 0;
     // Default to a seed of 123456789 if seed is 0
     state->seed = (0 >= seed) ? LEHMER_SEED : seed;
     // Default to a size of 256 if size is 0
-    state->size = (0 >= size) ? LEHMER_SIZE : size;
+    state->length = (0 >= size) ? LEHMER_SIZE : size;
 
     // Allocate memory for generating seeds
-    state->stream = (int32_t*) malloc(sizeof(int32_t) * state->size);
-    if (NULL == state->stream) {
+    state->sequence = (int32_t*) malloc(sizeof(int32_t) * state->length);
+    if (NULL == state->sequence) {
         free(state);
         return NULL;
     }
@@ -101,8 +101,8 @@ lehmer_state_t* lehmer_state_create(int32_t seed, uint32_t size) {
 // Free the allocated memory
 void lehmer_state_free(lehmer_state_t* state) {
     if (state) {
-        if (state->stream) {
-            free(state->stream);
+        if (state->sequence) {
+            free(state->sequence);
         }
         free(state);
     }
@@ -111,19 +111,19 @@ void lehmer_state_free(lehmer_state_t* state) {
 /** State output */
 
 void lehmer_state_print(lehmer_state_t* state) {
-    fprintf(stderr, "lehmer->size: %zu\n", state->size);
-    fprintf(stderr, "lehmer->index: %zu\n", state->index);
     fprintf(stderr, "lehmer->seed: %zu\n", state->seed);
-    fprintf(stderr, "lehmer->stream:");
+    fprintf(stderr, "lehmer->length: %zu\n", state->length);
+    fprintf(stderr, "lehmer->position: %zu\n", state->position);
+    fprintf(stderr, "lehmer->sequence:");
 
     // print the first 10 seeds or size... whichever is less.
-    uint32_t boundary = (state->size > 10) ? 10 : state->size;
+    uint32_t boundary = (state->length > 10) ? 10 : state->length;
     for (uint32_t i = 0; i < boundary; i++) {
-        fprintf(stderr, " %d,", state->stream[i]);
+        fprintf(stderr, " %d,", state->sequence[i]);
     }
 
-    if (state->size > boundary) {
-        fprintf(stderr, " ..., %lu - 1\n", state->size);
+    if (state->length > boundary) {
+        fprintf(stderr, " ..., %lu - 1\n", state->length);
     } else {
         fprintf(stderr, " ...\n");
     }
@@ -177,20 +177,20 @@ int main(void) {
     lehmer_state_print(state);
 
     // Correct the index handling, ensuring the expected seeds match
-    for (uint32_t i = 0; i < state->size; i++) {
-        state->index = i;
-        printf("Iteration %zu: Seed = %d\n", i + 1, state->stream[i]);
-        LEHMER_ASSERT_INTEGER(i, expected_stream[i], state->stream[i]);
+    for (uint32_t i = 0; i < state->length; i++) {
+        state->position = i;
+        printf("Iteration %zu: Seed = %d\n", i + 1, state->sequence[i]);
+        LEHMER_ASSERT_INTEGER(i, expected_stream[i], state->sequence[i]);
     }
 
     // Normalize the last seed to get the floating-point random number
-    int32_t last_seed = state->stream[state->size - 1];
+    int32_t last_seed = state->sequence[state->length - 1];
     float random = lehmer_seed_normalize_to_float(last_seed);
     printf("Random Number = %.7f\n", random);
 
     // Compare with the expected value (adjust based on corrected expectations)
     float expected = 0.8473225342330162f;
-    LEHMER_ASSERT_FLOAT(state->index, expected, random);
+    LEHMER_ASSERT_FLOAT(state->position, expected, random);
 
     return 0;
 }
