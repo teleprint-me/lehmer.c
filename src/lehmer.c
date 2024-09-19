@@ -219,15 +219,22 @@ int32_t lehmer_generate_delta(int32_t seed) {
 void lehmer_generate(
     lehmer_state_t* state, lehmer_generate_t generator, int32_t seed
 ) {
-    // Set the initial seed
+    // Set the initial seed within the range of the modulus
     state->seed = seed % LEHMER_MODULUS;
-    state->sequence[0] = generator(seed);
 
-    // Generate the sequence and store it in the stream array
-    for (uint32_t i = 1; i < state->length; i++) {
-        uint32_t position = (i - 1) % state->length;
-        int32_t seed = state->sequence[position] % LEHMER_MODULUS;
-        state->sequence[i] = generator(seed);
+    // Generate the first value in the sequence based on the initial seed
+    state->sequence[0] = generator(state->seed);
+
+    // Generate and store the rest of the sequence
+    for (uint32_t current = 1; current < state->length; current++) {
+        // Calculate the previous index (ensures we reference the correct seed)
+        uint32_t previous = current - 1;
+
+        // Use the previous sequence value as the seed for the next
+        int32_t previous_seed = state->sequence[previous] % LEHMER_MODULUS;
+
+        // Generate the next value and store it in the current position
+        state->sequence[current] = generator(previous_seed);
     }
 }
 
