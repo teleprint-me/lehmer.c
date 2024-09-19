@@ -131,7 +131,7 @@ typedef struct LehmerState {
  *
  * @param state The current state object.
  */
-typedef void (*lehmer_generate_t)(lehmer_state_t*);
+typedef int32_t (*lehmer_generate_t)(int32_t);
 
 // Lehmer state management
 
@@ -225,9 +225,7 @@ float lehmer_seed_normalize_to_float(lehmer_state_t* state);
  */
 int32_t lehmer_seed_normalize_to_int(int32_t value, uint32_t modulus);
 
-// Generate related functions
-
-// @note lehmer_generate_* functions generate new seeds
+// Lehmer seed generation
 
 /**
  * @brief The Lehmer Random Number Generator is a simple yet elegant method
@@ -237,9 +235,11 @@ int32_t lehmer_seed_normalize_to_int(int32_t value, uint32_t modulus);
  *
  * z_{n+1} = \f(z_n), where \f(z) = a \cdot z \mod m
  *
- * @param[in] state The current state object.
+ * @param[in] z An integer representing the current seed.
+ *
+ * @return An integer representing the next seed in the sequence.
  */
-void lehmer_generate_modulo(lehmer_state_t* state);
+int32_t lehmer_generate_modulo(int32_t z);
 
 /**
  * @note Intermediate results are bounded by m - 1
@@ -255,9 +255,11 @@ void lehmer_generate_modulo(lehmer_state_t* state);
  *
  * \gamma(z) = a \cdot (z \mod q) - r \cdot (z \div q)
  *
- * @param[in] state The current state object.
+ * @param[in] z The current seed.
+ *
+ * @return The next seed.
  */
-void lehmer_generate_gamma(lehmer_state_t* state);
+int32_t lehmer_generate_gamma(int32_t z);
 
 /**
  * @brief Implementation of the delta function for the Lehmer LCG PRNG
@@ -270,9 +272,11 @@ void lehmer_generate_gamma(lehmer_state_t* state);
  *
  * \delta(z) = (z \div q) - (a \cdot z \div m)
  *
- * @param[in] state The current state object.
+ * @param[in] z The current seed.
+ *
+ * @return The next seed.
  */
-void lehmer_generate_delta(lehmer_state_t* state);
+int32_t lehmer_generate_delta(int32_t z);
 
 /**
  * @brief The Lehmer Random Number Generator with a jump multiplier is a
@@ -284,9 +288,11 @@ void lehmer_generate_delta(lehmer_state_t* state);
  *
  * \gamma(z) = a \cdot (z \mod q) - r \cdot (z \div q)
  *
- * @param[in] state The current state object.
+ * @param[in] z The current seed.
+ *
+ * @return The next seed.
  */
-void lehmer_generate_jump(lehmer_state_t* state);
+int32_t lehmer_generate_jump(int32_t z);
 
 // Generalized Lehmer sequence generator
 
