@@ -48,6 +48,9 @@ int main(int argc, char* argv[]) {
 
     lehmer_position_set(state, MAX_SEEDS - 1);
     int32_t seed = lehmer_sequence_get(state);
+
+    lehmer_state_print(state);
+
     printf("current seed = %d\n", seed);
     float output = lehmer_seed_normalize_to_float(seed);
     printf("Normalized Seed: %.9f\n", output);
