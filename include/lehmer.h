@@ -93,7 +93,7 @@
 /**
  * @param LEHMER_SEED Default seed value.
  *
- * z: A value between 0, ..., m - 1
+ * z: A integer value in the range 1, ..., m - 1
  *
  * @note May be any value within the defined range.
  */
@@ -114,16 +114,25 @@
 #define LEHMER_REMAINDER ((LEHMER_MODULUS) % (LEHMER_MULTIPLIER))
 
 /**
- * @brief Structure representing the state of the LCG RNG.
+ * @brief Structure representing the state of the Lehmer Random Number
+ * Generator (LCG RNG).
  *
- * @param seed Array of seeds representing the initial state
- * @param size The number of seeds (upper limit)
- * @param index The selected seed to generate sequences from
+ * The LehmerState structure contains the internal state of the LCG RNG,
+ * including the seed, sequence of generated integers, number of values to
+ * generate, and the current position in the sequence. This structure is used
+ * to manage the state of the RNG and facilitate the generation of random
+ * numbers.
+ *
+ * @param seed The initial seed used to start the sequence.
+ * @param sequence The sequence of generated integers.
+ * @param length The number of values to generate.
+ * @param position The current position in the sequence.
  */
 typedef struct LehmerState {
-    int32_t* seed; // Array of seeds representing the initial state
-    uint32_t size; // The number of seeds (upper limit)
-    uint32_t index; // The selected seed to generate sequences from
+    int32_t seed; // The initial seed used to start the sequence
+    int32_t* sequence; // The sequence of generated integers
+    uint32_t length; // The number of values to generate
+    uint32_t position; // The current position in the sequence
 } lehmer_state_t;
 
 /**
@@ -139,13 +148,13 @@ typedef int32_t (*lehmer_generate_t)(int32_t);
  * @brief Create and initialize the Lehmer RNG state with dynamic seed
  * generation.
  *
- * @param size The number of seeds (upper limit).
  * @param seed The initial seed value.
+ * @param length The number of values to generate (upper limit).
  *
  * @return A newly allocated and initialized Lehmer RNG state object or NULL if
  * memory allocation fails.
  */
-lehmer_state_t* lehmer_state_create(uint32_t size, int32_t seed);
+lehmer_state_t* lehmer_state_create(int32_t seed, uint32_t length);
 
 /**
  * @brief Free the allocated memory for the Lehmer RNG state object.
@@ -164,45 +173,70 @@ void lehmer_state_print(lehmer_state_t* state);
 // Lehmer seed management
 
 /**
- * @brief Select a generated seed from the current state at a given index.
+ * @brief Sets the initial seed used to start the sequence.
  *
  * @param state The Lehmer RNG state object.
- * @param index The index of the seed to select.
- *
- * @note The index is bound to the allocated range (0 to size - 1).
+ * @param seed The seed to set.
  */
-void lehmer_seed_select(lehmer_state_t* state, uint32_t index);
+void lehmer_seed_set(lehmer_state_t* state, int32_t seed);
 
 /**
- * @brief Get the currently selected seed from the Lehmer RNG state object.
+ * @brief Retrieves the initial seed used to start the sequence.
  *
  * @param state The Lehmer RNG state object.
  *
- * @return The currently selected seed.
+ * @return The initial seed used to start the sequence.
  */
 int32_t lehmer_seed_get(lehmer_state_t* state);
 
-/**
- * @brief Set the value of the currently selected seed in the Lehmer RNG state
- * object.
- *
- * @param state The Lehmer RNG state object.
- * @param value The new value for the selected seed.
- *
- * @note The value is bound to the modulus (0 to m - 1).
- */
-void lehmer_seed_set(lehmer_state_t* state, int32_t value);
+// Lehmer position management
 
 /**
- * @brief Regenerate a new sequence of seeds based on the currently selected
- * seed.
+ * @brief Set the current position in the sequence.
+ *
+ * @param state Pointer to the Lehmer state structure.
+ * @param position New position to set.
+ *
+ * @note handles overflow with modulus.
+ */
+void lehmer_position_set(lehmer_state_t* state, uint32_t position);
+
+/**
+ * @brief Move to the next position in the sequence.
+ *
+ * @param state Pointer to the Lehmer state structure.
+ *
+ * @note handles overflow with modulus.
+ */
+void lehmer_position_next(lehmer_state_t* state);
+
+/**
+ * @brief Move to the previous position in the sequence.
+ *
+ * @param state Pointer to the Lehmer state structure.
+ *
+ * @note handles underflow with modulus.
+ */
+void lehmer_position_previous(lehmer_state_t* state);
+
+// Lehmer sequence management
+
+/**
+ * @brief Sets the next value in the sequence.
  *
  * @param state The Lehmer RNG state object.
- * @param generator The Lehmer RNG generation function to use.
+ * @param seed The seed to set in the sequence.
  */
-void lehmer_seed_regenerate(
-    lehmer_state_t* state, lehmer_generate_t generator
-);
+void lehmer_sequence_set(lehmer_state_t* state, int32_t seed);
+
+/**
+ * @brief Retrieves the current value in the sequence.
+ *
+ * @param state The Lehmer RNG state object.
+ *
+ * @return The current value in the sequence.
+ */
+int32_t lehmer_sequence_get(lehmer_state_t* state);
 
 // Lehmer seed normalization
 
@@ -213,17 +247,17 @@ void lehmer_seed_regenerate(
  *
  * @return The normalized seed as a float in the range 0.0 to 1.0
  */
-float lehmer_seed_normalize_to_float(lehmer_state_t* state);
+float lehmer_seed_normalize_to_float(int32_t seed);
 
 /**
  * @brief Normalizes a seed to an integer in the range 0 to m - 1
  *
- * @param value The seed to normalize.
+ * @param seed The seed to normalize.
  * @param modulus The modulus to use for normalization.
  *
  * @return The normalized seed as an integer in the range 0 to m - 1
  */
-int32_t lehmer_seed_normalize_to_int(int32_t value, uint32_t modulus);
+int32_t lehmer_seed_normalize_to_int(int32_t seed, uint32_t modulus);
 
 // Lehmer seed generation
 
@@ -235,11 +269,11 @@ int32_t lehmer_seed_normalize_to_int(int32_t value, uint32_t modulus);
  *
  * z_{n+1} = \f(z_n), where \f(z) = a \cdot z \mod m
  *
- * @param[in] z An integer representing the current seed.
+ * @param[in] seed An integer representing the current seed.
  *
  * @return An integer representing the next seed in the sequence.
  */
-int32_t lehmer_generate_modulo(int32_t z);
+int32_t lehmer_generate_modulo(int32_t seed);
 
 /**
  * @note Intermediate results are bounded by m - 1
@@ -255,11 +289,11 @@ int32_t lehmer_generate_modulo(int32_t z);
  *
  * \gamma(z) = a \cdot (z \mod q) - r \cdot (z \div q)
  *
- * @param[in] z The current seed.
+ * @param[in] seed An integer representing the current seed.
  *
- * @return The next seed.
+ * @return An integer representing the next seed in the sequence.
  */
-int32_t lehmer_generate_gamma(int32_t z);
+int32_t lehmer_generate_gamma(int32_t seed);
 
 /**
  * @brief Implementation of the delta function for the Lehmer LCG PRNG
@@ -272,11 +306,11 @@ int32_t lehmer_generate_gamma(int32_t z);
  *
  * \delta(z) = (z \div q) - (a \cdot z \div m)
  *
- * @param[in] z The current seed.
+ * @param[in] seed An integer representing the current seed.
  *
- * @return The next seed.
+ * @return An integer representing the next seed in the sequence.
  */
-int32_t lehmer_generate_delta(int32_t z);
+int32_t lehmer_generate_delta(int32_t seed);
 
 /**
  * @brief The Lehmer Random Number Generator with a jump multiplier is a
@@ -288,11 +322,11 @@ int32_t lehmer_generate_delta(int32_t z);
  *
  * \gamma(z) = a \cdot (z \mod q) - r \cdot (z \div q)
  *
- * @param[in] z The current seed.
+ * @param[in] seed An integer representing the current seed.
  *
- * @return The next seed.
+ * @return An integer representing the next seed in the sequence.
  */
-int32_t lehmer_generate_jump(int32_t z);
+int32_t lehmer_generate_jump(int32_t seed);
 
 // Generalized Lehmer sequence generator
 
@@ -318,6 +352,15 @@ void lehmer_generate(
  */
 void lehmer_generate_time(lehmer_state_t* state, lehmer_generate_t generator);
 
+/**
+ * @brief Regenerate a new sequence of seeds based on the currently selected
+ * seed.
+ *
+ * @param state The Lehmer RNG state object.
+ * @param generator The Lehmer RNG generation function to use.
+ */
+void lehmer_regenerate(lehmer_state_t* state, lehmer_generate_t generator);
+
 // Lehmer random number generators
 
 /**
@@ -329,6 +372,7 @@ void lehmer_generate_time(lehmer_state_t* state, lehmer_generate_t generator);
  */
 float lehmer_random_modulo(lehmer_state_t* state);
 float lehmer_random_gamma(lehmer_state_t* state);
+float lehmer_random_jump(lehmer_state_t* state);
 float lehmer_random_delta(lehmer_state_t* state);
 
 /**
