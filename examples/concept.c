@@ -134,7 +134,7 @@ void lehmer_state_print(lehmer_state_t* state) {
 // @brief Valid stream for selected state at stream 0 using LEHMER_SEED
 // @ref python -m lehmer.cli -v -i 10 -r 0
 // `python -m lehmer.cli -h` for more info
-int32_t expected_stream[LEHMER_SIZE] = {
+int32_t expected_sequence[LEHMER_SIZE] = {
     115541394,
     283598515,
     1523151587,
@@ -180,7 +180,7 @@ int main(void) {
     for (uint32_t i = 0; i < state->length; i++) {
         state->position = i;
         printf("Iteration %zu: Seed = %d\n", i + 1, state->sequence[i]);
-        LEHMER_ASSERT_INTEGER(i, expected_stream[i], state->sequence[i]);
+        LEHMER_ASSERT_INTEGER(i, expected_sequence[i], state->sequence[i]);
     }
 
     // Normalize the last seed to get the floating-point random number
