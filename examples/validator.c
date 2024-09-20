@@ -15,10 +15,12 @@
 
 #define MAX_SEEDS 10
 
-// @brief Valid stream for selected state at stream 0 using LEHMER_SEED
+/** Debugging */
+
+// @brief Valid position for selected state at position 0 using LEHMER_SEED
 // @ref python -m lehmer.cli -v -i 10 -r 0
 // `python -m lehmer.cli -h` for more info
-int32_t expected_stream_0[MAX_SEEDS] = {
+int32_t expected_sequence[LEHMER_SIZE] = {
     115541394,
     283598515,
     1523151587,
@@ -31,10 +33,21 @@ int32_t expected_stream_0[MAX_SEEDS] = {
     1819611286,
 };
 
-#define LEHMER_ASSERT(iteration, expected, current) \
-    if (expected != current) { \
+#define LEHMER_ASSERT_INTEGER(iteration, expected, current) \
+    if ((expected) != (current)) { \
         LOG_ERROR( \
-            "Iteration %u: Expected %d, Got %d\n", \
+            "Iteration %zu: Expected %d, Got %d\n", \
+            iteration, \
+            expected, \
+            current \
+        ); \
+        exit(1); \
+    }
+
+#define LEHMER_ASSERT_FLOAT(iteration, expected, current) \
+    if (!((fabsf(expected - current)) < (0.000001f))) { \
+        LOG_ERROR( \
+            "Iteration %zu: Expected %.7f, Got %.7f\n", \
             iteration, \
             expected, \
             current \
@@ -44,12 +57,14 @@ int32_t expected_stream_0[MAX_SEEDS] = {
 
 int test_lehmer_generator_modulo(lehmer_state_t* state, int32_t* expected) {
     for (uint32_t i = 0; i < MAX_SEEDS; i++) {
-        lehmer_generate_modulo(state);
-        int32_t current = lehmer_seed_get(state);
-        printf("Iteration %u: Expected %d, Got %d\n", i, expected[i], current);
-        LEHMER_ASSERT(i, expected[i], current);
+        lehmer_position_set(state, i);
+        int32_t seed = lehmer_sequence_get(state);
+        printf("Iteration %u: Expected %d, Got %d\n", i, expected[i], seed);
+        LEHMER_ASSERT_INTEGER(i, expected[i], seed);
     }
 }
+
+/** CLI */
 
 void print_usage(char* argv[]) {
     fprintf(stderr, "Usage:\n");
@@ -58,7 +73,7 @@ void print_usage(char* argv[]) {
         "\t%s [--help] "
         "[--verbose <0|1>] "
         "[--test <0|1>] "
-        "[--stream <unsigned integer>]\n",
+        "[--position <unsigned integer>]\n",
         argv[0]
     );
 }
@@ -68,11 +83,11 @@ static struct option long_options[]
     = {{"help", optional_argument, 0, 'h'},
        {"verbose", required_argument, 0, 'v'},
        {"test", required_argument, 0, 't'},
-       {"stream", required_argument, 0, 's'},
+       {"position", required_argument, 0, 's'},
        {0, 0, 0, 0}};
 
 int main(int argc, char* argv[]) {
-    uint32_t stream = 0; // default stream is 0
+    uint32_t position = 0; // default position is 0
     bool test = false;
     bool verbose = false;
 
@@ -94,13 +109,13 @@ int main(int argc, char* argv[]) {
                 verbose = (bool) atoi(optarg) ? true : false;
                 break;
             case 't':
-                // Enable testing initial stream
+                // Enable testing initial position
                 test = (bool) atoi(optarg) ? true : false;
                 break;
             case 's':
                 // Convert seed input
-                stream = (uint32_t) atoi(optarg);
-                printf("Setting stream to: %d\n", stream);
+                position = (uint32_t) atoi(optarg);
+                printf("Setting position to: %d\n", position);
                 break;
             default:
                 print_usage(argv);
@@ -108,23 +123,27 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    lehmer_state_t* state = lehmer_state_create(LEHMER_SIZE, LEHMER_SEED);
-    lehmer_seed_select(state, stream);
+    lehmer_state_t* state = lehmer_state_create(LEHMER_SEED, LEHMER_SIZE);
+
     if (test) {
-        test_lehmer_generator_modulo(state, expected_stream_0);
+        test_lehmer_generator_modulo(state, expected_sequence);
     } else {
+        lehmer_position_set(state, position);
+
         for (uint32_t i = 0; i < MAX_SEEDS; i++) {
-            lehmer_generate_modulo(state);
+            lehmer_position_set(state, i);
+            int32_t seed = lehmer_sequence_get(state);
+
             if (verbose) {
                 lehmer_state_print(state);
             } else {
-                int32_t current = lehmer_seed_get(state);
-                printf("Iteration %u: Seed %d\n", i, current);
+                printf("Iteration %u: Seed %d\n", i, seed);
             }
         }
     }
 
-    float output = lehmer_seed_normalize_to_float(state);
+    int32_t seed = lehmer_sequence_get(state);
+    float output = lehmer_seed_normalize_to_float(seed);
     printf("Normalized Seed: %.9f\n", output);
 
     lehmer_state_free(state);
