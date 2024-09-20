@@ -110,8 +110,8 @@ int32_t lehmer_seed_get(lehmer_state_t* state) {
  * @param position New position to set.
  */
 void lehmer_position_set(lehmer_state_t* state, uint32_t position) {
-    state->position
-        = position % state->length; // Ensure position stays within bounds
+    // Ensure position stays within bounds
+    state->position = position % state->length;
 }
 
 /**
@@ -120,9 +120,8 @@ void lehmer_position_set(lehmer_state_t* state, uint32_t position) {
  * @param state Pointer to the Lehmer state structure.
  */
 void lehmer_position_next(lehmer_state_t* state) {
-    lehmer_position_set(
-        state, (state->position + 1)
-    ); // Increment and wrap around
+    // Increment and wrap around
+    lehmer_position_set(state, (state->position + 1));
 }
 
 /**
@@ -131,9 +130,8 @@ void lehmer_position_next(lehmer_state_t* state) {
  * @param state Pointer to the Lehmer state structure.
  */
 void lehmer_position_previous(lehmer_state_t* state) {
-    lehmer_position_set(
-        state, (state->position - 1)
-    ); // Decrement and wrap around
+    // Decrement and wrap around
+    lehmer_position_set(state, (state->position - 1));
 }
 
 // Lehmer sequence management
