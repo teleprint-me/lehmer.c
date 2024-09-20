@@ -331,11 +331,16 @@ int32_t lehmer_generate_jump(int32_t seed);
 // Generalized Lehmer sequence generator
 
 /**
- * @brief Generate a sequence of seeds using a specified generation function
+ * @brief Generates a sequence of seeds using a predefined callback function.
  *
- * @param state The Lehmer RNG state object
- * @param generator The Lehmer RNG generation function to use
- * @param seed The initial seed value
+ * The state object and the generator function are bound to the sequence
+ * generation process. The state object keeps track of the current position and
+ * the sequence values, while the generator function is used to generate new
+ * seeds for the sequence.
+ *
+ * @param state The Lehmer RNG state object.
+ * @param generator The callback function to generate new seeds.
+ * @param seed The seed to initialize the sequence.
  */
 void lehmer_generate(
     lehmer_state_t* state, lehmer_generate_t generator, int32_t seed
