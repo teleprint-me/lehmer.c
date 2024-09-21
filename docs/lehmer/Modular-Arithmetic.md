@@ -63,22 +63,49 @@ $$-1 = 3 \times (-1) + 2$$
 
 In this case, the remainder has to be non-negative, so the modulus operation gives us 2. Essentially, we’re "wrapping" around the range defined by the divisor (3) and ensuring the result is positive.
 
-### Modulus and Overflow/Underflow
-In programming, modulus arithmetic is useful because it helps constrain values within a certain range. When you compute something like:
+
+## Modulus and Overflow/Underflow
+In programming, modulus arithmetic is valuable because it constrains values within a certain range. When performing an operation like:
 
 $$a \mod m$$
 
-It guarantees that the result is always between $0$ and $m - 1$, regardless of how large or small $a$ is.
+the result is always between $0$ and $m - 1$, no matter how large or small `a` is. This makes modulus an ideal tool for handling cyclic behavior, such as wrapping sequence positions in an RNG or managing circular buffers.
 
-For example, in C, when you compute:
+Now, let’s explore this concept further with an example:
 
-$$\text{position} = (\text{position} - 1) \mod \text{boundary}$$
+### Example: Position Management in C
+Consider a sequence with a boundary of 256 values. When dealing with a position that can decrement below 0, the modulus operation ensures that the position "wraps" back to the upper bound.
 
-Even though `position` is decremented to negative values, the modulus operation "wraps" it back into the range $[0, \text{boundary} - 1]$.
+In C, a common example would look like this:
 
-This wrapping is why you see the values starting at 255 and counting down when subtracting from 0:
-- Subtracting 1 from 0 gives you -1, but $-1 \mod 256 = 255$.
-- Subtracting again gives $-2$, but $-2 \mod 256 = 254$, and so on.
+```c
+position = (position - 1) % boundary;
+```
+
+Where:
+- `position` starts at 0,
+- `boundary` is 256 (the maximum value for an 8-bit integer).
+
+If `position` is decremented below 0, the modulus operation wraps it back into the valid range `[0, boundary - 1]`.
+
+#### Stepping Through the Example:
+Let’s mathematically step through what happens:
+
+1. **Start with position = 0**  
+   Subtract 1:  
+   $$\text{position} = 0 - 1 = -1$$  
+   Apply modulus:  
+   $$-1 \mod 256 = 255$$  
+   Result: `position` becomes 255, effectively wrapping around to the other end of the range.
+
+2. **Decrement again from 255**  
+   Subtract 1:  
+   $$\text{position} = 255 - 1 = 254$$  
+   Apply modulus:  
+   $$254 \mod 256 = 254$$  
+   No wrapping is needed in this case.
+
+This process continues, ensuring that even as `position` decrements beyond the lower boundary, it wraps around correctly due to the modulus operation. This predictable behavior allows for safe navigation within the sequence.
 
 ### Modulus as a Bounding Mechanism
 Thinking of modulus as a **bounding mechanism** helps to better understand its usefulness in certain contexts:
@@ -95,13 +122,13 @@ Modular arithmetic isn’t just division with a twist—it’s also a powerful t
 ### Modulus Operation
 The modulus operation, denoted as `n % d`, returns the remainder when `n` is divided by `d`. This operation is crucial in many programming contexts, such as ensuring values remain within a certain range or handling cyclic behavior.
 
-### Signed and Unsigned Integers
+#### Signed and Unsigned Integers
 In C, the behavior of signed and unsigned integers differs when it comes to overflow and underflow:
 
 - **Signed Integers:** When a signed integer overflows, it wraps around to the other end of its value range. This behavior is predictable and can be thought of as a "safe" overflow.
 - **Unsigned Integers:** Unsigned integers do not wrap around on overflow. Instead, the value can overflow into other memory or behave unexpectedly.
 
-### Overflow and Underflow
+#### Overflow and Underflow
 - **Overflow:** When a signed integer exceeds its maximum value, it wraps around to the minimum possible value. In contrast, an unsigned integer may produce unexpected results as it does not have a negative range.
 - **Underflow:** For signed integers, underflow behaves similarly to overflow but in the opposite direction. The value wraps around to the maximum possible value.
 
