@@ -48,7 +48,7 @@ $$10 \mod 3 = 1$$
 The **modulus** operation effectively gives you the leftover portion after you subtract as many multiples of the divisor as possible.
 
 ### Extension to Modular Arithmetic
-Modular arithmetic is fascinating because of how it "wraps" numbers. If we 'overflow' or 'underflow', we simply 'wrap' around due to how the remainder works out.
+Modular arithmetic is fascinating because of how it "wraps" numbers. If we "overflow" or "underflow", we simply "wrap" around due to how the remainder works out.
 
 This wrapping behavior is a core property of modulus, and it’s why modulus is so useful in applications like random number generation, hashing, or circular buffers.
 
@@ -136,6 +136,30 @@ In C, the behavior of signed and unsigned integers differs when it comes to over
 
 In the Lehmer RNG, we use modular arithmetic to handle sequence generation and boundary enforcement. The modulus ensures that positions in the sequence remain within valid bounds, and overflows or underflows do not result in undefined behavior.
 
+```c
+#include <stdio.h>
+
+#define LIMIT 10
+
+int main(void) {
+    // signed int wraps around when overflows occur
+    signed int position = 0; // this cannot overflow
+    // unsigned int simply overflows and does not wrap around
+    const unsigned int boundary = 256; // this can overflow
+
+    // step backwards over each iteration
+    for (unsigned int i = 0; i < LIMIT; i++) {
+        // negate the position and bind it to the boundary
+        position = (position - 1) % boundary;
+        // output the current position
+        printf("position: %d\n", position);
+    }
+
+    // return on success
+    return 0;
+}
+```
+
 ### Example
 
 ```c
@@ -162,3 +186,109 @@ position = (position - 1) % boundary;
 ```
 
 Both expressions are equivalent because the modulus operation ensures the result stays within bounds, eliminating the need to explicitly add the boundary in most cases.
+
+## Sign Behavior of Modulus
+
+In modular arithmetic, the sign of the divisor (denoted as `m`) plays an important role in determining the sign of the remainder when performing the modulus operation. Understanding how this behavior works is crucial when using modular arithmetic in programming.
+
+#### 1. **Positive Divisor (`m > 0`)**
+When the divisor `m` is positive, the modulus operation `a % m` always returns a remainder within the range `[0, m - 1]`. This behavior holds regardless of whether `a` (the number being divided) is positive or negative.
+
+- If `a` is positive, the remainder is naturally between `0` and `m - 1`.
+- If `a` is negative, the modulus "wraps" the result back into the positive range.
+
+**Examples:**
+```python
+>>> a = 5
+>>> m = 3
+>>> a % m
+2  # Remainder is within [0, 2]
+
+>>> a = -5
+>>> m = 3
+>>> a % m
+1  # Despite being negative, the remainder wraps back to the positive range
+```
+
+#### 2. **Negative Divisor (`m < 0`)**
+When the divisor `m` is negative, the remainder will always fall within the range `[m, -1]`. This is because the sign of `m` determines the wrapping behavior of the modulus operation.
+
+- If `a` is positive, the remainder is wrapped to be negative.
+- If `a` is negative, the modulus operation still respects the negative divisor and provides a remainder within the range `[m, -1]`.
+
+**Examples:**
+```python
+>>> a = 5
+>>> m = -3
+>>> a % m
+-1  # Result is within [-3, -1]
+
+>>> a = -5
+>>> m = -3
+>>> a % m
+-2  # Result remains negative
+```
+
+#### 3. **Ensuring a Positive Remainder**
+In some situations, you might want to ensure that the remainder is always positive, even when `a` or `m` is negative. To achieve this, you can adjust the modulus operation by using the absolute value of `m`:
+
+```python
+>>> a = -5
+>>> m = -3
+>>> (a % abs(m)) 
+1  # Using the absolute value of m ensures a positive remainder
+```
+
+This technique is useful when working in contexts where positive remainders are expected or necessary, such as when indexing arrays or managing cyclic data structures.
+
+Note that nesting the modulus to the result has no effect:
+
+```python
+>>> a = -5
+>>> m = 3
+>>> (a % m + m) % m
+1  # Has no effect
+>>> (a % m + m) % m == a % m
+True
+```
+
+Adding the modulus to the result still results in no effect:
+
+```python
+>>> (a + m) % m == a % m
+True
+```
+
+We can see that they remain equivalent throughout. The expressions retain their equivalency, regardless of structure.
+
+#### 4. **Range of Remainders**
+In both cases, the remainder will always fall within the range:
+- For `m > 0`, the remainder is within `[0, m - 1]`.
+- For `m < 0`, the remainder is within `[m, -1]`.
+
+The modulus operation essentially binds values to these ranges, making it a helpful tool for cyclic or wrapping operations.
+
+**Examples with Larger Values:**
+```python
+>>> m = 256
+>>> a = 300
+>>> a % m
+44  # Positive range [0, 255]
+
+>>> m = -256
+>>> a = -300
+>>> a % m
+-44  # Negative range [-256, -1]
+```
+
+In summary, the sign of the divisor determines the range in which the remainder falls. A positive divisor results in a positive remainder, while a negative divisor leads to a negative remainder. Using the absolute value of the divisor can help ensure that the remainder is always positive, which is useful in certain applications.
+
+## Conclusion
+
+In conclusion, the use of modular arithmetic is a fundamental aspect of the Lehmer Random Number Generator. By understanding the properties of modular arithmetic, we can harness its power to create bounded and predictable sequences. This is crucial for applications that require cyclic behavior, such as random number generation, hashing, or circular buffers.
+
+By normalizing the generated numbers to the set of integers $\mathbb{Z}$, we ensure that the results are always integers and can be easily bound within a specific range. This normalization makes it possible to work with cyclic structures like arrays and circular buffers effectively.
+
+Furthermore, understanding the behavior of signed and unsigned integers, as well as the sign of the divisor, helps us to create more robust and efficient algorithms. With the knowledge gained in this document, you are now well-equipped to apply modular arithmetic in a variety of contexts and tackle real-world problems with confidence.
+
+We hope this document has served as a valuable resource for you, and we encourage you to continue exploring the fascinating world of modular arithmetic and its applications. Happy coding!
