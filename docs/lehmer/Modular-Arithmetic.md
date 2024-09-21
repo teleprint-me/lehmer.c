@@ -150,13 +150,12 @@ In the context of the Lehmer generator, the modulus ensures that the seed or pos
 Modular arithmetic isn’t just division with a twist—it’s also a powerful tool for handling cyclic behavior, which is why it appears in areas like number theory, cryptography, and computer science algorithms.
 
 ### Modulus Operation
-The modulus operation, denoted as `n % d`, returns the remainder when `n` is divided by `d`. This operation is crucial in many programming contexts, such as ensuring values remain within a certain range or handling cyclic behavior.
 
 #### Signed and Unsigned Integers
 In C, the behavior of signed and unsigned integers differs when it comes to overflow and underflow:
 
 - **Signed Integers:** When a signed integer overflows, it wraps around to the other end of its value range. This behavior is predictable and can be thought of as a "safe" overflow.
-- **Unsigned Integers:** Unsigned integers do not wrap around on overflow. Instead, the value can overflow into other memory or behave unexpectedly.
+- **Unsigned Integers:** Unsigned integers do not wrap around on overflow. Instead, the value can overflow into adjacent memory resulting in undefined behavior.
 
 #### Overflow and Underflow
 - **Overflow:** When a signed integer exceeds its maximum value, it wraps around to the minimum possible value. In contrast, an unsigned integer may produce unexpected results as it does not have a negative range.
