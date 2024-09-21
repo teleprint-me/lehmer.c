@@ -39,7 +39,7 @@ This operation returns the remainder $r$ when $n$ is divided by $d$, and $r$ alw
 
 $$0 \leq r < |d|$$
 
-We can define this as $r$ being an element within the set of all integers such that the absolute value of $|d|$ is positive:
+We can define this as for all $r$ within the set of integers such that the absolute value of $|d|$ is positive:
 
 $$\forall r \in \mathbb{Z}$$
 
@@ -49,8 +49,7 @@ $$r \in \{0, 1, 2, \dots, |d| - 1\}$$
 
 This emphasizes that `r` is not just any integer but specifically within the bounds of the modulus result.
 
-
-We can also say that $r$ is congruent with $n \mod d$:
+We can also say that $n \mod d$ is congruent with $r$:
 
 $$n \mod d \equiv r$$
 
