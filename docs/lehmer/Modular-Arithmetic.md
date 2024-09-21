@@ -10,19 +10,49 @@ Modulus arithmetic can be challenging to grasp at first, especially when dealing
 
 Let's start by reviewing the **division** concept:
 
-### Division with Remainder:
-For any two numbers `a` and `d`, you can write the division as:
+$$\text{quotient} = \frac{\text{dividend}}{\text{divisor}}$$
 
-$$a = d \times q + r$$
+or
+
+$$\text{quotient} = \frac{\text{numerator}}{\text{denominator}}$$
+
+Both are equivalent. The latter is nicer than the former because we can use the initial letters $q$ (quotient), $n$ (numerator), and $d$ (denominator), respectively. This allows us to mitigate any conflicts in variable names.
+
+### Division with Remainder:
+For any two numbers $n$ and $d$, you can write the division as:
+
+$$n = d \times q + r$$
 
 Where:
-- `q` is the quotient (how many times `d` divides into `a`),
-- `r` is the remainder (what's left over after `d` is subtracted from `a` as many times as possible).
+- $n$ is the numerator (the number divided into)
+- $d$ is the denominator (the number divided by)
+- $q$ is the quotient (how many times $d$ divides into $n$),
+- $r$ is the remainder (what's left over after $d$ is subtracted from $n$ as many times as possible).
 
-The remainder `r` is what modulus is concerned with. So, when we say:
-$$a \mod d = r$$
+The modulus operation directly gives us the remainder $r$. Mathematically, this is written as:
 
-It means we're just focusing on the remainder when dividing `a` by `d`, ignoring the quotient.
+$$n \mod d = r$$
+
+It means we're just focusing on the remainder when dividing $n$ by $d$, ignoring the quotient.
+
+This operation returns the remainder $r$ when $n$ is divided by $d$, and $r$ always satisfies the following condition:
+
+$$0 \leq r < |d|$$
+
+We can define this as $r$ being an element within the set of all integers such that the absolute value of $|d|$ is positive:
+
+$$\forall r \in \mathbb{Z}$$
+
+or we can expand it to get a better idea of what it looks like overall as a whole:
+
+$$r \in \{0, 1, 2, \dots, |d| - 1\}$$
+
+This emphasizes that `r` is not just any integer but specifically within the bounds of the modulus result.
+
+
+We can also say that $r$ is congruent with $n \mod d$:
+
+$$n \mod d \equiv r$$
 
 Let’s go over some examples to illustrate the concept:
 
