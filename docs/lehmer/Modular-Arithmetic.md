@@ -39,7 +39,7 @@ This can be written mathematically as:
 
 $$0 \leq r < |d|$$
 
-We can define this as for all $r$ within the set of integers such that the absolute value of $d$ is positive.
+We can define this as for all $r$ within the set of integers such that the absolute value of $|d|$ is positive.
 
 The more compact definition of this might look like the following:
 
@@ -320,6 +320,32 @@ The modulus operation essentially binds values to these ranges, making it a help
 ```
 
 In summary, the sign of the divisor determines the range in which the remainder falls. A positive divisor results in a positive remainder, while a negative divisor leads to a negative remainder. Using the absolute value of the divisor can help ensure that the remainder is always positive, which is useful in certain applications.
+
+## Circa: The Lehmer RNG
+
+The Lehmer Random Number Generator (RNG) is a classic Linear Congruential Generator (LCG) that has been widely studied and used for producing pseudo-random sequences. Credited to and named after Derrick Lehmer, the Lehmer RNG introduces two additional concepts to modular arithmetic: scalar values and recursive scaling.
+
+Let's begin with the formal definition of the Lehmer algorithm:
+
+$$f(z) = (a \times z) \mod m$$
+
+Where:
+
+- $m$ is a Mersenne prime
+- $a$ is a Prime multiplier
+- $z$ is the initial input value known as a seed
+
+In the Lehmer RNG, a scalar value, denoted as $z$, is introduced. The value $z$ is known as the seed and creates an initial step within a sequence of size $m$. This seed is then used as an input to the modulus operation.
+
+The Lehmer RNG also introduces the concept of recursive scaling. This means that the output seed from one iteration is used as the input seed for the next iteration. This recursive scaling allows the Lehmer RNG to produce a sequence of values that are dependent on the initial seed.
+
+The Lehmer RNG uses modular arithmetic to ensure that the output remains within a defined range. The modulus operation is defined as $n \mod d = r$, where $n$ is the input, $d$ is the divisor, and $r$ is the remainder. In the context of the Lehmer RNG, the modulus operation is defined as $(a \times z) \mod m = z$, where $a$ is the multiplier, $z$ is the seed, and $m$ is the modulus.
+
+The initial seed is selected and then the output seeds are then recursively used as new forms of input. This means that the remainder is both the input and output.
+
+We can define a function $f(z)$ as the given expression as the domain is the input and output values related to the seed.
+
+Overall, the Lehmer RNG is a powerful algorithm that introduces two additional concepts to modular arithmetic: scalar values and recursive scaling. By understanding these concepts, we can better understand how the Lehmer RNG works and how it can be used to produce pseudo-random sequences.
 
 ## Conclusion
 
