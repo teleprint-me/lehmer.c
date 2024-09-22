@@ -43,7 +43,7 @@ We can define this as for all $r$ within the set of integers such that the absol
 
 $$\forall r \in \mathbb{Z}$$
 
-or we can expand it to get a better idea of what it looks like overall as a whole:
+We can expand this expression to get a better idea of what it looks like overall as a whole:
 
 $$r \in \{0, 1, 2, \dots, |d| - 1\}$$
 
@@ -53,10 +53,8 @@ We can also say that $n \mod d$ is congruent with $r$:
 
 $$n \mod d \equiv r$$
 
-Let’s go over some examples to illustrate the concept:
-
 ## Examples
-Modular arithmetic can be a bit tricky, especially when dealing with negative numbers or boundary conditions in C. To help build intuition, let's go over some examples to illustrate the concept:
+Modular arithmetic can be a bit tricky, especially when dealing with negative numbers or boundary conditions in C. To help build intuition, let's go over some examples to illustrate the concept.
 
 ### Example 1: $10 \div 5$
 $$10 = 5 \times 2 + 0$$
@@ -92,7 +90,6 @@ $$-1 = 3 \times (-1) + 2$$
 
 In this case, the remainder has to be non-negative, so the modulus operation gives us 2. Essentially, we’re "wrapping" around the range defined by the divisor (3) and ensuring the result is positive.
 
-
 ## Modulus and Overflow/Underflow
 In programming, modulus arithmetic is valuable because it constrains values within a certain range. When performing an operation like:
 
@@ -100,20 +97,29 @@ $$a \mod m$$
 
 the result is always between $0$ and $m - 1$, no matter how large or small `a` is. This makes modulus an ideal tool for handling cyclic behavior, such as wrapping sequence positions in an RNG or managing circular buffers.
 
-Now, let’s explore this concept further with an example:
+### Position Management
+Consider traversing a sequence of values with an upper bound of 256 values. The lower boundary is 0 and the upper boundary is 256.
 
-### Example: Position Management in C
-Consider a sequence with a boundary of 256 values. When dealing with a position that can decrement below 0, the modulus operation ensures that the position "wraps" back to the upper bound.
+We keep track of where we are by defining a **position**. If the position is **unbounded**, then we may traverse undefined values. If the position is **bounded**, then we may traverse defined values.
 
-In C, a common example would look like this:
+By binding the position to the sequence boundaries, we remain within a range of known values.
+
+For example, when dealing with a position that can decrement below 0, the modulus operation ensures that the position "wraps" back to the upper bound.
+
+When programming, we would begin by defining the position and boundary:
 
 ```c
-position = (position - 1) % boundary;
+const unsigned int boundary = 256;
+signed int position = 0;
 ```
 
 Where:
 - `position` starts at 0,
 - `boundary` is 256 (the maximum value for an 8-bit integer).
+
+```c
+position = (position - 1) % boundary;
+```
 
 If `position` is decremented below 0, the modulus operation wraps it back into the valid range `[0, boundary - 1]`.
 
