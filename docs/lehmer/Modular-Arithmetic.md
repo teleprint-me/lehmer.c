@@ -19,7 +19,7 @@ $$\text{quotient} = \frac{\text{numerator}}{\text{denominator}}$$
 Both are equivalent. The latter is nicer than the former because we can use the initial letters $q$ (quotient), $n$ (numerator), and $d$ (denominator), respectively. This allows us to mitigate any conflicts in variable names.
 
 ### Division with Remainder:
-For any two numbers $n$ and $d$, you can write the division as:
+Modular arithmetic is based on the concept of division with remainder. When you divide an integer $n$ by another integer $d$, you can write the division as:
 
 $$n = d \times q + r$$
 
@@ -33,25 +33,29 @@ The modulus operation directly gives us the remainder $r$. Mathematically, this 
 
 $$n \mod d = r$$
 
-It means we're just focusing on the remainder when dividing $n$ by $d$, ignoring the quotient.
+This expression means we're just focusing on the remainder when dividing $n$ by $d$, ignoring the quotient. This operation returns the remainder $r$ when $n$ is divided by $d$, and $r$ always satisfies the condition where $r$ is greater than or equal to $0$ and is less than the absolute value of $d$.
 
-This operation returns the remainder $r$ when $n$ is divided by $d$, and $r$ always satisfies the following condition:
+This can be written mathematically as:
 
 $$0 \leq r < |d|$$
 
-We can define this as for all $r$ within the set of integers such that the absolute value of $|d|$ is positive:
+We can define this as for all $r$ within the set of integers such that the absolute value of $d$ is positive.
+
+The more compact definition of this might look like the following:
 
 $$\forall r \in \mathbb{Z}$$
 
-We can expand this expression to get a better idea of what it looks like overall as a whole:
+We can expand this expression by defining $r$ as a *specific subset* of integers constrained by the modulus operation:
 
 $$r \in \{0, 1, 2, \dots, |d| - 1\}$$
 
-This emphasizes that `r` is not just any integer but specifically within the bounds of the modulus result.
+This emphasizes that $r$ is not just any integer and that it remains within the bounds of the modulus result.
 
-We can also say that $n \mod d$ is congruent with $r$:
+This allows us to say that $n \mod d$ is congruent with $r$:
 
 $$n \mod d \equiv r$$
+
+To say that this is congruent means we define the expression as being two numbers which have the same remainder when divided by a third number. For example, 10 and 3 are congruent when the modulus is 1.
 
 ## Examples
 Modular arithmetic can be a bit tricky, especially when dealing with negative numbers or boundary conditions in C. To help build intuition, let's go over some examples to illustrate the concept.
