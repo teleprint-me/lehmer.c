@@ -63,6 +63,7 @@ complex RNG needs.
 - [Calculus](https://math.libretexts.org/Bookshelves/Calculus/Calculus_3e_(Apex))
 - [Discrete Mathematics](https://math.libretexts.org/Bookshelves/Combinatorics_and_Discrete_Mathematics/Discrete_Mathematics_(Levin))
 - [Introduction to Statistics](https://math.libretexts.org/Courses/Queens_College/Introduction_to_Probability_and_Mathematical_Statistics)
+- [Statistics and Probability](https://stats.libretexts.org/Courses/Las_Positas_College/Math_40%3A_Statistics_and_Probability)
 
 ### Original Papers:
 
