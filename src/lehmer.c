@@ -24,6 +24,7 @@
  */
 
 #include "lehmer.h"
+#include "logger.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -36,19 +37,24 @@ lehmer_state_t* lehmer_state_create(int32_t seed, uint32_t length) {
     // Allocate memory for managing the LCG PRNG state
     lehmer_state_t* state = (lehmer_state_t*) malloc(sizeof(lehmer_state_t));
     if (NULL == state) {
+        LOG_ERROR("Failed to allocate memory to lehmer state.\n");
         return NULL;
     }
 
     // Zero-initialize the index
     state->position = 0;
     // Default to a seed of 123456789 if seed is 0
-    lehmer_set_initial_seed(state, seed || LEHMER_SEED);
+    state->seed = (0 >= seed) ? LEHMER_SEED : seed % LEHMER_MODULUS;
     // Default to a size of 256 if size is 0
-    state->length = (0 >= length) ? LEHMER_SIZE : length;
+    state->length = (0 >= length) ? LEHMER_SIZE : length % UINT32_MAX;
 
     // Allocate memory for generating seeds
     state->sequence = (int32_t*) malloc(sizeof(int32_t) * state->length);
     if (NULL == state->sequence) {
+        LOG_ERROR(
+            "Failed to allocate %lu bytes to lehmer state sequence.\n",
+            state->length
+        );
         free(state);
         return NULL;
     }
@@ -228,6 +234,8 @@ void lehmer_generate_time(lehmer_state_t* state, lehmer_generate_t generator) {
     if (-1 == now) {
         lehmer_generate(state, generator, (int32_t) now);
     } else {
+        LOG_WARN("Failed to allocate time to generated state. "
+                 "Falling back to LEHMER_SEED.\n");
         lehmer_generate(state, generator, (int32_t) LEHMER_SEED);
     }
 }
