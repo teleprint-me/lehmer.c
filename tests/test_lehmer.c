@@ -96,8 +96,8 @@ int test_lehmer_state(void) {
 int test_lehmer_initial_seed(void) {
     bool passed = true;
 
+    // Test: Initial state
     lehmer_state_t* state = setup_lehmer_state();
-
     if (LEHMER_SEED != state->seed) {
         LOG_ERROR(
             "Failed: Expected initial seed value to be %lu, but got %lu\n",
@@ -108,6 +108,7 @@ int test_lehmer_initial_seed(void) {
         passed = false;
     }
 
+    // Test: Setting initial seed
     lehmer_set_initial_seed(state, 1);
     if (1 != state->seed) {
         LOG_ERROR(
@@ -118,6 +119,7 @@ int test_lehmer_initial_seed(void) {
         passed = false;
     }
 
+    // Test: Setting and getting initial seed
     int32_t expected_seed = 1337;
     lehmer_set_initial_seed(state, expected_seed);
     int32_t initial_seed = lehmer_get_initial_seed(state);
