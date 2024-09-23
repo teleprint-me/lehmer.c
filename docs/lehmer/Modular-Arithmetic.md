@@ -370,11 +370,10 @@ Where:
 ### Seed Selection and Iteration
 The selection of the initial seed $z_0$ is crucial, as it defines the starting point for the entire pseudo-random sequence. After each iteration, the output seed $z_{n+1}$ becomes the new input for the next round of calculations, recursively generating the sequence.
 
-This iterative process means the remainder $r$, which is $z$, functions as both the output and the input in each step. The choice of $a$ and $m$ ensures that the sequence retains reasonable statistical properties and a long period before repeating itself.
+This iterative process means the remainder $r$, which is $z$, functions as both the output and input in each step. The choice of $a$ and $m$ helps ensure that the sequence retains reasonable statistical properties and achieves a long period before repeating itself.
 
-#### Periodicity results in Weak Properties
-
-It should be noted that these statistical properties are weak due to the upper bound creating a period. This periodicity should not be ignored. No matter how large the modulus is, the sequence is bound to the upper limit, ultimately defining the periodicity. This means that the sequence will eventually repeat itself, even if it isn't immediately apparent, it is derivable.
+#### Periodicity and Weak Properties
+However, it's important to note that these statistical properties are inherently weak due to the periodic nature of the generator. **Periodicity** means that no matter how large the modulus $m$ is, the sequence will eventually repeat itself. Although this repetition may not be immediately apparent, it is inevitable and mathematically derivable. This upper limit defines the sequence’s period, which can introduce weaknesses when high-quality randomness or unpredictability is required.
 
 ### Function Definition
 The function $f(z)$ can be defined as the relationship between the input seed and the output seed:
