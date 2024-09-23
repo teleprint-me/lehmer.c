@@ -57,8 +57,7 @@ int32_t expected_sequence[LEHMER_SIZE] = {
 
 int test_lehmer_generator_modulo(lehmer_state_t* state, int32_t* expected) {
     for (uint32_t i = 0; i < MAX_SEEDS; i++) {
-        lehmer_position_set(state, i);
-        int32_t seed = lehmer_sequence_get(state);
+        int32_t seed = lehmer_set_next_and_get_seed(state);
         printf("Iteration %u: Expected %d, Got %d\n", i, expected[i], seed);
         LEHMER_ASSERT_INTEGER(i, expected[i], seed);
     }
@@ -128,11 +127,8 @@ int main(int argc, char* argv[]) {
     if (test) {
         test_lehmer_generator_modulo(state, expected_sequence);
     } else {
-        lehmer_position_set(state, position);
-
         for (uint32_t i = 0; i < MAX_SEEDS; i++) {
-            lehmer_position_set(state, i);
-            int32_t seed = lehmer_sequence_get(state);
+            int32_t seed = lehmer_set_next_and_get_seed(state);
 
             if (verbose) {
                 lehmer_state_print(state);
@@ -142,7 +138,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    int32_t seed = lehmer_sequence_get(state);
+    int32_t seed = lehmer_get_current_seed(state);
     float output = lehmer_seed_normalize_to_float(seed);
     printf("Normalized Seed: %.9f\n", output);
 
