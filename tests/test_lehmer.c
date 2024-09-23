@@ -38,17 +38,14 @@
  * parameters.
  */
 lehmer_state_t* setup_lehmer_state(void) {
-    lehmer_state_t* state = lehmer_state_create(LEHMER_SIZE, LEHMER_SEED);
-    return state;
+    return lehmer_state_create(LEHMER_SEED, LEHMER_SIZE);
 }
 
 /**
  * @brief Generalized fixture to free a Lehmer state.
  */
 void teardown_lehmer_state(lehmer_state_t* state) {
-    if (state) {
-        lehmer_state_free(state);
-    }
+    lehmer_state_free(state);
 }
 
 /**
@@ -60,7 +57,7 @@ int test_lehmer_state(void) {
     lehmer_state_t* state = setup_lehmer_state();
 
     // Test: state->length == LEHMER_SIZE
-    if (state->length != LEHMER_SIZE) {
+    if (LEHMER_SIZE != state->length) {
         LOG_ERROR(
             "Failed: Expected size to be %lu, but got %lu\n",
             LEHMER_SIZE,
@@ -96,12 +93,56 @@ int test_lehmer_state(void) {
     return passed ? 0 : 1;
 }
 
+int test_lehmer_initial_seed(void) {
+    bool passed = true;
+
+    lehmer_state_t* state = setup_lehmer_state();
+
+    if (LEHMER_SEED != state->seed) {
+        LOG_ERROR(
+            "Failed: Expected initial seed value to be %lu, but got %lu\n",
+            LEHMER_SEED,
+            state->seed
+        );
+        lehmer_state_print(state);
+        passed = false;
+    }
+
+    lehmer_set_initial_seed(state, 1);
+    if (1 != state->seed) {
+        LOG_ERROR(
+            "Failed: Expected initial seed value to be 1, but got %lu\n",
+            state->seed
+        );
+        lehmer_state_print(state);
+        passed = false;
+    }
+
+    int32_t expected_seed = 1337;
+    lehmer_set_initial_seed(state, expected_seed);
+    int32_t initial_seed = lehmer_get_initial_seed(state);
+    if (expected_seed != initial_seed) {
+        LOG_ERROR(
+            "Failed: Expected initial seed value to be %lu, but got %lu\n",
+            expected_seed,
+            initial_seed
+        );
+        lehmer_state_print(state);
+        passed = false;
+    }
+
+    teardown_lehmer_state(state);
+
+    printf("%s", passed ? "." : "x");
+    return passed ? 0 : 1;
+}
+
 int test_lehmer_state_select(void) {
     bool passed = true;
 
     lehmer_state_t* state = setup_lehmer_state();
 
-    // Test 1: Select stream 1 (default is 0)
+    // Test 1: Select the next seed in the sequence
     lehmer_set_next_seed(state);
     if (1 != state->position) {
         LOG_ERROR(
@@ -111,13 +152,23 @@ int test_lehmer_state_select(void) {
         passed = false;
     }
 
-    // Test 2: Validate seed value (expected value: 115541394)
-    for (uint32_t i = 0; i < 10; i++) {
+    // Test 1: Select the previous seed in the sequence
+    lehmer_set_next_seed(state);
+    if (1 != state->position) {
+        LOG_ERROR(
+            "Failed: Expected stream to be 1, but got %lu\n", state->position
+        );
+        lehmer_state_print(state);
+        passed = false;
+    }
+
+    // Test 2: Validate seed value (expected value: 1819611286)
+    for (uint32_t i = 0; i < 8; i++) {
         // iterate over 10 generated seeds
         lehmer_set_next_seed(state);
     }
     const int32_t current_seed = lehmer_get_current_seed(state);
-    const int32_t expected_seed = 115541394;
+    const int32_t expected_seed = 1819611286;
     if (current_seed != expected_seed) {
         LOG_ERROR(
             "Failed: Expected seed %d, but got %d.\n",
@@ -351,6 +402,7 @@ int main(void) {
     int passed = 0; // Assuming success
 
     passed |= test_lehmer_state();
+    passed |= test_lehmer_initial_seed();
     passed |= test_lehmer_state_select();
     // passed |= test_random_seed();
     // passed |= test_random_value();
