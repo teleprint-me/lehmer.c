@@ -342,7 +342,17 @@ In the Lehmer RNG, a scalar value, denoted as $z$, is introduced. This value is 
 The Lehmer RNG also introduces the concept of recursive scaling. This means that the output seed from one iteration is used as the input seed for the next iteration. This recursive scaling allows the Lehmer RNG to produce a sequence of values that are dependent on the initial seed.
 
 ### Modular Arithmetic
-The Lehmer RNG uses modular arithmetic to ensure that the output remains within a defined range. The modulus operation is defined as $n \mod d = r$, where $n$ is the input, $d$ is the divisor, and $r$ is the remainder. In the context of the Lehmer RNG, the modulus operation is defined as $(a \times z) \mod m = z$, where $a$ is the multiplier, $z$ is the seed, and $m$ is the modulus.
+The Lehmer RNG uses modular arithmetic to ensure that the output remains within a defined range. The modulus operation is defined as $n \mod d = r$, where $n$ is the input, $d$ is the divisor, and $r$ is the remainder.
+
+In the context of the Lehmer RNG, the modulus operation is defined as $(a \times z) \mod m = z$, where $a$ is the multiplier, $z$ is the seed, and $m$ is the modulus.
+
+This essentially means that:
+
+- $n = a \times z$ where $z$ is the input
+- $d = m$ where $d$ and $m$ are equivalent
+- $r = z$ where $z$ is the output
+
+This works only because of the recursive nature of the algorithm. Otherwise, we would always get the same output.
 
 ### Seed Selection
 The initial seed is selected and then the output seeds are then recursively used as new forms of input. This means that the remainder is both the input and output.
