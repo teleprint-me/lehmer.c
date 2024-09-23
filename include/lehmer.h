@@ -173,70 +173,72 @@ void lehmer_state_print(lehmer_state_t* state);
 // Lehmer seed management
 
 /**
- * @brief Sets the initial seed used to start the sequence.
+ * @brief Set the initial seed with boundary enforcement (modulus operation)
  *
- * @param state The Lehmer RNG state object.
- * @param seed The seed to set.
+ * This function sets the initial seed value for the Lehmer RNG, ensuring that
+ * the seed value is within the valid range for the modulus.
+ *
+ * @param state The current state object.
+ * @param seed The initial seed value to set.
  */
-void lehmer_seed_set(lehmer_state_t* state, int32_t seed);
+void lehmer_set_initial_seed(lehmer_state_t* state, int32_t seed);
 
 /**
- * @brief Retrieves the initial seed used to start the sequence.
+ * @brief Get the initial seed from the current state
  *
- * @param state The Lehmer RNG state object.
+ * This function returns the initial seed value for the Lehmer RNG, ensuring
+ * that the seed value is within the valid range for the modulus.
  *
- * @return The initial seed used to start the sequence.
+ * @param state The current state object.
+ * @return The initial seed value.
  */
-int32_t lehmer_seed_get(lehmer_state_t* state);
-
-// Lehmer position management
+int32_t lehmer_get_initial_seed(lehmer_state_t* state);
 
 /**
- * @brief Set the current position in the sequence.
+ * @brief Set the previous seed in the generated sequence
  *
- * @param state Pointer to the Lehmer state structure.
- * @param position New position to set.
+ * This function sets the previous seed value in the generated sequence for the
+ * Lehmer RNG, ensuring that the seed value is within the valid range for the
+ * sequence length.
  *
- * @note handles overflow with modulus.
+ * @param state The current state object.
  */
-void lehmer_position_set(lehmer_state_t* state, uint32_t position);
+void lehmer_set_previous_seed(lehmer_state_t* state);
 
 /**
- * @brief Move to the next position in the sequence.
+ * @brief Set the next seed in the generated sequence
  *
- * @param state Pointer to the Lehmer state structure.
+ * This function sets the next seed value in the generated sequence for the
+ * Lehmer RNG, ensuring that the seed value is within the valid range for the
+ * sequence length.
  *
- * @note handles overflow with modulus.
+ * @param state The current state object.
  */
-void lehmer_position_next(lehmer_state_t* state);
+void lehmer_set_next_seed(lehmer_state_t* state);
 
 /**
- * @brief Move to the previous position in the sequence.
+ * @brief Get the current seed in the sequence with boundary enforcement
  *
- * @param state Pointer to the Lehmer state structure.
+ * This function returns the current seed value in the generated sequence for
+ * the Lehmer RNG, ensuring that the seed value is within the valid range for
+ * the sequence length.
  *
- * @note handles underflow with modulus.
+ * @param state The current state object.
+ * @return The current seed value.
  */
-void lehmer_position_previous(lehmer_state_t* state);
-
-// Lehmer sequence management
-
-/**
- * @brief Sets the next value in the sequence.
- *
- * @param state The Lehmer RNG state object.
- * @param seed The seed to set in the sequence.
- */
-void lehmer_sequence_set(lehmer_state_t* state, int32_t seed);
+int32_t lehmer_get_current_seed(lehmer_state_t* state);
 
 /**
- * @brief Retrieves the current value in the sequence.
+ * @brief Get the current seed in the sequence with boundary enforcement
  *
- * @param state The Lehmer RNG state object.
+ * This function returns the current seed value in the generated sequence for
+ * the Lehmer RNG, ensuring that the seed value is within the valid range for
+ * the sequence length. It also sets the next seed value in the sequence.
  *
- * @return The current value in the sequence.
+ * @param state The current state object.
+ * @return The current seed value.
  */
-int32_t lehmer_sequence_get(lehmer_state_t* state);
+int32_t lehmer_set_next_and_get_seed(lehmer_state_t* state);
 
 // Lehmer seed normalization
 
@@ -253,11 +255,10 @@ float lehmer_seed_normalize_to_float(int32_t seed);
  * @brief Normalizes a seed to an integer in the range 0 to m - 1
  *
  * @param seed The seed to normalize.
- * @param modulus The modulus to use for normalization.
  *
  * @return The normalized seed as an integer in the range 0 to m - 1
  */
-int32_t lehmer_seed_normalize_to_int(int32_t seed, uint32_t modulus);
+int32_t lehmer_seed_normalize_to_int(int32_t seed);
 
 // Lehmer seed generation
 

@@ -42,7 +42,7 @@ lehmer_state_t* lehmer_state_create(int32_t seed, uint32_t length) {
     // Zero-initialize the index
     state->position = 0;
     // Default to a seed of 123456789 if seed is 0
-    lehmer_seed_set(state, seed);
+    lehmer_set_initial_seed(state, seed || LEHMER_SEED);
     // Default to a size of 256 if size is 0
     state->length = (0 >= length) ? LEHMER_SIZE : length;
 
@@ -91,59 +91,43 @@ void lehmer_state_print(lehmer_state_t* state) {
 // Lehmer seed management
 
 // Set the initial seed with boundary enforcement (modulus operation)
-void lehmer_seed_set(lehmer_state_t* state, int32_t seed) {
+void lehmer_set_initial_seed(lehmer_state_t* state, int32_t seed) {
+    // Bind the seed to the global modulus
     state->seed = seed % LEHMER_MODULUS;
 }
 
-// Retrieve the current seed from the state
-int32_t lehmer_seed_get(lehmer_state_t* state) {
-    return state->seed;
+// Get the inital seed from the current state
+int32_t lehmer_get_initial_seed(lehmer_state_t* state) {
+    // Bind the seed to the global modulus
+    return state->seed % LEHMER_MODULUS;
 }
 
-// Lehmer position management
-
-/**
- * @brief Set the current position in the sequence (handles overflow with
- * modulus).
- *
- * @param state Pointer to the Lehmer state structure.
- * @param position New position to set.
- */
-void lehmer_position_set(lehmer_state_t* state, uint32_t position) {
-    // Ensure position stays within bounds
-    state->position = position % state->length;
+// Set the previous seed in the generated sequence
+void lehmer_set_previous_seed(lehmer_state_t* state) {
+    // Bind the position to the sequence length
+    state->position = (state->position - 1) % state->length;
 }
 
-/**
- * @brief Move to the next position in the sequence (handles overflow).
- *
- * @param state Pointer to the Lehmer state structure.
- */
-void lehmer_position_next(lehmer_state_t* state) {
-    // Increment and wrap around
-    lehmer_position_set(state, (state->position + 1));
+// Set the next seed in the generated sequence
+void lehmer_set_next_seed(lehmer_state_t* state) {
+    // Bind the position to the sequence length
+    state->position = (state->position + 1) % state->length;
 }
 
-/**
- * @brief Move to the previous position in the sequence (handles underflow).
- *
- * @param state Pointer to the Lehmer state structure.
- */
-void lehmer_position_previous(lehmer_state_t* state) {
-    // Decrement and wrap around
-    lehmer_position_set(state, (state->position - 1));
-}
-
-// Lehmer sequence management
-
-// Set a value in the sequence with boundary enforcement
-void lehmer_sequence_set(lehmer_state_t* state, int32_t seed) {
-    state->sequence[state->position] = seed % LEHMER_MODULUS;
-}
-
-// Get the current value in the sequence
-int32_t lehmer_sequence_get(lehmer_state_t* state) {
+// Get the current seed in the sequence with boundary enforcement
+int32_t lehmer_get_current_seed(lehmer_state_t* state) {
+    // Bind the position to the sequence length
+    state->position %= state->length;
+    // Get the current seed from the sequence
     return state->sequence[state->position];
+}
+
+// Get the current seed in the sequence with boundary enforcement
+int32_t lehmer_set_next_and_get_seed(lehmer_state_t* state) {
+    // Set the next seed
+    lehmer_set_next_seed(state);
+    // Get the current seed from the sequence
+    return lehmer_get_current_seed(state);
 }
 
 // Lehmer seed normalization
@@ -154,8 +138,9 @@ float lehmer_seed_normalize_to_float(int32_t seed) {
 }
 
 // @brief Normalizes a seed to a integer in the range 0 to m - 1
-int32_t lehmer_seed_normalize_to_int(int32_t seed, uint32_t modulus) {
-    return (seed + modulus) % modulus;
+int32_t lehmer_seed_normalize_to_int(int32_t seed) {
+    // Bind the seed to the modulus
+    return seed % LEHMER_MODULUS;
 }
 
 // Lehmer seed calculators
@@ -187,28 +172,28 @@ int32_t lehmer_calculate_delta(int32_t seed, int32_t a, int32_t q, int32_t r) {
 // Generate the seed using modulo formula
 int32_t lehmer_generate_modulo(int32_t seed) {
     int32_t r = lehmer_calculate_modulo(seed, LEHMER_MULTIPLIER);
-    return lehmer_seed_normalize_to_int(r, LEHMER_MODULUS);
+    return lehmer_seed_normalize_to_int(r);
 }
 
 int32_t lehmer_generate_gamma(int32_t seed) {
     int32_t y = lehmer_calculate_gamma(
         seed, LEHMER_MULTIPLIER, LEHMER_QUOTIENT, LEHMER_REMAINDER
     );
-    return lehmer_seed_normalize_to_int(y, LEHMER_MODULUS);
+    return lehmer_seed_normalize_to_int(y);
 }
 
 int32_t lehmer_generate_jump(int32_t seed) {
     int32_t j = lehmer_calculate_gamma(
         seed, LEHMER_JUMP, LEHMER_QUOTIENT, LEHMER_REMAINDER
     );
-    return lehmer_seed_normalize_to_int(j, LEHMER_MODULUS);
+    return lehmer_seed_normalize_to_int(j);
 }
 
 int32_t lehmer_generate_delta(int32_t seed) {
     int32_t d = lehmer_calculate_delta(
         seed, LEHMER_JUMP, LEHMER_QUOTIENT, LEHMER_REMAINDER
     );
-    return lehmer_seed_normalize_to_int(d, LEHMER_MODULUS);
+    return lehmer_seed_normalize_to_int(d);
 }
 
 // Lehmer seed generators
@@ -248,8 +233,9 @@ void lehmer_generate_time(lehmer_state_t* state, lehmer_generate_t generator) {
 }
 
 void lehmer_regenerate(lehmer_state_t* state, lehmer_generate_t generator) {
+    // Get the selected seed in the sequence
+    int32_t seed = lehmer_set_next_and_get_seed(state);
     // Generate a new sequence based on the selected seed
-    int32_t seed = lehmer_seed_get(state);
     lehmer_generate(state, generator, seed);
 }
 
@@ -257,10 +243,8 @@ void lehmer_regenerate(lehmer_state_t* state, lehmer_generate_t generator) {
 
 // Generate a random number using the modulo approach.
 float lehmer_random_modulo(lehmer_state_t* state) {
-    // Move to the next position in the sequence
-    lehmer_position_next(state);
-    // Get the current seed
-    int32_t seed = lehmer_sequence_get(state);
+    // Get the selected seed in the sequence
+    int32_t seed = lehmer_set_next_and_get_seed(state);
     // Generate the next value using modulo
     seed = lehmer_generate_modulo(seed);
     // Normalize and return
@@ -269,32 +253,32 @@ float lehmer_random_modulo(lehmer_state_t* state) {
 
 // Generate a random number using the gamma approach.
 float lehmer_random_gamma(lehmer_state_t* state) {
-    lehmer_position_next(state);
-    int32_t seed = lehmer_sequence_get(state);
+    // Get the selected seed in the sequence
+    int32_t seed = lehmer_set_next_and_get_seed(state);
     seed = lehmer_generate_gamma(seed);
     return lehmer_seed_normalize_to_float(seed);
 }
 
 // Generate a random number using the jump approach.
 float lehmer_random_jump(lehmer_state_t* state) {
-    lehmer_position_next(state);
-    int32_t seed = lehmer_sequence_get(state);
+    // Get the selected seed in the sequence
+    int32_t seed = lehmer_set_next_and_get_seed(state);
     seed = lehmer_generate_jump(seed);
     return lehmer_seed_normalize_to_float(seed);
 }
 
 // Generate a random number using the modulo approach.
 float lehmer_random_delta(lehmer_state_t* state) {
-    lehmer_position_next(state);
-    int32_t seed = lehmer_sequence_get(state);
+    // Get the selected seed in the sequence
+    int32_t seed = lehmer_set_next_and_get_seed(state);
     seed = lehmer_generate_delta(seed);
     return lehmer_seed_normalize_to_float(seed);
 }
 
 // Generalized random number generation
 float lehmer_random(lehmer_state_t* state, lehmer_generate_t generator) {
-    lehmer_position_next(state);
-    int32_t seed = lehmer_sequence_get(state);
+    // Get the selected seed in the sequence
+    int32_t seed = lehmer_set_next_and_get_seed(state);
     seed = generator(seed);
     return lehmer_seed_normalize_to_float(seed);
 }
