@@ -15,13 +15,13 @@
 
 int32_t prime_modular_exponent(int32_t a, int32_t b, uint32_t m) {
     int32_t result = 1;
-    a              = a % m; // Ensuring base is within bounds of modulus
+    a = a % m; // Ensuring base is within bounds of modulus
 
     while (0 < b) {
         if (b % 2 == 1) {
             result = (result * a) % m;
         }
-        b = b >> 1;      // Right-shift b by 1 (dividing by 2)
+        b = b >> 1; // Right-shift b by 1 (dividing by 2)
         a = (a * a) % m; // Square a and reduce modulo m
     }
 
@@ -38,11 +38,14 @@ bool prime_miller_rabin(lehmer_state_t* state, uint32_t n, uint16_t k) {
         s >>= 1; // Remove factors of 2
     }
 
+    lehmer_generate(state, lehmer_generate_modulo, k);
     for (int16_t i = 0; i < k; ++i) {
+        // Get the selected seed in the sequence
+        int32_t seed = lehmer_set_next_and_get_seed(state);
+        // Generate the next value using modulo
+        seed = lehmer_generate_modulo(seed);
         // Generate a random base in the range [2, n-2]
-        lehmer_generate_modulo(state);
-        int32_t seed = lehmer_seed_get(state);
-        int32_t a    = 2 + (seed % (n - 3));
+        int32_t a = 2 + (seed % (n - 3));
 
         int32_t x = prime_modular_exponent(a, s, n);
 
@@ -80,7 +83,7 @@ prime_sample_t* prime_sample_create(uint32_t size) {
     // Allocate memory for sampling
     prime_sample_t* sample = (prime_sample_t*) malloc(sizeof(prime_sample_t));
     // Allocate memory for number of sampled data points
-    sample->data           = malloc(size * sizeof(int16_t));
+    sample->data = malloc(size * sizeof(int16_t));
 
     uint32_t j = 0;
 
