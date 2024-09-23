@@ -59,32 +59,32 @@ int test_lehmer_state(void) {
 
     lehmer_state_t* state = setup_lehmer_state();
 
-    // Test: state->size == LEHMER_SIZE
-    if (state->size != LEHMER_SIZE) {
+    // Test: state->length == LEHMER_SIZE
+    if (state->length != LEHMER_SIZE) {
         LOG_ERROR(
-            "Failed: Expected size to be %u, but got %u\n",
+            "Failed: Expected size to be %lu, but got %lu\n",
             LEHMER_SIZE,
-            state->size
+            state->length
         );
         lehmer_state_print(state);
         passed = false;
     }
 
-    // Test: state->index == 0
-    if (state->index != 0) {
+    // Test: state->position == 0
+    if (0 != state->position) {
         LOG_ERROR(
-            "Failed: Expected stream to be 0, but got %u\n", state->index
+            "Failed: Expected stream to be 0, but got %lu\n", state->position
         );
         lehmer_state_print(state);
         passed = false;
     }
 
-    // Test: state->seed[0] == LEHMER_SEED
-    if (state->seed[0] != LEHMER_SEED) {
+    // Test: state->seed == LEHMER_SEED
+    if (LEHMER_SEED != state->seed) {
         LOG_ERROR(
             "Failed: Expected initial seed to be %d, but got %d\n",
             LEHMER_SEED,
-            state->seed[0]
+            state->seed
         );
         lehmer_state_print(state);
         passed = false;
@@ -102,10 +102,10 @@ int test_lehmer_state_select(void) {
     lehmer_state_t* state = setup_lehmer_state();
 
     // Test 1: Select stream 1 (default is 0)
-    lehmer_seed_select(state, 1);
-    if (state->index != 1) {
+    lehmer_set_next_seed(state);
+    if (1 != state->position) {
         LOG_ERROR(
-            "Failed: Expected stream to be 1, but got %u\n", state->index
+            "Failed: Expected stream to be 1, but got %lu\n", state->position
         );
         lehmer_state_print(state);
         passed = false;
@@ -113,11 +113,11 @@ int test_lehmer_state_select(void) {
 
     // Test 2: Validate seed value (expected value: 115541394)
     for (uint32_t i = 0; i < 10; i++) {
-        // generate 10 new seeds rooted from the selected state
-        lehmer_generate_modulo(state);
+        // iterate over 10 generated seeds
+        lehmer_set_next_seed(state);
     }
-    const int32_t current_seed = state->seed[1];
-    const int32_t expected_seed = 283598515;
+    const int32_t current_seed = lehmer_get_current_seed(state);
+    const int32_t expected_seed = 115541394;
     if (current_seed != expected_seed) {
         LOG_ERROR(
             "Failed: Expected seed %d, but got %d.\n",
@@ -130,11 +130,13 @@ int test_lehmer_state_select(void) {
 
     // Test 3: Select stream out of bounds to test wrap-around
     uint32_t out_of_bounds_stream = LEHMER_SIZE + 1; // greater than size
-    lehmer_seed_select(state, out_of_bounds_stream);
-    if (state->index != 1) { // Expect wrap-around
+    for (uint32_t i = 0; i < out_of_bounds_stream; i++) {
+        lehmer_set_next_seed(state);
+    }
+    if (1 != state->position) { // Expect wrap-around
         LOG_ERROR(
             "Failed: Expected stream to wrap around to 1, but got %u\n",
-            state->index
+            state->position
         );
         lehmer_state_print(state);
         passed = false;
@@ -162,15 +164,14 @@ int test_lehmer_state_select(void) {
 int test_full_period(void) {
     bool passed = true;
     uint32_t count = 0;
-    int32_t seed = 1;
+    int32_t seed = -1; // seeds are always positive
     int32_t original_seed = seed;
 
     // Use the new fixture functions
     lehmer_state_t* state = setup_lehmer_state();
 
     do {
-        lehmer_generate_modulo(state);
-        seed = lehmer_seed_get(state);
+        seed = lehmer_set_next_and_get_seed(state);
         count++;
     } while (seed != original_seed && count < LEHMER_MODULUS - 1);
 
@@ -207,10 +208,10 @@ int test_random_seed(void) {
     lehmer_state_t* state = setup_lehmer_state();
 
     for (size_t i = 0; i < 10000; i++) {
-        lehmer_generate_modulo(state);
+        lehmer_set_next_seed(state);
     }
 
-    int32_t current_seed = lehmer_seed_get(state);
+    int32_t current_seed = lehmer_get_current_seed(state);
     bool passed = current_seed == expected_seed;
 
     if (!passed) {
@@ -242,7 +243,8 @@ int test_random_seed(void) {
 int test_random_value(void) {
     float expected_output = LEHMER_CHECK_VALUE;
     lehmer_state_t* state = setup_lehmer_state();
-    float current_value = lehmer_seed_normalize_to_float(state);
+    int32_t seed = lehmer_get_current_seed(state);
+    float current_value = lehmer_seed_normalize_to_float(seed);
 
     bool passed
         = float_is_close(current_value, expected_output, /* significand */ 6);
@@ -280,18 +282,13 @@ int test_seed_generation(void) {
     const int32_t expected_seed = LEHMER_CHECK_SEED;
     lehmer_state_t* state = setup_lehmer_state();
 
-    // stream is set to 0
-    lehmer_seed_select(state, 0);
-    // seed is set to 1 in stream 0
-    lehmer_seed_set(state, 1);
-
     // generate 10,000 seeds using a seed of 1 in stream 0
     for (size_t i = 0; i < 10000; i++) {
-        lehmer_generate_modulo(state);
+        lehmer_set_next_seed(state);
     }
 
-    // get the current seed from stream 0
-    int32_t current_seed = lehmer_seed_get(state);
+    // get the current seed
+    int32_t current_seed = lehmer_get_current_seed(state);
     bool passed = (current_seed == expected_seed);
 
     if (!passed) {
@@ -324,12 +321,14 @@ int test_jump_state(void) {
     const int32_t expected_seed = LEHMER_CHECK_JUMP;
     lehmer_state_t* state = setup_lehmer_state();
 
-    // stream is set to 1
-    lehmer_seed_select(state, 1);
-    // reseed remaining streams
-    lehmer_seed_regenerate(state, lehmer_generate_modulo);
+    // get the next seed in the generated sequence
+    int32_t seed = lehmer_set_next_and_get_seed(state);
+    // set the selected seed as the new root seed
+    lehmer_set_initial_seed(state, seed);
+    // regenerate the sequence using the new root seed
+    lehmer_regenerate(state, lehmer_generate_modulo);
     // get the current seed from stream 1
-    uint32_t current_seed = lehmer_seed_get(state);
+    uint32_t current_seed = lehmer_get_current_seed(state);
     bool passed = (current_seed == expected_seed);
 
     if (!passed) {
