@@ -8,11 +8,6 @@ MULTIPLIER = 48271
 ITERATIONS = 1000000  # For performance testing
 
 
-# bind the output to the range [0, m - 1]
-def normalize_int(z: int) -> int:
-    return z % MODULUS
-
-
 # bind the output to the range [0, 1]
 def normalize_float(z: int) -> float:
     return float(z) / float(MODULUS)
@@ -22,7 +17,8 @@ def normalize_float(z: int) -> float:
 def gamma(z: int, a: int, m: int) -> int:
     q = m // a
     r = m % a
-    return normalize_int(a * (z % q) - r * (z // q))
+    result = a * (z % q) - r * (z // q)
+    return result % m  # bind output to [0, m - 1]
 
 
 z = seed
@@ -37,4 +33,4 @@ for i in range(ITERATIONS):
         print("seed =", z, "norm =", norm)
         errors += 1
 
-print("violated boundary", errors, " times.")
+print("violated boundary", errors, "times.")
