@@ -19,16 +19,6 @@
 #include <stdlib.h>
 
 /**
- * @param LEHMER_CHECK_SEED Used in testing for validation
- */
-#define LEHMER_CHECK_SEED 1753928844 // After 10,000 iterations
-
-/**
- * @param LEHMER_CHECK_VALUE Used in testing for validation
- */
-#define LEHMER_CHECK_VALUE 0.816736763 // After 10,000 iterations
-
-/**
  * @param LEHMER_CHECK_JUMP Used in testing for validation
  */
 #define LEHMER_CHECK_JUMP 399268537
@@ -59,7 +49,7 @@ int test_lehmer_state(void) {
     // Test: state->length == LEHMER_SIZE
     if (LEHMER_SIZE != state->length) {
         LOG_ERROR(
-            "Failed: Expected size to be %lu, but got %lu\n",
+            "test_lehmer_state: Expected state->length = %lu, but got %lu\n",
             LEHMER_SIZE,
             state->length
         );
@@ -70,7 +60,8 @@ int test_lehmer_state(void) {
     // Test: state->position == 0
     if (0 != state->position) {
         LOG_ERROR(
-            "Failed: Expected stream to be 0, but got %lu\n", state->position
+            "test_lehmer_state: Expected state->position = 0, but got %lu\n",
+            state->position
         );
         lehmer_state_print(state);
         passed = false;
@@ -79,7 +70,7 @@ int test_lehmer_state(void) {
     // Test: state->seed == LEHMER_SEED
     if (LEHMER_SEED != state->seed) {
         LOG_ERROR(
-            "Failed: Expected initial seed to be %d, but got %d\n",
+            "test_lehmer_state: Expected state->seed = %d, but got %d\n",
             LEHMER_SEED,
             state->seed
         );
@@ -100,7 +91,8 @@ int test_lehmer_initial_seed(void) {
     lehmer_state_t* state = setup_lehmer_state();
     if (LEHMER_SEED != state->seed) {
         LOG_ERROR(
-            "Failed: Expected initial seed value to be %lu, but got %lu\n",
+            "test_lehmer_initial_seed: Expected initial seed value to be %lu, "
+            "but got %lu\n",
             LEHMER_SEED,
             state->seed
         );
@@ -112,7 +104,8 @@ int test_lehmer_initial_seed(void) {
     lehmer_set_initial_seed(state, 1);
     if (1 != state->seed) {
         LOG_ERROR(
-            "Failed: Expected initial seed value to be 1, but got %lu\n",
+            "test_lehmer_initial_seed: Expected initial seed value to be 1, "
+            "but got %lu\n",
             state->seed
         );
         lehmer_state_print(state);
@@ -125,7 +118,8 @@ int test_lehmer_initial_seed(void) {
     int32_t initial_seed = lehmer_get_initial_seed(state);
     if (expected_seed != initial_seed) {
         LOG_ERROR(
-            "Failed: Expected initial seed value to be %lu, but got %lu\n",
+            "test_lehmer_initial_seed: Expected initial seed value to be %lu, "
+            "but got %lu\n",
             expected_seed,
             initial_seed
         );
@@ -151,7 +145,8 @@ int test_lehmer_getters_and_setters(void) {
     current_seed = lehmer_get_current_seed(state);
     if (first_seed != current_seed) {
         LOG_ERROR(
-            "Failed: Expected current seed value to be %lu, but got %lu\n",
+            "test_lehmer_getters_and_setters: Expected current seed value to "
+            "be %lu, but got %lu\n",
             first_seed,
             current_seed
         );
@@ -164,7 +159,8 @@ int test_lehmer_getters_and_setters(void) {
     current_seed = lehmer_get_current_seed(state);
     if (second_seed != current_seed) {
         LOG_ERROR(
-            "Failed: Expected current seed value to be %lu, but got %lu\n",
+            "test_lehmer_getters_and_setters: Expected current seed value to "
+            "be %lu, but got %lu\n",
             second_seed,
             current_seed
         );
@@ -177,7 +173,8 @@ int test_lehmer_getters_and_setters(void) {
     current_seed = lehmer_get_current_seed(state);
     if (first_seed != current_seed) {
         LOG_ERROR(
-            "Failed: Expected current seed value to be %lu, but got %lu\n",
+            "test_lehmer_getters_and_setters: Expected current seed value to "
+            "be %lu, but got %lu\n",
             first_seed,
             current_seed
         );
@@ -189,7 +186,8 @@ int test_lehmer_getters_and_setters(void) {
     current_seed = lehmer_set_next_and_get_seed(state);
     if (second_seed != current_seed) {
         LOG_ERROR(
-            "Failed: Expected current seed value to be %lu, but got %lu\n",
+            "test_lehmer_getters_and_setters: Expected current seed value to "
+            "be %lu, but got %lu\n",
             second_seed,
             current_seed
         );
@@ -278,68 +276,54 @@ int test_lehmer_seed_normalize(void) {
 
 /**
  * @brief Verifies that the Lehmer RNG generates seeds as expected
- *
- * This function checks if generating 10,000 random numbers using a given state
- * results in the final seed matching an expected value. Ensuring correct seed
- * generation is crucial for maintaining deterministic output and
- * reproducibility across different runs of the Lehmer RNG.
- *
- * @return 0 on success and 1 on failure.
  */
-int test_random_seed(void) {
-    const int32_t expected_seed = LEHMER_CHECK_SEED;
-    lehmer_state_t* state = setup_lehmer_state();
+int test_random_seed_and_normalize(void) {
+    bool passed = true;
 
+    const int32_t expected_seed = 1443729859;
+    const float expected_output = 0.672289104f;
+
+    // stress test the initial state
+    lehmer_state_t* state = setup_lehmer_state();
     for (size_t i = 0; i < 10000; i++) {
         lehmer_set_next_seed(state);
+        // breaks at 10000 % 256
+    }
+
+    // expected position = 10000 % 256 = 16
+    // @note the python -m lehmer.cli output is offset by +1
+    if (16 != state->position) {
+        LOG_ERROR(
+            "test_random_seed_and_normalize: Expected position 16, "
+            "but got %d.\n",
+            state->position
+        );
+        lehmer_state_print(state); // print state to stderr for debugging
+        passed = false;
     }
 
     int32_t current_seed = lehmer_get_current_seed(state);
-    bool passed = current_seed == expected_seed;
-
-    if (!passed) {
+    if (expected_seed != current_seed) {
         LOG_ERROR(
-            "test_random_seed: Expected seed %d, but got %d.\n",
+            "test_random_seed_and_normalize: Expected seed %d, but got %d.\n",
             expected_seed,
             current_seed
         );
         lehmer_state_print(state); // print state to stderr for debugging
+        passed = false;
     }
 
-    teardown_lehmer_state(state);
-
-    return passed ? 0 : 1;
-}
-
-/**
- * @brief Verifies the Lehmer RNG generates numbers close to the given
- * expected output
- *
- * This function checks if a generated random value is within a specified
- * tolerance of an expected output. Ensuring correctness in generating random
- * values is crucial for maintaining unbiased and uniformly distributed
- * sequences that can be used across various applications, including
- * simulations and statistical analysis.
- *
- * @return 0 on success and 1 on failure.
- */
-int test_random_value(void) {
-    float expected_output = LEHMER_CHECK_VALUE;
-    lehmer_state_t* state = setup_lehmer_state();
-    int32_t seed = lehmer_get_current_seed(state);
-    float current_value = lehmer_seed_normalize_to_float(seed);
-
-    bool passed
-        = float_is_close(current_value, expected_output, /* significand */ 6);
-
-    if (!passed) {
+    float current_output = lehmer_seed_normalize_to_float(current_seed);
+    if (!float_is_close(expected_output, current_output, 7)) {
         LOG_ERROR(
-            "test_random_value: Expected output: %.7f, actual output: %.7f.\n",
+            "test_random_seed_and_normalize: "
+            "Expected normalized seed %.7f, but got %.7f.\n",
             expected_output,
-            current_value
+            current_output
         );
 
         lehmer_state_print(state);
+        passed = false;
     }
 
     teardown_lehmer_state(state);
@@ -362,7 +346,7 @@ int test_random_value(void) {
  * @return 0 on success and 1 on failure.
  */
 int test_seed_generation(void) {
-    const int32_t expected_seed = LEHMER_CHECK_SEED;
+    const int32_t expected_seed = 1753928844;
     lehmer_state_t* state = setup_lehmer_state();
 
     // generate 10,000 seeds using a seed of 1 in stream 0
@@ -482,8 +466,7 @@ int main(void) {
     passed |= test_lehmer_initial_seed();
     passed |= test_lehmer_getters_and_setters();
     passed |= test_lehmer_seed_normalize();
-    // passed |= test_random_seed();
-    // passed |= test_random_value();
+    passed |= test_random_seed_and_normalize();
     // passed |= test_seed_generation();
     // passed |= test_jump_state();
     // passed |= test_full_period();
