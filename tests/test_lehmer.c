@@ -204,51 +204,6 @@ int test_lehmer_getters_and_setters(void) {
 }
 
 /**
- * @brief Tests if the Lehmer RNG generates numbers in its full period
- *
- * This function checks whether the sequence returns to its initial seed
- * (z_1 = 1) after exactly m - 1 iterations, confirming that it has reached its
- * full period. The test is crucial as it ensures the Lehmer RNG's output is
- * not predictable and remains unbiased over time.
- *
- * @return 0 on success and 1 on failure.
- *
- * @warning This test unit is slow and consumes time and resources. This test
- * should always be executed last to allow fast tests to execute first.
- */
-int test_full_period(void) {
-    bool passed = true;
-    uint32_t count = 0;
-    int32_t seed = -1; // seeds are always positive
-    int32_t original_seed = seed;
-
-    // Use the new fixture functions
-    lehmer_state_t* state = setup_lehmer_state();
-
-    do {
-        seed = lehmer_set_next_and_get_seed(state);
-        count++;
-    } while (seed != original_seed && count < LEHMER_MODULUS - 1);
-
-    passed = count == (LEHMER_MODULUS - 1);
-
-    if (!passed) {
-        LOG_ERROR(
-            "test_full_period: %d is less than %d - 1.\n",
-            count,
-            LEHMER_MODULUS
-        );
-        lehmer_state_print(state); // print state to stderr for debugging
-    }
-
-    // Teardown
-    teardown_lehmer_state(state);
-
-    printf("%s", passed ? "." : "x");
-    return passed ? 0 : 1;
-}
-
-/**
  * @brief Verifies that the Lehmer RNG generates seeds as expected
  *
  * This function checks if generating 10,000 random numbers using a given state
@@ -395,6 +350,51 @@ int test_jump_state(void) {
         lehmer_state_print(state); // print state to stderr for debugging
     }
 
+    teardown_lehmer_state(state);
+
+    printf("%s", passed ? "." : "x");
+    return passed ? 0 : 1;
+}
+
+/**
+ * @brief Tests if the Lehmer RNG generates numbers in its full period
+ *
+ * This function checks whether the sequence returns to its initial seed
+ * (z_1 = 1) after exactly m - 1 iterations, confirming that it has reached its
+ * full period. The test is crucial as it ensures the Lehmer RNG's output is
+ * not predictable and remains unbiased over time.
+ *
+ * @return 0 on success and 1 on failure.
+ *
+ * @warning This test unit is slow and consumes time and resources. This test
+ * should always be executed last to allow fast tests to execute first.
+ */
+int test_full_period(void) {
+    bool passed = true;
+    uint32_t count = 0;
+    int32_t seed = -1; // seeds are always positive
+    int32_t original_seed = seed;
+
+    // Use the new fixture functions
+    lehmer_state_t* state = setup_lehmer_state();
+
+    do {
+        seed = lehmer_set_next_and_get_seed(state);
+        count++;
+    } while (seed != original_seed && count < LEHMER_MODULUS - 1);
+
+    passed = count == (LEHMER_MODULUS - 1);
+
+    if (!passed) {
+        LOG_ERROR(
+            "test_full_period: %d is less than %d - 1.\n",
+            count,
+            LEHMER_MODULUS
+        );
+        lehmer_state_print(state); // print state to stderr for debugging
+    }
+
+    // Teardown
     teardown_lehmer_state(state);
 
     printf("%s", passed ? "." : "x");
