@@ -5,27 +5,36 @@ Script: lehmer.gamma
 seed = 1337
 MODULUS = 2147483647
 MULTIPLIER = 48271
+ITERATIONS = 1000000  # For performance testing
 
 
-# \gamma(z) = a \cdot (z \mod q) - r \cdot (z \div q)
+# bind the output to the range [0, m - 1]
+def normalize_int(z: int) -> int:
+    return z % MODULUS
+
+
+# bind the output to the range [0, 1]
+def normalize_float(z: int) -> float:
+    return float(z) / float(MODULUS)
+
+
+# g(z) = a * (z mod q) - r * (z // q)
 def gamma(z: int, a: int, m: int) -> int:
-    q = int(m / a)
-    r = int(m % a)
-    return int((a * (z % q)) - (r * (z / q)))
+    q = m // a
+    r = m % a
+    return normalize_int(a * (z % q) - r * (z // q))
 
 
 z = seed
 errors = 0
-for i in range(MODULUS):
+for i in range(ITERATIONS):
     # generate next seed
     z = gamma(z, MULTIPLIER, MODULUS)
-    # bind generated seed
-    z = int(z) % int(MODULUS)
     # normalize generated seed
-    norm = float(z) / float(MODULUS)
+    norm = normalize_float(z)
     # count errors
     if not (0 < norm < 1):
-        # print("bind =", bind, "norm =", norm)
+        print("seed =", z, "norm =", norm)
         errors += 1
 
 print("violated boundary", errors, " times.")
