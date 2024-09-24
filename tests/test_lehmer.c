@@ -203,6 +203,79 @@ int test_lehmer_getters_and_setters(void) {
     return passed ? 0 : 1;
 }
 
+int test_lehmer_seed_normalize(void) {
+    bool passed = true;
+    float expected_float = 0.0f;
+    float current_float = 0.0f;
+    const int32_t expected_seed = 115541394;
+
+    lehmer_state_t* state = setup_lehmer_state();
+
+    // test normalizing a seed to a float
+    int32_t current_seed = lehmer_get_current_seed(state);
+    if (expected_seed != current_seed) {
+        LOG_ERROR(
+            "Failed: expected current seed %lu, but got %lu",
+            expected_seed,
+            current_seed
+        );
+        lehmer_state_print(state);
+        passed = false;
+    }
+
+    // test normalizing a seed to a signed int (int32_t)
+    current_seed = lehmer_seed_normalize_to_int(current_seed);
+    if (expected_seed != current_seed) {
+        LOG_ERROR(
+            "Failed: expected current seed %lu, but got %lu",
+            expected_seed,
+            current_seed
+        );
+        lehmer_state_print(state);
+        passed = false;
+    }
+
+    expected_float = 0.053803154f;
+    current_float = lehmer_seed_normalize_to_float(current_seed);
+    if (!float_is_close(expected_float, current_float, 7)) {
+        LOG_ERROR(
+            "Failed: current_seed = %lu, "
+            "expected_float = %.7f, "
+            "current_float = %.7f\n",
+            current_seed,
+            expected_float,
+            current_float
+        );
+        lehmer_state_print(state);
+        passed = false;
+    }
+
+    // fast-forward to the 9th seed
+    for (uint32_t i = 0; i < 9; i++) {
+        lehmer_set_next_seed(state);
+    }
+
+    expected_float = 0.847322534f;
+    current_seed = lehmer_get_current_seed(state);
+    current_float = lehmer_seed_normalize_to_float(current_seed);
+    if (!float_is_close(expected_float, current_float, 7)) {
+        LOG_ERROR(
+            "Failed: current_seed = %lu, "
+            "expected_float = %.7f, "
+            "current_float = %.7f\n",
+            current_seed,
+            expected_float,
+            current_float
+        );
+        lehmer_state_print(state);
+        passed = false;
+    }
+
+    teardown_lehmer_state(state);
+
+    return passed ? 0 : 1;
+}
+
 /**
  * @brief Verifies that the Lehmer RNG generates seeds as expected
  *
@@ -408,6 +481,7 @@ int main(void) {
     passed |= test_lehmer_state();
     passed |= test_lehmer_initial_seed();
     passed |= test_lehmer_getters_and_setters();
+    passed |= test_lehmer_seed_normalize();
     // passed |= test_random_seed();
     // passed |= test_random_value();
     // passed |= test_seed_generation();
