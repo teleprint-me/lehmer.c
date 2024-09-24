@@ -139,57 +139,59 @@ int test_lehmer_initial_seed(void) {
     return passed ? 0 : 1;
 }
 
-int test_lehmer_state_select(void) {
+int test_lehmer_getters_and_setters(void) {
     bool passed = true;
+    const int32_t first_seed = 115541394;
+    const int32_t second_seed = 283598515;
+    int32_t current_seed = 0;
 
     lehmer_state_t* state = setup_lehmer_state();
 
-    // Test 1: Select the next seed in the sequence
-    lehmer_set_next_seed(state);
-    if (1 != state->position) {
+    // test getting the current seed
+    current_seed = lehmer_get_current_seed(state);
+    if (first_seed != current_seed) {
         LOG_ERROR(
-            "Failed: Expected stream to be 1, but got %lu\n", state->position
-        );
-        lehmer_state_print(state);
-        passed = false;
-    }
-
-    // Test 1: Select the previous seed in the sequence
-    lehmer_set_next_seed(state);
-    if (1 != state->position) {
-        LOG_ERROR(
-            "Failed: Expected stream to be 1, but got %lu\n", state->position
-        );
-        lehmer_state_print(state);
-        passed = false;
-    }
-
-    // Test 2: Validate seed value (expected value: 1819611286)
-    for (uint32_t i = 0; i < 8; i++) {
-        // iterate over 10 generated seeds
-        lehmer_set_next_seed(state);
-    }
-    const int32_t current_seed = lehmer_get_current_seed(state);
-    const int32_t expected_seed = 1819611286;
-    if (current_seed != expected_seed) {
-        LOG_ERROR(
-            "Failed: Expected seed %d, but got %d.\n",
-            expected_seed,
+            "Failed: Expected current seed value to be %lu, but got %lu\n",
+            first_seed,
             current_seed
         );
         lehmer_state_print(state);
         passed = false;
     }
 
-    // Test 3: Select stream out of bounds to test wrap-around
-    uint32_t out_of_bounds_stream = LEHMER_SIZE + 1; // greater than size
-    for (uint32_t i = 0; i < out_of_bounds_stream; i++) {
-        lehmer_set_next_seed(state);
-    }
-    if (1 != state->position) { // Expect wrap-around
+    // test setting the next seed
+    lehmer_set_next_seed(state);
+    current_seed = lehmer_get_current_seed(state);
+    if (second_seed != current_seed) {
         LOG_ERROR(
-            "Failed: Expected stream to wrap around to 1, but got %u\n",
-            state->position
+            "Failed: Expected current seed value to be %lu, but got %lu\n",
+            second_seed,
+            current_seed
+        );
+        lehmer_state_print(state);
+        passed = false;
+    }
+
+    // test setting the previous seed
+    lehmer_set_previous_seed(state);
+    current_seed = lehmer_get_current_seed(state);
+    if (first_seed != current_seed) {
+        LOG_ERROR(
+            "Failed: Expected current seed value to be %lu, but got %lu\n",
+            first_seed,
+            current_seed
+        );
+        lehmer_state_print(state);
+        passed = false;
+    }
+
+    // test setting the next seed and then getting the set seed
+    current_seed = lehmer_set_next_and_get_seed(state);
+    if (second_seed != current_seed) {
+        LOG_ERROR(
+            "Failed: Expected current seed value to be %lu, but got %lu\n",
+            second_seed,
+            current_seed
         );
         lehmer_state_print(state);
         passed = false;
@@ -405,7 +407,7 @@ int main(void) {
 
     passed |= test_lehmer_state();
     passed |= test_lehmer_initial_seed();
-    passed |= test_lehmer_state_select();
+    passed |= test_lehmer_getters_and_setters();
     // passed |= test_random_seed();
     // passed |= test_random_value();
     // passed |= test_seed_generation();
