@@ -1,7 +1,14 @@
 # Lehmer LCG RNG Examples CMakeLists.txt
 
 # Add lehmer related examples
-set(EXAMPLES algorithm concept generator validator)
+set(EXAMPLES 
+    algorithm
+    binder
+    concept
+    generator
+    modulus
+    validator
+)
 
 # Create executables for simple lehmer examples
 # Loop over each example and create an executable
