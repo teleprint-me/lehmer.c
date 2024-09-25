@@ -1,17 +1,30 @@
 # Experimental Parallelized Number Generation
 
 ## Abstract
-This document outlines experimental approaches to parallelizing number generation using a Lehmer RNG. The focus is on exploring techniques for CPU-bound parallelization that avoid proprietary hardware dependencies such as MPT, AVX, CUDA, ROCm, etcetera and instead, emphasize general-purpose methods that can be applied in common environments. Lehmer’s simplicity ($z' = a \cdot z \mod m$) makes it ideal for such experimentation, providing an easy-to-follow framework.
+This document outlines experimental approaches to parallelizing number generation using a Lehmer RNG. The focus is on exploring techniques for CPU-bound parallelization that avoid proprietary hardware dependencies such as AVX, ARM, CUDA, ROCm, etcetera and instead, emphasize general-purpose methods that can be applied in common environments. Lehmer’s simplicity ($f(z) = a \cdot z \mod m$) makes it ideal for such experimentation, providing an easy-to-follow framework.
 
 ## Introduction
-Random number generation (RNG) is a fundamental component in many domains, from simulations to cryptography. Traditional RNGs like the Lehmer generator, defined by $z' = a \cdot z \mod m$, generate a sequence of pseudo-random values, but they are inherently linear, with each output depending on the previous one. This creates a bottleneck for parallelization, especially in multi-threaded or distributed systems.
+Random number generation (RNG) is a fundamental component in many domains, from simulations to cryptography. Traditional RNGs like the Lehmer generator, defined by $f(z) = a \cdot z \mod m$, generate a sequence of pseudo-random values, but they are inherently linear, with each output depending on the previous one. This creates a bottleneck for parallelization, especially in multi-threaded or distributed systems.
 
 Our goal is to explore methods for parallelizing RNGs in a way that scales effectively without relying on specific hardware like GPUs. While skip-ahead techniques offer potential, they often introduce complexities that hinder their practicality. We start with Lehmer’s formula as the base and outline possible techniques for splitting the problem into parallelizable components.
 
 ## Problem Description
-The challenge of parallelizing Lehmer lies in its linear dependence. Each value \( z_n \) relies on \( z_{n-1} \), meaning that in a single-threaded context, the sequence can only advance one step at a time. In a multi-threaded environment, this dependence constrains the independence of threads, forcing sequential operations.
+The challenge of parallelizing Lehmer lies in its linear dependence. Each value $z_n$ relies on $z_{n-1}$, meaning that in a single-threaded context, the sequence can only advance one step at a time. In a multi-threaded environment, this dependence constrains the independence of threads, forcing sequential operations.
+
+**Key issues with multi-threading number generation:**
+
+- Each seed relies on the previous seed, e.g. $z_{n-1}$
+- Initial seeds are unknown, e.g. $z_{0}$
+- Need to compute for every potential integer, e.g. $[0, m - 1]$
+- No pre-existing data to compute, e.g. $z_{n + 0}, ..., z_{n + m}$ is unknown.
 
 Some techniques, like skip-ahead methods, offer a way to bypass this limitation by "jumping" ahead in the sequence, but these techniques often complicate the simplicity of Lehmer and require additional computational overhead or precomputed data.
+
+**Jump-ahead method:**
+
+$$z_{n+k} = z_n \times a^k \mod m$$
+
+We will take this into consideration later on in the article.
 
 ## Naive Projection Approach
 Our first approach to address this limitation is the "naive projection" method, where we attempt to calculate the next step in the sequence in parallel. The formula $z' = a \cdot z \mod m$ allows us to compute $z_{n+1}$, or a projection of the next value in parallel threads. While this offers a glimpse of potential parallelism, it doesn't entirely resolve the dependency issue since each thread still requires knowledge of the previous seed.
@@ -22,7 +35,7 @@ Our first approach to address this limitation is the "naive projection" method, 
    
 2. **Result Synchronization**: The results from each thread are collected and synchronized, ensuring the correct sequence order is maintained across threads.
 
-3. **Binding Output**: Using the modulus \( m \), the results are bound to the expected range, ensuring that all outputs stay within the valid range \([0, m-1]\).
+3. **Binding Output**: Using the modulus $m$, the results are bound to the expected range, ensuring that all outputs stay within the valid range $[0, m-1]$.
 
 ### Code Example
 
