@@ -132,6 +132,58 @@ This could tie into how we generate sequences. By reflecting across different li
 ### Going with the Flow
 The beauty of this approach is that instead of fighting against the inherent linearity of the Lehmer RNG, we're using the line and reflections to open up new possibilities. The transformation properties of reflections could help us navigate or split the sequence space in a way that preserves its mathematical properties, yet introduces avenues for optimization.
 
+## Starting Fresh
+Starting fresh can be a great approach, especially when trying to build up from fundamentals. Let’s break down the ideas clearly and explore how these key points connect geometrically to our line-based thinking.
+
+### Key Concepts
+
+1. **Linear Dependence:**
+   - The function is $f(z) = a \times z \mod m$.
+   - Each next value in the sequence depends directly on the previous one, i.e., $z_{n+1} = f(z_n)$.
+   - This recursive dependency is why we've been focusing on one step at a time.
+
+2. **Line and Modulus:**
+   - Think of the range $0$ to $m - 1$ as a circular "line", where after reaching $m - 1$, the values wrap back around to $0$.
+   - This line is the number system constrained by the modulus $m$. So, geometrically, it's a cyclic group, looping back on itself.
+
+3. **Projection and Reflection:**
+   - When thinking of projection in this context, we're imagining stepping forward from one point to the next.
+   - The concept of reflection comes in when we think about mapping points symmetrically across the line or in a more abstract sense of self-similarity (e.g., the sequence reflecting its modular bounds).
+
+4. **Isometry and Distance Preservation:**
+   - A map is called an isometry if it preserves distances. In our context, we might be looking for some form of symmetry or invariance, which is preserved as we move through the modular line.
+   - Although the distance between consecutive seeds isn't directly preserved, we can still view the modular wrap-around as preserving a kind of "cyclic distance".
+
+### Building From Basics
+Let’s start from these foundational ideas:
+
+1. **Understanding Modulo Arithmetic:**
+   - $f(z) = a \times z \mod m$ defines a transformation on the number line.
+   - The modulus $m$ defines boundaries on the line, and the operation wraps the values when they exceed the boundary, like a "circle".
+   
+2. **Geometric Interpretation:**
+   - Imagine plotting the points from $0$ to $m - 1$ on a line. If you exceed $m - 1$, the value wraps back to 0. This is like reshaping a line into a circle.
+   - Each point on this line has a reflection in the sense that every number can be "mapped back" to itself after wrapping around the modulus.
+
+3. **Projection as a Step Forward:**
+   - When we apply $f(z)$, we’re stepping forward along the circular number line. This "step" can be thought of as projecting the next value.
+   - We can think of each step as a point in the sequence reflecting forward onto the next point in the same cyclic space.
+
+### Reflection in Modulo Arithmetic
+Now, considering our reflection analogy:
+
+- **Reflection on the Line:** In geometric transformations, reflection involves flipping a point across a line of symmetry. In our context, each step reflects the recursive dependence of the sequence. 
+- In modular arithmetic, a reflection might occur when a value "bounces back" from $m$, i.e., the wrap-around effect. This behavior is akin to symmetry, where after reaching $m$, it reflects back to 0.
+
+#### Example: Reflection in Modulo Arithmetic
+Take $z' = a \times z \mod m$. If you compute:
+
+1. $z = 2, a = 3, m = 5$
+   - $z' = 3 \times 2 \mod 5 = 6 \mod 5 = 1$
+   - This can be seen as projecting from 2 to 1, where 6 "reflects" back to the range 0 to $m-1$.
+
+In this context, the wrap-around is like a mirror where values reflect into the range $[0, m - 1]$, reinforcing the cyclic nature.
+
 ### Step-by-Step Naive Projection
 
 1. **Threading for Single-Step Lookahead**: Each thread generates a single step of the RNG based on the current state of the seed.
