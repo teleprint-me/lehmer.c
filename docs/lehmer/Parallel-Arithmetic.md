@@ -37,8 +37,45 @@ Another potential approach involves **disjointed sets**, where we split the sequ
 
 We will explore both of these techniques in more detail in the following sections, starting with the naive projection method for parallel computation.
 
-## Naive Projection Approach
+### Exploring Tables: Pre-computed Parallel Operations
+Pre-computing seed sequences could theoretically speed things up if stored in a database, but the storage and lookup operations could eventually become just as expensive, especially with large input spaces.
+
+#### Further Considerations
+1. **Pipeline parallelism**: The workload could be divided where one thread handles seed generation and another processes the output (e.g., normalization, boundary checks). This doesn’t reduce the time complexity but may offer an opportunity to better utilize CPU resources.
+
+2. **Approximation or Lazy Evaluation**: If exact results aren't always required, we can consider techniques like approximating large chunks of the sequence or using lazy evaluation—generating only the seeds absolutely needed on an as needed basis.
+
+3. **GPU Acceleration**: Handling massive amounts of seed generation, could consider GPU offloading, where parallel execution of simpler operations (like modular arithmetic) can be much faster, even if the sequence is inherently sequential.
+
+## Initial Approach: A Naive Projection
+Since we don't have a view, history, or sequence, the idea of a projection comes to mind.
+
+Let's consider a thought experiment - one I'm certain is invalid, but I'm humoring the approach non-the-less.
+
+$z' = a * z \mod m$
+
+### Stepping forward in time
+
+We can consider $z'$ to be a kind of naive projection - or an image. So, $z'$ is the projection forward, in this case, $z_{n+1}$ because we can't reasonably look further than one step at time in linear space. We also can't know what $z_{0}$ - the initial seed - is either. However, if we can glean a value, we may be able to see a reflection giving us insight into the surrounding boundaries.
+
+This is the basic step of the Lehmer RNG, where $z'$ is the next seed given the current seed $z$. This calculation is inherently linear and dependent on the previous step. However, looking at this as a projection is an intriguing perspective.
+
+We can think of this along the lines of projecting forward one step in the sequence—essentially a "look-ahead" mechanism. By computing $z'$, we might see the next value in the sequence. While it's true that we can't look beyond one step (because each step depends on the previous one), this view opens up a small form of parallelism.
+
+If we were to project several independent seeds at once, each step could be done in parallel. For instance, if you have multiple different initial seeds, each seed could be projected forward one step independently. This kind of parallelism won't help with **one long sequence**, but it can be useful if you're generating many different sequences simultaneously.
+
+### A Limited view
+
 Our first approach to address this limitation is the "naive projection" method, where we attempt to calculate the next step in the sequence in parallel. The formula $z' = a \cdot z \mod m$ allows us to compute $z_{n+1}$, or a projection of the next value in parallel threads. While this offers a glimpse of potential parallelism, it doesn't entirely resolve the dependency issue since each thread still requires knowledge of the previous seed.
+
+#### Parallelism: Batching independent blocks of sequences
+In theory, projecting one step ahead could be computed in parallel **for different seeds**:
+- $z'_1 = a \times z_1 \mod m$
+- $z'_2 = a \times z_2 \mod m$
+- $\dots$
+- $z'_n = a \times z_n \mod m$
+
+Each of these seeds can be projected independently and calculated in parallel. However, this doesn't quite help with speeding up a **single** sequence of dependent seeds, as each step still depends on the previous one. But, in the context of batch generation (generating multiple seeds simultaneously), this would allow you to scale out the computation.
 
 ### Step-by-Step Naive Projection
 
