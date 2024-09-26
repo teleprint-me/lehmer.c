@@ -14,7 +14,7 @@ The challenge of parallelizing Lehmer RNG lies in its linear dependence. Each va
 ### Key Issues in Multi-threading Number Generation
 
 1. **Sequential Dependence**:  
-   Each seed relies on the previous seed in the sequence. For example, to compute $z_n$, you must know $z_{n-1}$. This creates a strict chain of dependencies that prohibits fully independent thread execution.
+   Each seed relies on the previous seed in the sequence. For example, to compute $z_n$, we must know $z_{n-1}$. This creates a strict chain of dependencies that prohibits fully independent thread execution.
 
 2. **Unknown Initial Seed**:  
    The starting seed $z_0$ is critical for all future computations. In a single-threaded system, this is trivial, but in a multi-threaded or distributed context, each thread either needs access to the original seed or an independent seed, leading to synchronization and potential performance bottlenecks.
@@ -93,12 +93,44 @@ While parallelism in a single sequence is constrained by its linear nature, ther
 
 In this way, we can compute seeds in parallel, provided that each thread works on an independent sequence. While this approach won’t speed up the generation of a single sequence, it could be highly beneficial in applications where multiple independent random number streams are required—such as Monte Carlo simulations or simulations where many distinct random sequences are needed.
 
+### Treating Each Thread as an Independent Sequence
+If we think of each thread as its own independent sequence, then each thread is generating values independently within the range $0$ to $m - 1$. The threads are effectively working in parallel but not on the same sequence. Instead, they are working on different parts of the larger space, each starting with a unique seed. This concept can still be considered parallel, but in a broader sense, where we’re exploiting the independence of different starting points in the modulus space.
+
 ### Dead Ends and Insights
 While the naive projection method doesn’t solve the problem of parallelizing a single sequence, it serves to illuminate the limits of what can be parallelized. In fact, exploring this dead-end reaffirms the fundamental constraints imposed by sequential dependence and opens up new questions about where parallelism might be more effectively applied.
 
 This exploration brings us back to the core issue: 
 
-**how do we overcome the linear dependence between sequential seeds?**
+**How do we overcome the linear dependence between sequential seeds?**
+
+## A Shift in Perspective and Reflections
+Let's shift from the challenge of working within the constraints of linear dependency in the Lehmer RNG to finding a way to take advantage of this linearity through geometric intuition, particularly using reflections.
+
+### The Line of Counting Numbers and Reflection
+Now, thinking in terms of **images and reflections** adds a layer of abstraction. When we mention that the integers $0$ to $m-1$ form a line, it resonates with modular arithmetic. Each integer is a point on that line, and the modulus wraps the line into a closed loop—a **cyclic structure**. So the line is technically finite but loops back on itself due to the modulus.
+
+Using reflections could give us a way to think about relationships between values, especially when thinking geometrically. In this context:
+
+- The **line** from $0$ to $m-1$ can be thought of as a segment of the real number line projected into a plane.
+- **Reflections** in this space give us a way to view transformations or jumps between points.
+
+### Applying Reflection to RNGs
+The **Reflection Theorem** could be useful for interpreting how different seeds might map to points in this plane. If we reflect a point $z$ across the line $m$, it transforms into a new point $z'$. This transformation has the potential to break down the linear dependence of sequential steps by adding symmetry to the sequence space.
+
+In the context of Lehmer RNGs, we're reflecting points in a plane with respect to the line $m$. This means:
+
+1. For any seed $z$, we can think of its projection as a reflection of itself or other points on the line. Each step in the sequence is analogous to a transformation in the plane.
+2. When $z$ hits a particular boundary or reflection point, it could be treated geometrically rather than purely as a sequence of numbers.
+
+This geometric interpretation might suggest a deeper pattern behind the seemingly linear progression of seeds. By embedding the sequence generation in a geometric space, we could potentially identify symmetries that allow for optimizations or alternate ways to structure the algorithm.
+
+### Reflection as an Isometry
+An **isometry** is a transformation that preserves distance. This property is interesting because it suggests that our transformations (reflections) wouldn’t distort the underlying structure of the number line—they would simply map points to new positions in a predictable way, while maintaining their relative positions.
+
+This could tie into how we generate sequences. By reflecting across different lines or modular values, we might introduce a kind of controlled randomness that keeps the statistical properties of the RNG intact, while introducing parallelism at certain points in the sequence.
+
+### Going with the Flow
+The beauty of this approach is that instead of fighting against the inherent linearity of the Lehmer RNG, we're using the line and reflections to open up new possibilities. The transformation properties of reflections could help us navigate or split the sequence space in a way that preserves its mathematical properties, yet introduces avenues for optimization.
 
 ### Step-by-Step Naive Projection
 
