@@ -38,44 +38,67 @@ Another potential approach involves **disjointed sets**, where we split the sequ
 We will explore both of these techniques in more detail in the following sections, starting with the naive projection method for parallel computation.
 
 ### Exploring Tables: Pre-computed Parallel Operations
-Pre-computing seed sequences could theoretically speed things up if stored in a database, but the storage and lookup operations could eventually become just as expensive, especially with large input spaces.
+Precomputing sequences of random numbers might offer a potential solution to parallelizing Lehmer RNG, but this approach brings its own set of limitations:
 
-#### Further Considerations
-1. **Pipeline parallelism**: The workload could be divided where one thread handles seed generation and another processes the output (e.g., normalization, boundary checks). This doesn’t reduce the time complexity but may offer an opportunity to better utilize CPU resources.
+- **Memory Overhead**: Storing precomputed sequences, especially for large ranges $[0, m-1]$, would require a significant amount of memory. For larger values of $m$, this becomes impractical, especially when scaling to millions or billions of seeds.
+  
+- **Limited Flexibility**: Precomputed values limit the generator's flexibility, as any changes in seed, multiplier, or modulus would require regenerating the entire table, negating the initial benefits of parallelism.
+  
+- **Lookup Costs**: While precomputing may seem to offload the calculation, the cost of looking up precomputed sequences (especially with large tables) can outweigh the computational gains. The time spent on lookup operations, cache misses, and I/O can add overhead, especially when random access is required.
 
-2. **Approximation or Lazy Evaluation**: If exact results aren't always required, we can consider techniques like approximating large chunks of the sequence or using lazy evaluation—generating only the seeds absolutely needed on an as needed basis.
+Thus, while precomputed tables might be useful in specific contexts (e.g., for very small seed ranges or highly optimized environments), their real-world applicability remains limited for general-purpose parallelization.
 
-3. **GPU Acceleration**: Handling massive amounts of seed generation, could consider GPU offloading, where parallel execution of simpler operations (like modular arithmetic) can be much faster, even if the sequence is inherently sequential.
+### Further Considerations
+
+1. **Pipeline Parallelism**:  
+   While Lehmer’s core sequence generation is inherently sequential, breaking the workload into a pipeline could offer some gains. For example, one thread could handle seed generation while another handles post-processing steps (e.g., normalization, boundary checks). While this doesn’t reduce the time complexity of generating the sequence, it could help make better use of CPU resources.
+
+2. **Approximation or Lazy Evaluation**:  
+   If exact randomness isn't required, it might be possible to approximate large chunks of the sequence or generate values only as needed (lazy evaluation). This would reduce unnecessary computation and memory usage but would come with trade-offs in statistical properties.
+
+3. **GPU Acceleration**:  
+   Offloading computation to the GPU could handle massive amounts of seed generation in parallel. While Lehmer’s sequential nature makes this challenging, simpler GPU operations (like modular arithmetic) could speed up batch generation of random numbers in environments where GPU resources are available. However, this moves away from the CPU-bound focus of this document.
 
 ## Initial Approach: A Naive Projection
-Since we don't have a view, history, or sequence, the idea of a projection comes to mind.
+The challenge of parallelizing the Lehmer RNG prompts a thought experiment that, while flawed, still helps to explore the space of possibilities. This concept involves treating the next value in the sequence as a kind of **projection**—an estimate of where the sequence is headed, even though the strict linear dependency of Lehmer’s RNG complicates matters.
 
-Let's consider a thought experiment - one I'm certain is invalid, but I'm humoring the approach non-the-less.
+Let’s start with the core formula:
 
-$z' = a * z \mod m$
+$$z' = a \cdot z \mod m$$
 
-### Stepping forward in time
+This equation computes the next seed $z_{n+1}$ given the current seed $z_n$. In a single-threaded scenario, this simple recursion is straightforward but inherently linear. Each subsequent value depends on the previous one. However, thinking of $z'$ as a **naive projection** allows us to frame the process as "stepping forward" in time—albeit only one step at a time. This approach hints at limited forms of parallelism, where each thread works on its own independent projection.
 
-We can consider $z'$ to be a kind of naive projection - or an image. So, $z'$ is the projection forward, in this case, $z_{n+1}$ because we can't reasonably look further than one step at time in linear space. We also can't know what $z_{0}$ - the initial seed - is either. However, if we can glean a value, we may be able to see a reflection giving us insight into the surrounding boundaries.
+### Stepping Forward in Time
+Viewing $z'$ as the next step in a **forward projection** provides an opportunity to explore parallel computation. Suppose we attempt to compute multiple such projections simultaneously:
 
-This is the basic step of the Lehmer RNG, where $z'$ is the next seed given the current seed $z$. This calculation is inherently linear and dependent on the previous step. However, looking at this as a projection is an intriguing perspective.
-
-We can think of this along the lines of projecting forward one step in the sequence—essentially a "look-ahead" mechanism. By computing $z'$, we might see the next value in the sequence. While it's true that we can't look beyond one step (because each step depends on the previous one), this view opens up a small form of parallelism.
-
-If we were to project several independent seeds at once, each step could be done in parallel. For instance, if you have multiple different initial seeds, each seed could be projected forward one step independently. This kind of parallelism won't help with **one long sequence**, but it can be useful if you're generating many different sequences simultaneously.
-
-### A Limited view
-
-Our first approach to address this limitation is the "naive projection" method, where we attempt to calculate the next step in the sequence in parallel. The formula $z' = a \cdot z \mod m$ allows us to compute $z_{n+1}$, or a projection of the next value in parallel threads. While this offers a glimpse of potential parallelism, it doesn't entirely resolve the dependency issue since each thread still requires knowledge of the previous seed.
-
-#### Parallelism: Batching independent blocks of sequences
-In theory, projecting one step ahead could be computed in parallel **for different seeds**:
-- $z'_1 = a \times z_1 \mod m$
-- $z'_2 = a \times z_2 \mod m$
+- $z'_1 = a \cdot z_1 \mod m$
+- $z'_2 = a \cdot z_2 \mod m$
 - $\dots$
-- $z'_n = a \times z_n \mod m$
+- $z'_n = a \cdot z_n \mod m$
 
-Each of these seeds can be projected independently and calculated in parallel. However, this doesn't quite help with speeding up a **single** sequence of dependent seeds, as each step still depends on the previous one. But, in the context of batch generation (generating multiple seeds simultaneously), this would allow you to scale out the computation.
+Each projection is essentially a parallel calculation of the next seed in the sequence, but the key limitation is that **each calculation still relies on its own initial seed**. We cannot compute more than one step ahead in a single sequence, as $z_{n+1}$ depends on $z_n$, and this sequential dependence fundamentally limits the degree of parallelism.
+
+### A Limited View
+This approach provides us with a limited form of parallelism that allows us to batch the computation of seeds for **different independent sequences**, but it doesn’t address the issue of **speeding up a single sequence**. In other words, parallelism is only achievable if we are generating multiple independent sequences rather than trying to accelerate the generation of one long sequence.
+
+In this sense, the "naive projection" is not entirely fruitless, as it can parallelize the generation of multiple random number streams in certain applications. However, it does little to address the dependency constraints that arise when computing a single continuous sequence.
+
+### Parallelism via Batching Independent Blocks of Sequences
+While parallelism in a single sequence is constrained by its linear nature, there is potential in **batching independent sequences**:
+
+- Thread 1 generates the next seed for sequence 1: $z'_1 = a \cdot z_1 \mod m$
+- Thread 2 generates the next seed for sequence 2: $z'_2 = a \cdot z_2 \mod m$
+- $\dots$
+- Thread n generates the next seed for sequence n: $z'_n = a \cdot z_n \mod m$
+
+In this way, we can compute seeds in parallel, provided that each thread works on an independent sequence. While this approach won’t speed up the generation of a single sequence, it could be highly beneficial in applications where multiple independent random number streams are required—such as Monte Carlo simulations or simulations where many distinct random sequences are needed.
+
+### Dead Ends and Insights
+While the naive projection method doesn’t solve the problem of parallelizing a single sequence, it serves to illuminate the limits of what can be parallelized. In fact, exploring this dead-end reaffirms the fundamental constraints imposed by sequential dependence and opens up new questions about where parallelism might be more effectively applied.
+
+This exploration brings us back to the core issue: 
+
+**how do we overcome the linear dependence between sequential seeds?**
 
 ### Step-by-Step Naive Projection
 
