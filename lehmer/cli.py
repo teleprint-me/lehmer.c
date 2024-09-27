@@ -50,6 +50,9 @@ class LehmerState:
         """Return the initial seed."""
         return self.seed
 
+    def select(self, position: int) -> None:
+        self.position = position % self.length
+
     def set_previous_seed(self) -> None:
         """Set the position to the previous seed in the sequence."""
         self.position = (self.position - 1) % self.length
@@ -81,47 +84,95 @@ class LehmerState:
 
 
 def get_arguments() -> argparse.Namespace:
-    """Set and parse the command-line arguments."""
-    parser = argparse.ArgumentParser(description="Lehmer RNG seed generator.")
+    """Set up and parse command-line arguments for the Lehmer RNG generator."""
+    parser = argparse.ArgumentParser(
+        description="Lehmer RNG seed generator and sequence explorer.",
+        epilog=(
+            "Example Usage: "
+            "`python -m lehmer.cli --seed 42 --length 128 --position 10 --normalize`\n"
+            "Description: Generates a sequence of Lehmer RNG seeds with a given length, "
+            "starting seed, and provides options to view normalized values."
+        ),
+    )
+
+    # Core parameters
     parser.add_argument(
         "-z",
         "--seed",
         type=int,
         default=123456789,
-        help="The initial seed value. Default is 123456789.",
+        help="Initial seed value for the RNG. Default is 123456789.",
     )
     parser.add_argument(
         "-l",
         "--length",
         type=int,
         default=256,
-        help="The number of seeds. Default is 256.",
+        help="Number of seeds to generate in the sequence. Default is 256.",
     )
     parser.add_argument(
         "-p",
         "--position",
         type=int,
         default=0,
-        help="The selected position. Default is 0.",
+        help="Starting position in the sequence. Default is 0.",
     )
+    parser.add_argument(
+        "-m",
+        "--modulus",
+        type=int,
+        default=2147483647,
+        help=(
+            "Modulus value for the Lehmer RNG (must be a Mersenne prime). "
+            "Default is 2147483647 (2^31 - 1)."
+        ),
+    )
+    parser.add_argument(
+        "-a",
+        "--multiplier",
+        type=int,
+        default=48271,
+        help=(
+            "Multiplier value for the Lehmer RNG. Must be a prime number less than the modulus. "
+            "Default is 48271."
+        ),
+    )
+
+    # Iteration and normalization control
     parser.add_argument(
         "-i",
         "--iterations",
         type=int,
         default=10000,
-        help="Number of iterations. Default is 10000.",
+        help="Number of iterations to perform on the sequence. Default is 10000.",
     )
     parser.add_argument(
         "-n",
         "--normalize",
         action="store_true",
-        help="Output the normalized value. Default is False.",
+        help="If set, output the normalized value of the seed (float between 0.0 and 1.0).",
     )
+
+    # Verbosity and output options
     parser.add_argument(
         "-v",
         "--verbose",
         action="store_true",
-        help="Output all generated seeds. Default is False.",
+        help="If set, output all generated seeds in the sequence. Default is False.",
+    )
+    parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        help="Suppress all non-essential output (overrides --verbose). Default is False.",
+    )
+
+    # Version and debugging options
+    parser.add_argument(
+        "--version",
+        action="version",
+        version="Lehmer RNG CLI v1.0",
+        help="Show the version number and exit.",
     )
     return parser.parse_args()
 
@@ -129,32 +180,37 @@ def get_arguments() -> argparse.Namespace:
 def main():
     args = get_arguments()
 
-    # Initialize LehmerState
-    lehmer = LehmerState(
+    # Create an instance of LehmerState using the parsed arguments
+    lehmer_rng = LehmerState(
         seed=args.seed,
         length=args.length,
     )
 
-    lehmer.select(args.position)
+    # Print initial state if verbose is enabled
+    if args.verbose and not args.quiet:
+        print(f"Initial seed: {lehmer_rng.seed}")
+        print(f"Sequence length: {lehmer_rng.length}")
 
+    # Display the generated sequence
     for i in range(args.iterations):
-        seed = lehmer.modulo()
+        seed_value = lehmer_rng.get_current_seed()
+        if args.normalize:
+            normalized_value = lehmer_rng.normalize()
+            output = f"Position: {i}, Seed: {seed_value}, Normalized: {normalized_value:.10f}"
+        else:
+            output = f"Position: {i}, Seed: {seed_value}"
 
-        if args.verbose:
-            print(
-                f"Iteration {i + 1}: "
-                f"position = {lehmer.position}, seed = {seed}"
-            )
+        # Print each value if verbose, otherwise only the last value
+        if args.verbose and not args.quiet:
+            print(output)
 
-    print(f"Initial seed: {lehmer.seed}")
-    print(f"After {args.iterations} iterations:")
-    print(f"Position {lehmer.position} final seed: {lehmer.sequence[0]}")
+        lehmer_rng.set_next_seed()
+    else:
+        seed_value = lehmer_rng.get_current_seed()
 
-    if args.normalize:
-        normalized_value = lehmer.normalize()
-        print(
-            f"Normalized Position {lehmer.position} value: {normalized_value}"
-        )
+    # Final output for non-verbose mode
+    if not args.verbose and not args.quiet:
+        print(f"Final Seed: {seed_value}")
 
 
 if __name__ == "__main__":
