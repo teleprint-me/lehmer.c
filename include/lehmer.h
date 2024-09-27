@@ -74,7 +74,9 @@
  * hardware with 32-bit integer limitations. Despite being dated, this choice
  * is still effective in modern contexts where 32-bit constraints apply.
  *
- * @warning 16807 was originally chosen for safe 32-bit arithmetic.
+ * @warning 16807 was originally chosen for safe 32-bit arithmetic, but is not
+ * a prime number. Experimenting with 16763, 16787, or 16811 may be more
+ * suitable considering they are prime numbers.
  */
 #define LEHMER_MULTIPLIER 48271
 
@@ -82,6 +84,8 @@
  * @param LEHMER_JUMP Prime number used as a multiplier to "jump" scale seeds.
  *
  * @note The multiplier must be a prime number.
+ *
+ * @warning Try using 8423, 8429, or 8431 for 32-bit systems.
  */
 #define LEHMER_JUMP 22937
 
