@@ -327,7 +327,8 @@ int test_random_seed_and_normalize(void) {
 }
 
 int test_seed_generation(void) {
-    const int32_t expected_seed = 1753928844;
+    const int32_t expected_seed = 1882556969;
+    int32_t current_seed = 0;
     lehmer_state_t* state = setup_lehmer_state();
 
     // set the initial seed to 1
@@ -335,11 +336,10 @@ int test_seed_generation(void) {
 
     // generate 10,000 seeds using a seed of 1 in stream 0
     for (size_t i = 0; i < 10000; i++) {
-        lehmer_set_next_seed(state);
+        current_seed = lehmer_set_next_and_get_seed(state);
     }
 
     // get the current seed
-    int32_t current_seed = lehmer_get_current_seed(state);
     bool passed = (current_seed == expected_seed);
 
     if (!passed) {
