@@ -57,9 +57,10 @@ int32_t expected_sequence[LEHMER_SIZE] = {
 
 int test_lehmer_generator_modulo(lehmer_state_t* state, int32_t* expected) {
     for (uint32_t i = 0; i < MAX_SEEDS; i++) {
-        int32_t seed = lehmer_set_next_and_get_seed(state);
+        int32_t seed = lehmer_get_current_seed(state);
         printf("Iteration %u: Expected %d, Got %d\n", i, expected[i], seed);
         LEHMER_ASSERT_INTEGER(i, expected[i], seed);
+        lehmer_set_next_seed(state);
     }
 }
 
@@ -128,13 +129,15 @@ int main(int argc, char* argv[]) {
         test_lehmer_generator_modulo(state, expected_sequence);
     } else {
         for (uint32_t i = 0; i < MAX_SEEDS; i++) {
-            int32_t seed = lehmer_set_next_and_get_seed(state);
+            int32_t seed = lehmer_get_current_seed(state);
 
             if (verbose) {
                 lehmer_state_print(state);
             } else {
                 printf("Iteration %u: Seed %d\n", i, seed);
             }
+
+            lehmer_set_next_seed(state);
         }
     }
 
