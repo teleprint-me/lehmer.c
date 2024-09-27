@@ -15,23 +15,23 @@ class LehmerState:
     MODULUS = 2147483647
     MULTIPLIER = 48271
 
-    def __init__(self, size: int, seed: int):
+    def __init__(self, seed: int, length: int):
         """
         Mimic the C implementation for consistency and validity
         """
-        # Set the seed
+        # Set the initial seed
         self.seed = seed
         # Set the initial position in the sequence
         self.position = 0
-        # Coerce a size of 1 if size is 0
-        self.length = 1 if 0 == size else size
-        # Initialize the seed list with correct size and set the first seed
+        # Coerce a length of 1 if length is 0
+        self.length = 1 if 0 == length else length
+        # Initialize the sequence list with correct length and set the first seed
         self.sequence = [seed % self.MODULUS] * self.length
         if self.sequence[self.position] < 0:
             self.sequence[self.position] += self.MODULUS
 
-        # Initialize remaining streams based on the first one
-        for i in range(1, self.length):
+        # Initialize the sequence based on the initial seed
+        for i in range(self.length):
             z = self.sequence[i - 1]  # Previous seed
             self.sequence[i] = (self.MULTIPLIER * z) % self.MODULUS
             if self.sequence[i] < 0:  # Handle any negative seeds
@@ -45,8 +45,8 @@ class LehmerState:
     def current_seed(self, value: int) -> None:
         self.sequence[self.position] = value % self.MODULUS
 
-    def select(self, stream: int) -> None:
-        self.position = stream % self.length
+    def select(self, position: int) -> None:
+        self.position = position % self.length
 
     def modulo(self) -> int:
         """Generate a new pseudo random seed."""
@@ -64,25 +64,25 @@ def get_arguments() -> argparse.Namespace:
     """Set and parse the command-line arguments."""
     parser = argparse.ArgumentParser(description="Lehmer RNG seed generator.")
     parser.add_argument(
-        "-s",
+        "-z",
         "--seed",
         type=int,
         default=123456789,
         help="The initial seed value. Default is 123456789.",
     )
     parser.add_argument(
-        "-z",
-        "--size",
+        "-l",
+        "--length",
         type=int,
         default=256,
-        help="The number of streams. Default is 256.",
+        help="The number of seeds. Default is 256.",
     )
     parser.add_argument(
-        "-r",
-        "--stream",
+        "-p",
+        "--position",
         type=int,
         default=0,
-        help="The selected stream. Default is 0.",
+        help="The selected position. Default is 0.",
     )
     parser.add_argument(
         "-i",
@@ -111,11 +111,11 @@ def main():
 
     # Initialize LehmerState
     lehmer = LehmerState(
-        size=args.size,
         seed=args.seed,
+        length=args.length,
     )
 
-    lehmer.select(args.stream)
+    lehmer.select(args.position)
 
     for i in range(args.iterations):
         seed = lehmer.modulo()
@@ -123,7 +123,7 @@ def main():
         if args.verbose:
             print(
                 f"Iteration {i + 1}: "
-                f"stream = {lehmer.stream}, seed = {seed}"
+                f"position = {lehmer.position}, seed = {seed}"
             )
 
     print(f"Initial seed: {lehmer.seed}")
