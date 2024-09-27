@@ -19,32 +19,34 @@ class LehmerState:
         """
         Mimic the C implementation for consistency and validity
         """
-        # Select the first stream
-        self.stream = 0
+        # Set the seed
+        self.seed = seed
+        # Set the initial position in the sequence
+        self.position = 0
         # Coerce a size of 1 if size is 0
-        self.size = 1 if 0 == size else size
+        self.length = 1 if 0 == size else size
         # Initialize the seed list with correct size and set the first seed
-        self.seed = [seed % self.MODULUS] * self.size
-        if self.seed[self.stream] < 0:
-            self.seed[self.stream] += self.MODULUS
+        self.sequence = [seed % self.MODULUS] * self.length
+        if self.sequence[self.position] < 0:
+            self.sequence[self.position] += self.MODULUS
 
         # Initialize remaining streams based on the first one
-        for i in range(1, self.size):
-            z = self.seed[i - 1]  # Previous seed
-            self.seed[i] = (self.MULTIPLIER * z) % self.MODULUS
-            if self.seed[i] < 0:  # Handle any negative seeds
-                self.seed[i] += self.MODULUS
+        for i in range(1, self.length):
+            z = self.sequence[i - 1]  # Previous seed
+            self.sequence[i] = (self.MULTIPLIER * z) % self.MODULUS
+            if self.sequence[i] < 0:  # Handle any negative seeds
+                self.sequence[i] += self.MODULUS
 
     @property
     def current_seed(self) -> int:
-        return self.seed[self.stream]
+        return self.sequence[self.position]
 
     @current_seed.setter
     def current_seed(self, value: int) -> None:
-        self.seed[self.stream] = value % self.MODULUS
+        self.sequence[self.position] = value % self.MODULUS
 
     def select(self, stream: int) -> None:
-        self.stream = stream % self.size
+        self.position = stream % self.length
 
     def modulo(self) -> int:
         """Generate a new pseudo random seed."""
@@ -124,12 +126,15 @@ def main():
                 f"stream = {lehmer.stream}, seed = {seed}"
             )
 
+    print(f"Initial seed: {lehmer.seed}")
     print(f"After {args.iterations} iterations:")
-    print(f"Stream {lehmer.stream} final seed: {lehmer.seed[0]}")
+    print(f"Position {lehmer.position} final seed: {lehmer.sequence[0]}")
 
     if args.normalize:
         normalized_value = lehmer.normalize()
-        print(f"Normalized Stream {lehmer.stream} value: {normalized_value}")
+        print(
+            f"Normalized Position {lehmer.position} value: {normalized_value}"
+        )
 
 
 if __name__ == "__main__":
