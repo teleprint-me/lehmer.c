@@ -153,59 +153,65 @@ int32_t lehmer_seed_normalize_to_int(int32_t seed) {
 
 // Lehmer function: f(z) = (a * z) % m
 int32_t lehmer_calculate_modulo(int32_t z, uint32_t a, uint32_t m) {
-    return (a * z) % m;
+    return (((int64_t) a * z) % m);
 }
 
 // Gamma function: g(z) = (a * (z % q)) - (r * (z / q))
 int32_t lehmer_calculate_gamma(int32_t z, uint32_t a, uint32_t m) {
     uint32_t q = m / a;
     uint32_t r = m % a;
-    return (a * (z % q)) - (r * (z / q));
+    return ((((int64_t) a * (z % q))) - (((int64_t) r * (z / q))));
 }
 
 // Delta function: d(z) = (z / q) - ((a * z) / m)
-int32_t lehmer_calculate_delta(int32_t z, int32_t a, int32_t m) {
-    int64_t q = m / a;
-    int64_t r = m % a;
-    return (z / q) - ((a * z) / m);
+int32_t lehmer_calculate_delta(int32_t z, uint32_t a, uint32_t m) {
+    uint32_t q = m / a;
+    uint32_t r = m % a;
+    return ((z / q) - (((int64_t) a * z) / m));
 }
 
 // Binder function: f(z) = gamma(z) + m * delta(z)
 int32_t lehmer_calculate_binder(int32_t z, int32_t a, int32_t m) {
-    int64_t g = lehmer_calculate_gamma(z, a, m);
-    int64_t d = lehmer_calculate_delta(z, a, m);
-    return (int32_t) ((int64_t) (g + (m * d)));
+    int32_t g = lehmer_calculate_gamma(z, a, m);
+    int32_t d = lehmer_calculate_delta(z, a, m);
+    return (g + ((int64_t) m * d));
 }
 
 // Lehmer seed generators
 
 // Generate the seed using modulo formula
 int32_t lehmer_generate_modulo(int32_t seed) {
-    int32_t z
-        = lehmer_calculate_modulo(seed, LEHMER_MULTIPLIER, LEHMER_MODULUS);
+    uint32_t a = LEHMER_MULTIPLIER;
+    uint32_t m = LEHMER_MODULUS;
+    int32_t z = lehmer_calculate_modulo(seed, a, m);
     return lehmer_seed_normalize_to_int(z);
 }
 
 int32_t lehmer_generate_gamma(int32_t seed) {
-    int32_t y
-        = lehmer_calculate_gamma(seed, LEHMER_MULTIPLIER, LEHMER_MODULUS);
+    uint32_t a = LEHMER_MULTIPLIER;
+    uint32_t m = LEHMER_MODULUS;
+    int32_t y = lehmer_calculate_gamma(seed, a, m);
     return lehmer_seed_normalize_to_int(y);
 }
 
 int32_t lehmer_generate_jump(int32_t seed) {
-    int32_t j = lehmer_calculate_gamma(seed, LEHMER_JUMP, LEHMER_MODULUS);
+    uint32_t a = LEHMER_JUMP;
+    uint32_t m = LEHMER_MODULUS;
+    int32_t j = lehmer_calculate_gamma(seed, a, m);
     return lehmer_seed_normalize_to_int(j);
 }
 
 int32_t lehmer_generate_delta(int32_t seed) {
-    int32_t d
-        = lehmer_calculate_delta(seed, LEHMER_MULTIPLIER, LEHMER_MODULUS);
+    uint32_t a = LEHMER_MULTIPLIER;
+    uint32_t m = LEHMER_MODULUS;
+    int32_t d = lehmer_calculate_delta(seed, a, m);
     return lehmer_seed_normalize_to_int(d);
 }
 
 int32_t lehmer_generate_binder(int32_t seed) {
-    int32_t f
-        = lehmer_calculate_binder(seed, LEHMER_MULTIPLIER, LEHMER_MODULUS);
+    uint32_t a = LEHMER_MULTIPLIER;
+    uint32_t m = LEHMER_MODULUS;
+    int32_t f = lehmer_calculate_binder(seed, a, m);
     return lehmer_seed_normalize_to_int(f);
 }
 
