@@ -151,55 +151,62 @@ int32_t lehmer_seed_normalize_to_int(int32_t seed) {
 
 // Lehmer seed calculators
 
-// Helper function to calculate the modulo formula
-int32_t lehmer_calculate_modulo(int32_t seed, int32_t multiplier) {
-    // Lehmer formula: (a * z) % m
-    return (int32_t) (((int64_t) multiplier * seed) % LEHMER_MODULUS);
+// Lehmer function: f(z) = (a * z) % m
+int32_t lehmer_calculate_modulo(int32_t z, uint32_t a, uint32_t m) {
+    return (a * z) % m;
 }
 
-// Helper function to calculate the gamma formula
-int32_t lehmer_calculate_gamma(int32_t seed, int32_t a, int32_t q, int32_t r) {
-    // Gamma formula: (a * (z % q)) - (r * (z / q))
-    int64_t scale_mod = (int64_t) (a * (seed % q));
-    int64_t scale_quo = (int64_t) (r * (seed / q));
-    return (int32_t) (scale_mod - scale_quo);
+// Gamma function: g(z) = (a * (z % q)) - (r * (z / q))
+int32_t lehmer_calculate_gamma(int32_t z, uint32_t a, uint32_t m) {
+    uint32_t q = m / a;
+    uint32_t r = m % a;
+    return (a * (z % q)) - (r * (z / q));
 }
 
-// Helper function to calculate the delta formula
-int32_t lehmer_calculate_delta(int32_t seed, int32_t a, int32_t q, int32_t r) {
-    // Delta formula: (z / q) - (a * (z / m))
-    int64_t norm_seed = (int64_t) seed / LEHMER_QUOTIENT;
-    int64_t scale_mul = (int64_t) LEHMER_MULTIPLIER * (seed / LEHMER_MODULUS);
-    int32_t d = (int32_t) (norm_seed - scale_mul); // Delta operation
+// Delta function: d(z) = (z / q) - ((a * z) / m)
+int32_t lehmer_calculate_delta(int32_t z, int32_t a, int32_t m) {
+    int64_t q = m / a;
+    int64_t r = m % a;
+    return (z / q) - ((a * z) / m);
+}
+
+// Binder function: f(z) = gamma(z) + m * delta(z)
+int32_t lehmer_calculate_binder(int32_t z, int32_t a, int32_t m) {
+    int64_t g = lehmer_calculate_gamma(z, a, m);
+    int64_t d = lehmer_calculate_delta(z, a, m);
+    return (int32_t) ((int64_t) (g + (m * d)));
 }
 
 // Lehmer seed generators
 
 // Generate the seed using modulo formula
 int32_t lehmer_generate_modulo(int32_t seed) {
-    int32_t r = lehmer_calculate_modulo(seed, LEHMER_MULTIPLIER);
-    return lehmer_seed_normalize_to_int(r);
+    int32_t z
+        = lehmer_calculate_modulo(seed, LEHMER_MULTIPLIER, LEHMER_MODULUS);
+    return lehmer_seed_normalize_to_int(z);
 }
 
 int32_t lehmer_generate_gamma(int32_t seed) {
-    int32_t y = lehmer_calculate_gamma(
-        seed, LEHMER_MULTIPLIER, LEHMER_QUOTIENT, LEHMER_REMAINDER
-    );
+    int32_t y
+        = lehmer_calculate_gamma(seed, LEHMER_MULTIPLIER, LEHMER_MODULUS);
     return lehmer_seed_normalize_to_int(y);
 }
 
 int32_t lehmer_generate_jump(int32_t seed) {
-    int32_t j = lehmer_calculate_gamma(
-        seed, LEHMER_JUMP, LEHMER_QUOTIENT, LEHMER_REMAINDER
-    );
+    int32_t j = lehmer_calculate_gamma(seed, LEHMER_JUMP, LEHMER_MODULUS);
     return lehmer_seed_normalize_to_int(j);
 }
 
 int32_t lehmer_generate_delta(int32_t seed) {
-    int32_t d = lehmer_calculate_delta(
-        seed, LEHMER_JUMP, LEHMER_QUOTIENT, LEHMER_REMAINDER
-    );
+    int32_t d
+        = lehmer_calculate_delta(seed, LEHMER_MULTIPLIER, LEHMER_MODULUS);
     return lehmer_seed_normalize_to_int(d);
+}
+
+int32_t lehmer_generate_binder(int32_t seed) {
+    int32_t f
+        = lehmer_calculate_binder(seed, LEHMER_MULTIPLIER, LEHMER_MODULUS);
+    return lehmer_seed_normalize_to_int(f);
 }
 
 // Lehmer seed generators
