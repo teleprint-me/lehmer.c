@@ -12,52 +12,72 @@ import argparse
 
 
 class LehmerState:
-    MODULUS = 2147483647
-    MULTIPLIER = 48271
+    """Simplified Lehmer RNG state class for sequence generation and validation."""
+
+    MODULUS = 2147483647  # Mersenne prime (2^31 - 1)
+    MULTIPLIER = 48271  # Chosen multiplier (prime)
 
     def __init__(self, seed: int, length: int):
-        """
-        Mimic the C implementation for consistency and validity
-        """
-        # Set the initial seed
-        self.seed = seed
-        # Set the initial position in the sequence
-        self.position = 0
-        # Coerce a length of 1 if length is 0
-        self.length = 1 if 0 == length else length
-        # Initialize the sequence list with correct length and set the first seed
-        self.sequence = [seed % self.MODULUS] * self.length
-        if self.sequence[self.position] < 0:
-            self.sequence[self.position] += self.MODULUS
+        """Mimic the C implementation for consistency and validity"""
+        # Initialize state variables
+        self.seed = seed % self.MODULUS  # Set initial seed
+        self.position = 0  # Position in the sequence
+        # Set length (coerce length to at least 1)
+        self.length = max(1, length)
+        # Allocate space for sequence storage
+        self.sequence = [0] * self.length
 
-        # Initialize the sequence based on the initial seed
-        for i in range(self.length):
-            z = self.sequence[i - 1]  # Previous seed
-            self.sequence[i] = (self.MULTIPLIER * z) % self.MODULUS
-            if self.sequence[i] < 0:  # Handle any negative seeds
-                self.sequence[i] += self.MODULUS
+        # Generate the initial sequence
+        self.generate_sequence()
 
-    @property
-    def current_seed(self) -> int:
+    def generate_sequence(self) -> None:
+        """Generate a Lehmer sequence based on the initial seed."""
+        # Generate the initial seed utilizing root seed
+        self.sequence[0] = (self.MULTIPLIER * self.seed) % self.MODULUS
+        # Generate the rest of the sequence
+        for i in range(1, self.length):
+            self.sequence[i] = (
+                self.MULTIPLIER * self.sequence[i - 1]
+            ) % self.MODULUS
+
+    def set_initial_seed(self, seed: int) -> None:
+        """Set the initial seed and regenerate the sequence."""
+        self.seed = seed % self.MODULUS  # Set new initial seed
+        self.position = 0  # Reset position
+        self.generate_sequence()  # Regenerate the sequence
+
+    def get_initial_seed(self) -> int:
+        """Return the initial seed."""
+        return self.seed
+
+    def set_previous_seed(self) -> None:
+        """Set the position to the previous seed in the sequence."""
+        self.position = (self.position - 1) % self.length
+
+    def set_next_seed(self) -> None:
+        """Set the position to the next seed in the sequence."""
+        self.position = (self.position + 1) % self.length
+
+    def get_current_seed(self) -> int:
+        """Get the current seed in the sequence."""
+        self.position %= self.length  # Enforce position boundaries
         return self.sequence[self.position]
 
-    @current_seed.setter
-    def current_seed(self, value: int) -> None:
-        self.sequence[self.position] = value % self.MODULUS
-
-    def select(self, position: int) -> None:
-        self.position = position % self.length
-
-    def modulo(self) -> int:
-        """Generate a new pseudo random seed."""
-        self.current_seed = (
-            self.MULTIPLIER * self.current_seed
-        ) % self.MODULUS
-        return self.current_seed
+    def get_next_seed(self) -> int:
+        """Move to the next seed and return the new current seed."""
+        self.set_next_seed()
+        return self.get_current_seed()
 
     def normalize(self) -> float:
-        """Normalize the seed as a ratio of the modulus."""
-        return self.current_seed / self.MODULUS
+        """Normalize the current seed to a float in the range 0.0 to 1.0."""
+        return self.get_current_seed() / self.MODULUS
+
+    def modulo(self) -> int:
+        """Generate a new pseudo-random seed using the current state."""
+        next_seed = (self.MULTIPLIER * self.get_current_seed()) % self.MODULUS
+        # Update seed at the current position
+        self.sequence[self.position] = next_seed
+        return next_seed
 
 
 def get_arguments() -> argparse.Namespace:
