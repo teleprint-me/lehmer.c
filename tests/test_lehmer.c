@@ -38,9 +38,6 @@ void teardown_lehmer_state(lehmer_state_t* state) {
     lehmer_state_free(state);
 }
 
-/**
- * @brief Tests the construction and destruction of a Lehmer state
- */
 int test_lehmer_state(void) {
     bool passed = true;
 
@@ -274,9 +271,6 @@ int test_lehmer_seed_normalize(void) {
     return passed ? 0 : 1;
 }
 
-/**
- * @brief Verifies that the Lehmer RNG generates seeds as expected
- */
 int test_random_seed_and_normalize(void) {
     bool passed = true;
 
@@ -332,22 +326,12 @@ int test_random_seed_and_normalize(void) {
     return passed ? 0 : 1;
 }
 
-/**
- * @brief Verifies that Lehmer RNG correctly generates seeds based on input
- * streams and seeds
- *
- * This function tests if generating 10,000 random numbers using a given state
- * with a specific stream (stream 0) and seed (1) results in the final seed
- * matching an expected value. Ensuring correctness in seed generation is
- * crucial for maintaining deterministic output and reproducibility across
- * different runs of the Lehmer RNG, especially when switching between streams
- * or restarting the sequence from a specific point.
- *
- * @return 0 on success and 1 on failure.
- */
 int test_seed_generation(void) {
     const int32_t expected_seed = 1753928844;
     lehmer_state_t* state = setup_lehmer_state();
+
+    // set the initial seed to 1
+    lehmer_generate(state, lehmer_generate_modulo, /* seed */ 1);
 
     // generate 10,000 seeds using a seed of 1 in stream 0
     for (size_t i = 0; i < 10000; i++) {
@@ -373,17 +357,6 @@ int test_seed_generation(void) {
     return passed ? 0 : 1;
 }
 
-/**
- * @brief Verifies that Lehmer RNG can jump to a specific stream and seed
- *
- * This function tests if the state can be correctly set to a specified
- * stream (stream 1) and reseeded with an expected value. Ensuring correctness
- * in jumping between streams is crucial for maintaining deterministic output
- * when switching between different sequences, as well as ensuring that all
- * remaining streams are reset properly before the test.
- *
- * @return 0 on success and 1 on failure.
- */
 int test_jump_state(void) {
     const int32_t expected_seed = LEHMER_CHECK_JUMP;
     lehmer_state_t* state = setup_lehmer_state();
@@ -467,7 +440,7 @@ int main(void) {
     passed |= test_lehmer_getters_and_setters();
     passed |= test_lehmer_seed_normalize();
     passed |= test_random_seed_and_normalize();
-    // passed |= test_seed_generation();
+    passed |= test_seed_generation();
     // passed |= test_jump_state();
     // passed |= test_full_period();
     printf("\n");
