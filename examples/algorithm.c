@@ -23,7 +23,7 @@ float lehmer_seed_normalize_to_float(int32_t seed) {
 
 // @brief Normalizes a seed to a integer in the range 0 to m - 1
 int32_t lehmer_seed_normalize_to_int(int32_t value, uint32_t modulus) {
-    return (int32_t) ((value + modulus) % modulus);
+    return (int32_t) (value % modulus);
 }
 
 // Generate the next random number in the sequence
