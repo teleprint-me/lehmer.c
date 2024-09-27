@@ -151,6 +151,8 @@ int32_t lehmer_seed_normalize_to_int(int32_t seed) {
 
 // Lehmer seed calculators
 
+// @note Functions require casting to int64_t to mitigate overflow
+
 // Lehmer function: f(z) = (a * z) % m
 int32_t lehmer_calculate_modulo(int32_t z, uint32_t a, uint32_t m) {
     return (((int64_t) a * z) % m);
@@ -171,7 +173,7 @@ int32_t lehmer_calculate_delta(int32_t z, uint32_t a, uint32_t m) {
 }
 
 // Binder function: f(z) = gamma(z) + m * delta(z)
-int32_t lehmer_calculate_binder(int32_t z, int32_t a, int32_t m) {
+int32_t lehmer_calculate_binder(int32_t z, uint32_t a, uint32_t m) {
     int32_t g = lehmer_calculate_gamma(z, a, m);
     int32_t d = lehmer_calculate_delta(z, a, m);
     return (g + ((int64_t) m * d));
